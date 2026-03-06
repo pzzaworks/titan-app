@@ -1,0 +1,355 @@
+@import "tailwindcss";
+
+/* Reset all input focus styles globally */
+input,
+textarea {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+input:focus,
+input:focus-visible,
+input:focus-within,
+textarea:focus,
+textarea:focus-visible,
+textarea:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+  ring: none !important;
+}
+
+/* Tailwind v4 Theme Configuration */
+@theme {
+  /* EigenPal-inspired colors */
+  --color-eigenpal-black: #0a0a0a;
+  --color-eigenpal-cream: #f3f2ef;
+  --color-eigenpal-green: #2c4540;
+  --color-eigenpal-green-dark: #2D5A27;
+  --color-eigenpal-purple: #9177CF;
+  --color-eigenpal-grid-border: #74675A;
+
+  /* Titan brand colors */
+  --color-titan-green: #2c4540;
+  --color-titan-green-light: #2D5A27;
+  --color-titan-green-dark: #153515;
+  --color-titan-green-muted: #E8F0E8;
+
+  /* Warm neutral palette - EigenPal style */
+  --color-warm-50: #faf9f7;
+  --color-warm-100: #f3f2ef;
+  --color-warm-200: #e8e6e1;
+  --color-warm-300: #d4cfc5;
+  --color-warm-400: #b5ad9e;
+  --color-warm-500: #968d7d;
+  --color-warm-600: #7a7166;
+  --color-warm-700: #5c5650;
+  --color-warm-800: #3d3a37;
+  --color-warm-900: #1a1918;
+
+  /* Semantic colors */
+  --color-background: #f3f2ef;
+  --color-foreground: #0a0a0a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0a0a0a;
+  --color-primary: #2c4540;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #ebe9e6;
+  --color-secondary-foreground: #1a1a1a;
+  --color-muted: #ebe9e6;
+  --color-muted-foreground: #666666;
+  --color-accent: #e8f0e8;
+  --color-accent-foreground: #2c4540;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #fafafa;
+  --color-border: #d4cfc5;
+  --color-input: #d9d5cc;
+  --color-ring: #2c4540;
+
+  /* Border radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
+
+  /* Shadows - minimal EigenPal style */
+  --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  --shadow-elevated: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+
+  /* Fonts */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Roboto Mono", ui-monospace, monospace;
+
+  /* Animations */
+  --animate-fade-in: fadeIn 0.5s ease-out;
+  --animate-fade-up: fadeUp 0.5s ease-out;
+  --animate-slide-in: slideIn 0.3s ease-out;
+  --animate-shimmer: shimmer 2s linear infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+/* Ensure CSS variables are set on :root */
+:root {
+  --color-eigenpal-black: #0a0a0a;
+  --color-eigenpal-cream: #f3f2ef;
+  --color-eigenpal-green: #2c4540;
+  --color-titan-green: #2c4540;
+  --color-titan-green-light: #2D5A27;
+  --color-foreground: #0a0a0a;
+  --color-background: #f3f2ef;
+  --color-card: #ffffff;
+  --color-primary: #2c4540;
+  --color-primary-foreground: #ffffff;
+  --color-muted-foreground: #666666;
+  --color-border: #d4cfc5;
+  --color-ring: #2c4540;
+}
+
+/* Base styles */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-eigenpal-cream);
+  color: var(--color-eigenpal-black);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+/* Dark mode */
+.dark,
+:root.dark {
+  --color-eigenpal-black: #f0ebe0;
+  --color-eigenpal-cream: #141a14;
+  --color-background: #141a14;
+  --color-foreground: #f0ebe0;
+  --color-card: #1a211a;
+  --color-card-foreground: #f0ebe0;
+  --color-primary: #4a8f4a;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #252d25;
+  --color-secondary-foreground: #e0dcd0;
+  --color-muted: #252d25;
+  --color-muted-foreground: #999999;
+  --color-accent: #2a352a;
+  --color-accent-foreground: #6ab06a;
+  --color-border: #2a352a;
+  --color-input: #2a352a;
+  --color-ring: #4a8f4a;
+  --color-titan-green: #4a8f4a;
+  --color-titan-green-light: #5aa05a;
+}
+
+/* Component styles */
+.eigenpal-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--color-foreground) 60%, transparent);
+}
+
+.eigenpal-card {
+  background-color: white;
+  border: 1px solid color-mix(in srgb, var(--color-foreground) 10%, transparent);
+  border-radius: var(--radius-xl);
+  transition: all 0.2s;
+}
+
+.eigenpal-card:hover {
+  border-color: color-mix(in srgb, var(--color-foreground) 20%, transparent);
+}
+
+.heading-hero {
+  font-size: clamp(3rem, 8vw, 4.5rem);
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--color-eigenpal-black);
+}
+
+.heading-section {
+  font-size: clamp(1.875rem, 5vw, 3rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--color-eigenpal-black);
+}
+
+.section-green {
+  background-color: var(--color-titan-green);
+  color: white;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-eigenpal-black);
+  color: white;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+  height: 3rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  border-radius: var(--radius-lg);
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: color-mix(in srgb, var(--color-eigenpal-black) 90%, transparent);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--color-foreground) 30%, transparent);
+  background-color: transparent;
+  color: var(--color-eigenpal-black);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+  height: 3rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  border-radius: var(--radius-lg);
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: color-mix(in srgb, var(--color-foreground) 5%, transparent);
+}
+
+.bento-card {
+  background-color: white;
+  border: 1px solid color-mix(in srgb, var(--color-foreground) 10%, transparent);
+  border-radius: var(--radius-2xl);
+  padding: 1.5rem;
+  transition: all 0.2s;
+}
+
+.bento-card:hover {
+  border-color: color-mix(in srgb, var(--color-foreground) 20%, transparent);
+}
+
+.stat-card {
+  background-color: white;
+  border: 1px solid color-mix(in srgb, var(--color-foreground) 10%, transparent);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem;
+}
+
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--color-foreground) 60%, transparent);
+}
+
+/* Utility styles */
+.bg-dots {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bg-grid {
+  background-image: linear-gradient(to right, rgba(116, 103, 90, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(116, 103, 90, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.hover-lift {
+  transition: all 0.3s ease-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Custom scrollbar - minimal */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-foreground) 20%, transparent);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-foreground) 30%, transparent);
+}
+
+/* Number input arrows removal */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Selection color */
+::selection {
+  background-color: color-mix(in srgb, var(--color-titan-green) 20%, transparent);
+}
+
+/* Focus styles - minimal, exclude inputs */
+*:focus-visible:not(input):not(textarea) {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px color-mix(in srgb, var(--color-titan-green) 30%, transparent);
+}
+
+/* Remove all focus styles from inputs */
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: inherit !important;
+}
