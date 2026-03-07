@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
 import { Coins, TrendingUp, Gift, Wallet } from "lucide-react";
 import { useStaking } from "@/hooks/useStaking";
+import { useTitanPrice } from "@/hooks/useTitanPrice";
 import { formatUSD, formatCompact, formatPercent, formatNumber } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,8 @@ export function StakeCard() {
     unstake,
     claimRewards,
   } = useStaking();
+
+  const { titanPrice } = useTitanPrice();
 
   const handleStake = async () => {
     if (!isConnected) {
@@ -76,9 +79,9 @@ export function StakeCard() {
         />
         <StatsCard
           title="APR"
-          value={formatPercent(apr)}
+          value={apr >= 999 ? "999%+" : formatPercent(apr)}
           icon={TrendingUp}
-          trend={{ value: 2.5, isPositive: true }}
+          trend={apr < 999 ? { value: 2.5, isPositive: true } : undefined}
         />
         <StatsCard
           title="Total Staked"
@@ -219,7 +222,7 @@ export function StakeCard() {
                 {formatNumber(pendingRewards, { decimals: 4 })} TITAN
               </p>
               <p className="text-sm text-[var(--color-muted-foreground)] font-mono">
-                {formatUSD(parseFloat(pendingRewards) * 2.5)}
+                {formatUSD(parseFloat(pendingRewards) * titanPrice)}
               </p>
             </div>
             <Button

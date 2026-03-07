@@ -144,7 +144,35 @@ export const STAKED_TITAN_ABI = [
     outputs: [{ name: "titanAmount", type: "uint256" }],
   },
   {
+    name: "depositRewards",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "amount", type: "uint256" }],
+    outputs: [],
+  },
+  {
     name: "exchangeRate",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "rewardRate",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "currentAPY",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "availableRewards",
     type: "function",
     stateMutability: "view",
     inputs: [],
@@ -503,7 +531,7 @@ export const GOVERNANCE_ABI = [
     outputs: [{ name: "", type: "bool" }],
   },
   {
-    name: "quorum",
+    name: "quorumPercentage",
     type: "function",
     stateMutability: "view",
     inputs: [],
@@ -559,6 +587,13 @@ export const FAUCET_ABI = [
     type: "function",
     stateMutability: "view",
     inputs: [{ name: "account", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "balance",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
     outputs: [{ name: "", type: "uint256" }],
   },
 ] as const;
@@ -676,6 +711,37 @@ export const STATE_VIEW_ABI = [
     stateMutability: "view",
     inputs: [{ name: "poolId", type: "bytes32" }],
     outputs: [{ name: "liquidity", type: "uint128" }],
+  },
+  {
+    name: "getPositionInfo",
+    type: "function",
+    stateMutability: "view",
+    inputs: [
+      { name: "poolId", type: "bytes32" },
+      { name: "owner", type: "address" },
+      { name: "tickLower", type: "int24" },
+      { name: "tickUpper", type: "int24" },
+      { name: "salt", type: "bytes32" },
+    ],
+    outputs: [
+      { name: "liquidity", type: "uint128" },
+      { name: "feeGrowthInside0LastX128", type: "uint256" },
+      { name: "feeGrowthInside1LastX128", type: "uint256" },
+    ],
+  },
+  {
+    name: "getFeeGrowthInside",
+    type: "function",
+    stateMutability: "view",
+    inputs: [
+      { name: "poolId", type: "bytes32" },
+      { name: "tickLower", type: "int24" },
+      { name: "tickUpper", type: "int24" },
+    ],
+    outputs: [
+      { name: "feeGrowthInside0X128", type: "uint256" },
+      { name: "feeGrowthInside1X128", type: "uint256" },
+    ],
   },
 ] as const;
 
@@ -954,7 +1020,7 @@ export const SWAP_ROUTER_ABI = [
   },
 ] as const;
 
-// LiquidityRouter - simple V4 liquidity router
+// LiquidityRouter - V4 liquidity router with proper Uniswap math
 export const LIQUIDITY_ROUTER_ABI = [
   {
     name: "initializePool",
@@ -986,11 +1052,17 @@ export const LIQUIDITY_ROUTER_ABI = [
           { name: "tickUpper", type: "int24" },
           { name: "amount0Desired", type: "uint256" },
           { name: "amount1Desired", type: "uint256" },
+          { name: "amount0Min", type: "uint256" },
+          { name: "amount1Min", type: "uint256" },
           { name: "recipient", type: "address" },
         ],
       },
     ],
-    outputs: [{ name: "liquidity", type: "uint128" }],
+    outputs: [
+      { name: "liquidity", type: "uint128" },
+      { name: "amount0", type: "uint256" },
+      { name: "amount1", type: "uint256" },
+    ],
   },
   {
     name: "removeLiquidity",
@@ -1008,6 +1080,8 @@ export const LIQUIDITY_ROUTER_ABI = [
           { name: "tickLower", type: "int24" },
           { name: "tickUpper", type: "int24" },
           { name: "liquidity", type: "uint128" },
+          { name: "amount0Min", type: "uint256" },
+          { name: "amount1Min", type: "uint256" },
           { name: "recipient", type: "address" },
         ],
       },
@@ -1043,6 +1117,30 @@ export const LIQUIDITY_ROUTER_ABI = [
       { name: "tickUpper", type: "int24" },
     ],
     outputs: [{ name: "liquidity", type: "uint128" }],
+  },
+  {
+    name: "collectFees",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      {
+        name: "params",
+        type: "tuple",
+        components: [
+          { name: "token0", type: "address" },
+          { name: "token1", type: "address" },
+          { name: "fee", type: "uint24" },
+          { name: "tickSpacing", type: "int24" },
+          { name: "tickLower", type: "int24" },
+          { name: "tickUpper", type: "int24" },
+          { name: "recipient", type: "address" },
+        ],
+      },
+    ],
+    outputs: [
+      { name: "amount0", type: "uint256" },
+      { name: "amount1", type: "uint256" },
+    ],
   },
 ] as const;
 

@@ -236,7 +236,7 @@ export function useSTitan() {
 
         toast({
           title: "Depositing...",
-          description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+          description: "Processing...",
         });
 
         await waitForTx(publicClient, hash);
@@ -315,7 +315,7 @@ export function useSTitan() {
 
         toast({
           title: "Withdrawing...",
-          description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+          description: "Processing...",
         });
 
         await waitForTx(publicClient, hash);
@@ -404,7 +404,7 @@ export function useSTitan() {
 
       toast({
         title: "Withdrawing all...",
-        description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+        description: "Processing...",
       });
 
       await waitForTx(publicClient, hash);

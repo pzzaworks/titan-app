@@ -43,6 +43,13 @@ export function useFaucet() {
     functionName: "dripAmount",
   });
 
+  // Read faucet balance
+  const { data: faucetBalance, refetch: refetchFaucetBalance } = useReadContract({
+    address: config.contracts.faucet,
+    abi: FAUCET_ABI,
+    functionName: "balance",
+  });
+
   // Read can claim
   const { data: canClaim, refetch: refetchCanClaim } = useReadContract({
     address: config.contracts.faucet,
@@ -128,7 +135,7 @@ export function useFaucet() {
 
       toast({
         title: "Claiming...",
-        description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+        description: "Processing...",
       });
 
       await waitForTx(publicClient, hash);
@@ -143,7 +150,7 @@ export function useFaucet() {
       });
 
       // Refetch data
-      await Promise.all([refetchLastClaimTime(), refetchCanClaim()]);
+      await Promise.all([refetchLastClaimTime(), refetchCanClaim(), refetchFaucetBalance()]);
     } catch (error: unknown) {
       toast({
         title: "Claim failed",
@@ -163,6 +170,7 @@ export function useFaucet() {
     estimateClaimGas,
     refetchLastClaimTime,
     refetchCanClaim,
+    refetchFaucetBalance,
   ]);
 
   return {
@@ -175,6 +183,7 @@ export function useFaucet() {
     // Data
     claimAmount: dripAmount ? formatEther(dripAmount) : config.faucet.amount,
     cooldownPeriod: cooldownPeriod ? Number(cooldownPeriod) : config.faucet.cooldown,
+    faucetBalance: faucetBalance ? formatEther(faucetBalance) : "0",
 
     // Actions
     claim,

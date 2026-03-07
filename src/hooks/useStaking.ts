@@ -212,7 +212,7 @@ export function useStaking() {
 
         toast({
           title: "Staking...",
-          description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+          description: "Processing...",
         });
 
         await waitForTx(publicClient, hash);
@@ -288,7 +288,7 @@ export function useStaking() {
 
         toast({
           title: "Unstaking...",
-          description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+          description: "Processing...",
         });
 
         await waitForTx(publicClient, hash);
@@ -374,7 +374,7 @@ export function useStaking() {
 
       toast({
         title: "Claiming...",
-        description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+        description: "Processing...",
       });
 
       await waitForTx(publicClient, hash);
@@ -424,7 +424,7 @@ export function useStaking() {
     pendingRewards: pendingRewards ? formatEther(pendingRewards) : "0",
     totalStaked: totalStaked ? formatEther(totalStaked) : "0",
     apr: rewardRate && totalStaked && totalStaked > BigInt(0)
-      ? (Number(rewardRate) * 31536000 / 1e18 * 100) / (Number(totalStaked) / 1e18)
+      ? Math.min((Number(rewardRate) * 31536000 / 1e18 * 100) / (Number(totalStaked) / 1e18), 999)
       : 42.5,
     tokenBalance: tokenBalance ? formatEther(tokenBalance) : "0",
     allowance: allowance ? formatEther(allowance) : "0",

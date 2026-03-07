@@ -50,11 +50,11 @@ export function useGovernance() {
           },
   });
 
-  // Read quorum
-  const { data: quorum } = useReadContract({
+  // Read quorum percentage (stored as percentage * 100, e.g., 400 = 4%)
+  const { data: quorumPercentage } = useReadContract({
     address: config.contracts.governance,
     abi: GOVERNANCE_ABI,
-    functionName: "quorum",
+    functionName: "quorumPercentage",
     query: {
       retry: false,
           },
@@ -243,7 +243,7 @@ export function useGovernance() {
 
         toast({
           title: "Creating proposal...",
-          description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+          description: "Processing...",
         });
 
         await waitForTx(publicClient, hash);
@@ -320,7 +320,7 @@ export function useGovernance() {
 
         toast({
           title: "Voting...",
-          description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+          description: "Processing...",
         });
 
         await waitForTx(publicClient, hash);
@@ -396,7 +396,7 @@ export function useGovernance() {
 
         toast({
           title: "Executing...",
-          description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+          description: "Processing...",
         });
 
         await waitForTx(publicClient, hash);
@@ -437,14 +437,11 @@ export function useGovernance() {
       if (now < proposal.startTime) return "pending";
       if (now < proposal.endTime) return "active";
 
-      const totalVotes = proposal.forVotes + proposal.againstVotes;
-      const quorumBigInt = quorum ? BigInt(quorum) : BigInt(0);
-
-      if (totalVotes < quorumBigInt) return "failed";
+      // Simple check: forVotes > againstVotes means passed
       if (proposal.forVotes > proposal.againstVotes) return "passed";
       return "failed";
     },
-    [quorum]
+    []
   );
 
   return {
@@ -458,7 +455,7 @@ export function useGovernance() {
     // Data
     proposals,
     proposalCount: proposalCount ? Number(proposalCount) : 0,
-    quorum: quorum ? formatEther(quorum) : "0",
+    quorumPercentage: quorumPercentage ? Number(quorumPercentage) / 100 : 4,
     proposalThreshold: proposalThreshold ? formatEther(proposalThreshold) : "0",
     votingPower: votingPower ? formatEther(votingPower) : "0",
 

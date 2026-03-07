@@ -282,7 +282,7 @@ export function useFarming() {
 
         toast({
           title: "Depositing...",
-          description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+          description: "Processing...",
         });
 
         await waitForTx(publicClient, hash);
@@ -364,7 +364,7 @@ export function useFarming() {
 
         toast({
           title: "Withdrawing...",
-          description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+          description: "Processing...",
         });
 
         await waitForTx(publicClient, hash);
@@ -446,7 +446,7 @@ export function useFarming() {
 
         toast({
           title: "Harvesting...",
-          description: gasEst ? `Estimated gas: ${parseFloat(gasEst).toFixed(6)} ETH` : "Processing...",
+          description: "Processing...",
         });
 
         await waitForTx(publicClient, hash);
