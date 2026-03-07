@@ -14,7 +14,7 @@ export default function FaucetPage() {
   const chainId = useChainId();
   const chains = useChains();
   const currentChain = chains.find((c) => c.id === chainId);
-  const { isClaiming, canClaim, timeRemaining, claimAmount, cooldownPeriod, claim } =
+  const { isClaiming, canClaim, timeRemaining, claimAmount, cooldownPeriod, faucetBalance, claim } =
     useFaucet();
 
   const cooldownProgress =
@@ -42,13 +42,18 @@ export default function FaucetPage() {
           <CardContent className="space-y-6">
             {/* Amount Display */}
             <div className="rounded-xl bg-[var(--color-foreground)]/5 border border-[var(--color-border)] p-6 text-center">
-              <p className="text-sm text-[var(--color-muted-foreground)] mb-3">You will receive</p>
-              <div className="flex items-center justify-center gap-4">
-                <Gift className="h-8 w-8 text-[var(--color-primary)]" />
-                <div className="text-left">
+              <p className="text-sm text-[var(--color-muted-foreground)] mb-4">You will receive</p>
+              <div className="flex flex-col items-center gap-1">
+                <div className="flex items-center gap-2">
                   <p className="text-4xl font-medium text-[var(--color-foreground)]">{claimAmount}</p>
-                  <p className="text-[var(--color-muted-foreground)]">TITAN Tokens</p>
+                  <Gift className="h-8 w-8 text-[var(--color-primary)]" />
                 </div>
+                <p className="text-[var(--color-muted-foreground)]">TITAN Token</p>
+              </div>
+              <div className="mt-4 pt-4 border-t border-[var(--color-border)]">
+                <p className="text-sm text-[var(--color-muted-foreground)]">
+                  Faucet Balance: <span className="font-mono font-medium text-[var(--color-foreground)]">{Number(faucetBalance).toLocaleString()}</span> TITAN
+                </p>
               </div>
             </div>
 

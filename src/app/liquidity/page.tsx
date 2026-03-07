@@ -7,6 +7,7 @@ import { AddLiquidityCard } from "@/components/liquidity/AddLiquidityCard";
 import { PositionCard } from "@/components/liquidity/PositionCard";
 import { formatNumber, formatCompact } from "@/lib/format";
 import { useLiquidityV4 } from "@/hooks/useLiquidityV4";
+import { useTitanPrice } from "@/hooks/useTitanPrice";
 import { formatUnits } from "viem";
 
 export default function LiquidityPage() {
@@ -62,6 +63,9 @@ export default function LiquidityPage() {
     collectFees,
   } = useLiquidityV4();
 
+  const { titanPrice, ethPerTitan } = useTitanPrice();
+  const ethPrice = titanPrice / ethPerTitan; // ETH price in USD
+
   return (
     <PageContainer>
       <div className="text-center mb-10">
@@ -81,8 +85,14 @@ export default function LiquidityPage() {
         <StatsCard
           title="Pool Liquidity"
           value={
-            poolState
-              ? `$${formatCompact(Number(formatUnits(poolState.liquidity, 18)) * 200)}`
+            poolState && positions.length > 0
+              ? `$${formatCompact(
+                  positions.reduce((acc, p) => {
+                    const wethValue = Number(titanIsCurrency0 ? p.amount1 : p.amount0) * ethPrice;
+                    const titanValue = Number(titanIsCurrency0 ? p.amount0 : p.amount1) * titanPrice;
+                    return acc + wethValue + titanValue;
+                  }, 0)
+                )}`
               : "-"
           }
           icon={Droplets}
@@ -99,7 +109,7 @@ export default function LiquidityPage() {
         />
         <StatsCard
           title="Unclaimed Fees"
-          value={`$${formatNumber(totalUnclaimedFees * 2.5, { decimals: 2 })}`}
+          value={totalUnclaimedFees > 0 ? formatNumber(totalUnclaimedFees, { decimals: 4 }) : "-"}
           icon={DollarSign}
         />
       </div>
@@ -161,6 +171,7 @@ export default function LiquidityPage() {
                   key={position.tokenId.toString()}
                   position={position}
                   titanIsCurrency0={titanIsCurrency0}
+                  currentTick={poolState?.tick ?? 0}
                   onRemoveLiquidity={removeLiquidity}
                   onCollectFees={collectFees}
                   isRemovingLiquidity={isRemovingLiquidity}

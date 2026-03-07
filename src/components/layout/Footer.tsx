@@ -5,7 +5,6 @@ import Image from "next/image";
 import { config } from "@/config";
 
 const links = [
-  { href: config.links.docs, label: "Docs" },
   { href: config.links.github, label: "GitHub" },
 ];
 

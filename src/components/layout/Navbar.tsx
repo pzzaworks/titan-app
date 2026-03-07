@@ -13,7 +13,6 @@ const navLinks = [
   { href: "/liquidity", label: "Liquidity" },
   { href: "/earn", label: "Earn" },
   { href: "/stitan", label: "sTitan" },
-  { href: "/farm", label: "Farm" },
   { href: "/governance", label: "Governance" },
   { href: "/faucet", label: "Faucet" },
 ];
@@ -98,8 +97,12 @@ export function Navbar() {
 
             {/* Right Side */}
             <div className="flex items-center gap-3">
-              {/* Wallet Connect Button */}
-              {mounted && <ConnectButton isHeroVisible={isHeroVisible} />}
+              {/* Wallet Connect Button - Desktop only */}
+              {mounted && (
+                <div className="hidden md:block">
+                  <ConnectButton isHeroVisible={isHeroVisible} />
+                </div>
+              )}
 
               {/* Mobile Menu Button */}
               <button
@@ -134,7 +137,7 @@ export function Navbar() {
                       className={cn(
                         "px-4 py-3 rounded-xl text-sm font-medium transition-colors cursor-pointer",
                         isActive
-                          ? "bg-[var(--color-foreground)] text-white"
+                          ? "bg-[var(--color-titan-green)] text-white"
                           : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-foreground)]/5"
                       )}
                     >
@@ -143,6 +146,12 @@ export function Navbar() {
                   </Link>
                 );
               })}
+              {/* Wallet Connect Button - Mobile */}
+              {mounted && (
+                <div className="mt-2 pt-2 border-t border-[var(--color-border)]">
+                  <ConnectButton inMobileMenu />
+                </div>
+              )}
             </div>
           </div>
         )}

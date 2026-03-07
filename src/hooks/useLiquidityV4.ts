@@ -18,6 +18,101 @@ import { parseError, waitForTx } from "@/lib/utils";
 // Pool configuration
 const POOL_FEE = 3000; // 0.3%
 const TICK_SPACING = 60;
+const Q96 = BigInt(2) ** BigInt(96);
+
+// Min/Max sqrt prices (from Uniswap V4)
+const MIN_SQRT_PRICE = BigInt("4295128739");
+const MAX_SQRT_PRICE = BigInt("1461446703485210103287273052203988822378723970342");
+const MIN_TICK = -887220;
+const MAX_TICK = 887220;
+
+// Convert tick to sqrtPriceX96 with proper bounds handling
+function tickToSqrtPriceX96(tick: number): bigint {
+  if (tick <= MIN_TICK) return MIN_SQRT_PRICE;
+  if (tick >= MAX_TICK) return MAX_SQRT_PRICE;
+
+  // For ticks in reasonable range, calculate precisely
+  // sqrtPrice = 1.0001^(tick/2)
+  const absTick = Math.abs(tick);
+  let ratio = BigInt("0x100000000000000000000000000000000"); // 1 in Q128
+
+  // Calculate using binary decomposition for precision
+  if (absTick & 0x1) ratio = (ratio * BigInt("0xfffcb933bd6fad37aa2d162d1a594001")) >> BigInt(128);
+  if (absTick & 0x2) ratio = (ratio * BigInt("0xfff97272373d413259a46990580e213a")) >> BigInt(128);
+  if (absTick & 0x4) ratio = (ratio * BigInt("0xfff2e50f5f656932ef12357cf3c7fdcc")) >> BigInt(128);
+  if (absTick & 0x8) ratio = (ratio * BigInt("0xffe5caca7e10e4e61c3624eaa0941cd0")) >> BigInt(128);
+  if (absTick & 0x10) ratio = (ratio * BigInt("0xffcb9843d60f6159c9db58835c926644")) >> BigInt(128);
+  if (absTick & 0x20) ratio = (ratio * BigInt("0xff973b41fa98c081472e6896dfb254c0")) >> BigInt(128);
+  if (absTick & 0x40) ratio = (ratio * BigInt("0xff2ea16466c96a3843ec78b326b52861")) >> BigInt(128);
+  if (absTick & 0x80) ratio = (ratio * BigInt("0xfe5dee046a99a2a811c461f1969c3053")) >> BigInt(128);
+  if (absTick & 0x100) ratio = (ratio * BigInt("0xfcbe86c7900a88aedcffc83b479aa3a4")) >> BigInt(128);
+  if (absTick & 0x200) ratio = (ratio * BigInt("0xf987a7253ac413176f2b074cf7815e54")) >> BigInt(128);
+  if (absTick & 0x400) ratio = (ratio * BigInt("0xf3392b0822b70005940c7a398e4b70f3")) >> BigInt(128);
+  if (absTick & 0x800) ratio = (ratio * BigInt("0xe7159475a2c29b7443b29c7fa6e889d9")) >> BigInt(128);
+  if (absTick & 0x1000) ratio = (ratio * BigInt("0xd097f3bdfd2022b8845ad8f792aa5825")) >> BigInt(128);
+  if (absTick & 0x2000) ratio = (ratio * BigInt("0xa9f746462d870fdf8a65dc1f90e061e5")) >> BigInt(128);
+  if (absTick & 0x4000) ratio = (ratio * BigInt("0x70d869a156d2a1b890bb3df62baf32f7")) >> BigInt(128);
+  if (absTick & 0x8000) ratio = (ratio * BigInt("0x31be135f97d08fd981231505542fcfa6")) >> BigInt(128);
+  if (absTick & 0x10000) ratio = (ratio * BigInt("0x9aa508b5b7a84e1c677de54f3e99bc9")) >> BigInt(128);
+  if (absTick & 0x20000) ratio = (ratio * BigInt("0x5d6af8dedb81196699c329225ee604")) >> BigInt(128);
+  if (absTick & 0x40000) ratio = (ratio * BigInt("0x2216e584f5fa1ea926041bedfe98")) >> BigInt(128);
+  if (absTick & 0x80000) ratio = (ratio * BigInt("0x48a170391f7dc42444e8fa2")) >> BigInt(128);
+
+  if (tick > 0) {
+    ratio = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff") / ratio;
+  }
+
+  // Convert from Q128 to Q96
+  return (ratio >> BigInt(32)) + (ratio % (BigInt(1) << BigInt(32)) > BigInt(0) ? BigInt(1) : BigInt(0));
+}
+
+// Calculate token amounts from liquidity using Uniswap V4 math
+function getAmountsForLiquidity(
+  sqrtPriceX96: bigint,
+  tickLower: number,
+  tickUpper: number,
+  liquidity: bigint,
+  currentTick: number
+): { amount0: bigint; amount1: bigint } {
+  const sqrtRatioA = tickToSqrtPriceX96(tickLower);
+  const sqrtRatioB = tickToSqrtPriceX96(tickUpper);
+
+  let amount0 = BigInt(0);
+  let amount1 = BigInt(0);
+
+  if (currentTick < tickLower) {
+    // All in token0
+    amount0 = getAmount0ForLiquidity(sqrtRatioA, sqrtRatioB, liquidity);
+  } else if (currentTick >= tickUpper) {
+    // All in token1
+    amount1 = getAmount1ForLiquidity(sqrtRatioA, sqrtRatioB, liquidity);
+  } else {
+    // In range - split between both tokens
+    amount0 = getAmount0ForLiquidity(sqrtPriceX96, sqrtRatioB, liquidity);
+    amount1 = getAmount1ForLiquidity(sqrtRatioA, sqrtPriceX96, liquidity);
+  }
+
+  return { amount0, amount1 };
+}
+
+function getAmount0ForLiquidity(sqrtRatioA: bigint, sqrtRatioB: bigint, liquidity: bigint): bigint {
+  if (sqrtRatioA > sqrtRatioB) {
+    [sqrtRatioA, sqrtRatioB] = [sqrtRatioB, sqrtRatioA];
+  }
+  if (sqrtRatioA <= BigInt(0)) return BigInt(0);
+
+  // amount0 = liquidity * (sqrtRatioB - sqrtRatioA) / sqrtRatioB / sqrtRatioA * Q96
+  const numerator = liquidity * (sqrtRatioB - sqrtRatioA);
+  return (numerator * Q96) / sqrtRatioB / sqrtRatioA;
+}
+
+function getAmount1ForLiquidity(sqrtRatioA: bigint, sqrtRatioB: bigint, liquidity: bigint): bigint {
+  if (sqrtRatioA > sqrtRatioB) {
+    [sqrtRatioA, sqrtRatioB] = [sqrtRatioB, sqrtRatioA];
+  }
+  // amount1 = liquidity * (sqrtRatioB - sqrtRatioA) / Q96
+  return (liquidity * (sqrtRatioB - sqrtRatioA)) / Q96;
+}
 
 // Tick range presets
 const TICK_RANGES = {
@@ -51,6 +146,7 @@ export function useLiquidityV4() {
   const { address, isConnected } = useAccount();
   const [isAddingLiquidity, setIsAddingLiquidity] = useState(false);
   const [isRemovingLiquidity, setIsRemovingLiquidity] = useState(false);
+  const [isCollectingFees, setIsCollectingFees] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [isWrapping, setIsWrapping] = useState(false);
   const [positions, setPositions] = useState<Position[]>([]);
@@ -226,8 +322,76 @@ export function useLiquidityV4() {
           console.log(`[fetchPositions] ${rangeName} liquidity:`, liquidity.toString());
 
           if (liquidity > BigInt(0)) {
-            // Estimate token amounts from liquidity (simplified)
-            const liquidityNum = Number(formatUnits(liquidity, 18));
+            // Get current pool state for amount calculations
+            let amt0 = "0";
+            let amt1 = "0";
+            let fee0 = "0";
+            let fee1 = "0";
+
+            try {
+              const slot0 = (await publicClient.readContract({
+                address: config.contracts.stateView,
+                abi: STATE_VIEW_ABI,
+                functionName: "getSlot0",
+                args: [localPoolId],
+              })) as [bigint, number, number, number];
+
+              const sqrtPriceX96 = slot0[0];
+              const currentTick = slot0[1];
+
+              // Calculate actual token amounts using Uniswap math
+              const { amount0, amount1 } = getAmountsForLiquidity(
+                sqrtPriceX96,
+                tickLower,
+                tickUpper,
+                liquidity,
+                currentTick
+              );
+
+              amt0 = formatUnits(amount0, 18);
+              amt1 = formatUnits(amount1, 18);
+
+              // Calculate fees - get position info and current fee growth
+              try {
+                const positionInfo = (await publicClient.readContract({
+                  address: config.contracts.stateView,
+                  abi: STATE_VIEW_ABI,
+                  functionName: "getPositionInfo",
+                  args: [localPoolId, config.contracts.liquidityRouter, tickLower, tickUpper, "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`],
+                })) as [bigint, bigint, bigint];
+
+                const feeGrowthInside = (await publicClient.readContract({
+                  address: config.contracts.stateView,
+                  abi: STATE_VIEW_ABI,
+                  functionName: "getFeeGrowthInside",
+                  args: [localPoolId, tickLower, tickUpper],
+                })) as [bigint, bigint];
+
+                const feeGrowth0Last = positionInfo[1];
+                const feeGrowth1Last = positionInfo[2];
+                const feeGrowth0Inside = feeGrowthInside[0];
+                const feeGrowth1Inside = feeGrowthInside[1];
+
+                // Calculate fees: (feeGrowthInside - feeGrowthLast) * liquidity / 2^128
+                const Q128 = BigInt(2) ** BigInt(128);
+                const fees0Wei = ((feeGrowth0Inside - feeGrowth0Last) * liquidity) / Q128;
+                const fees1Wei = ((feeGrowth1Inside - feeGrowth1Last) * liquidity) / Q128;
+
+                fee0 = formatUnits(fees0Wei, 18);
+                fee1 = formatUnits(fees1Wei, 18);
+
+                console.log(`[fetchPositions] Fees for ${rangeName}: fee0=${fee0}, fee1=${fee1}`);
+              } catch (feeErr) {
+                console.error("Error calculating fees:", feeErr);
+              }
+            } catch (e) {
+              console.error("Error calculating amounts:", e);
+              // Fallback to simple calculation
+              const liquidityNum = Number(formatUnits(liquidity, 18));
+              amt0 = (liquidityNum / 2).toFixed(4);
+              amt1 = (liquidityNum / 2).toFixed(4);
+            }
+
             // Generate a pseudo tokenId from tick range for UI purposes
             const tokenId = BigInt(Math.abs(tickLower) * 1000000 + Math.abs(tickUpper));
             fetchedPositions.push({
@@ -235,10 +399,10 @@ export function useLiquidityV4() {
               tickLower,
               tickUpper,
               liquidity,
-              amount0: (liquidityNum / 2).toFixed(4),
-              amount1: (liquidityNum / 2).toFixed(4),
-              fees0: "0", // LiquidityRouter doesn't track fees separately
-              fees1: "0",
+              amount0: amt0,
+              amount1: amt1,
+              fees0: fee0,
+              fees1: fee1,
             });
           }
         } catch (err) {
@@ -369,13 +533,14 @@ export function useLiquidityV4() {
         });
 
         await waitForTx(publicClient, hash);
-        toast({ title: `${token} approved`, variant: "success" });
 
-        if (token === "TITAN") {
-          await refetchTitanAllowance();
-        } else {
-          await refetchWethAllowance();
-        }
+        // Wait a bit for state to propagate
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Refetch both allowances
+        await Promise.all([refetchTitanAllowance(), refetchWethAllowance()]);
+
+        toast({ title: `${token} approved`, variant: "success" });
       } catch (error) {
         toast({ title: "Approval failed", description: parseError(error), variant: "destructive" });
       } finally {
@@ -437,48 +602,28 @@ export function useLiquidityV4() {
       const tickUpper = Math.floor(upper / TICK_SPACING) * TICK_SPACING;
 
       // Parse amounts based on token order
-      // currency0 is WETH, currency1 is TITAN (because WETH address < TITAN address)
-      // So for amount0 (WETH), use amount1 input if titan is currency1
-      // amount0 is always the WETH amount, amount1 is always the TITAN amount
-      const amt0 = parseUnits(titanIsCurrency0 ? amount0 || "0" : amount1 || "0", 18);
-      const amt1 = parseUnits(titanIsCurrency0 ? amount1 || "0" : amount0 || "0", 18);
+      // In AddLiquidityCard: titanAmount sets amount0/amount1 based on titanIsCurrency0
+      // If titanIsCurrency0=true: amount0=TITAN, amount1=WETH
+      // If titanIsCurrency0=false: amount0=WETH, amount1=TITAN (from card's perspective)
+      // But here amount0/amount1 state is already mapped correctly by the card
+      // So we just use them directly - amount0 goes to currency0, amount1 goes to currency1
+      const amt0 = parseUnits(amount0 || "0", 18);
+      const amt1 = parseUnits(amount1 || "0", 18);
 
       console.log("[addLiquidity] Parameters:");
-      console.log("  tickRange:", tickRange);
-      console.log("  tickLower:", tickLower);
-      console.log("  tickUpper:", tickUpper);
-      console.log("  currency0:", currency0, titanIsCurrency0 ? "(TITAN)" : "(WETH)");
-      console.log("  currency1:", currency1, titanIsCurrency0 ? "(WETH)" : "(TITAN)");
-      console.log("  amount0Desired:", amt0.toString());
-      console.log("  amount1Desired:", amt1.toString());
-      console.log("  recipient:", address);
-      console.log("  titanIsCurrency0:", titanIsCurrency0);
-      console.log("  liquidityRouter:", config.contracts.liquidityRouter);
+      console.log("  tickRange:", tickRange, "→", tickLower, "to", tickUpper);
+      console.log("  currency0:", currency0, titanIsCurrency0 ? "(TITAN)" : "(WETH)", "amount:", amt0.toString());
+      console.log("  currency1:", currency1, titanIsCurrency0 ? "(WETH)" : "(TITAN)", "amount:", amt1.toString());
 
-      // Check approvals before proceeding
-      console.log("[addLiquidity] Checking approvals...");
-      console.log("  TITAN allowance:", titanAllowance?.toString());
-      console.log("  WETH allowance:", wethAllowance?.toString());
-      console.log("  TITAN balance:", titanBalance?.toString());
-      console.log("  WETH balance:", wethBalance?.toString());
-
-      // Check if we need more approvals
-      const neededTitan = titanIsCurrency0 ? amt0 : amt1;
-      const neededWeth = titanIsCurrency0 ? amt1 : amt0;
-
-      if (titanAllowance !== undefined && neededTitan > titanAllowance) {
-        toast({ title: "Insufficient TITAN allowance", description: "Please approve TITAN first", variant: "destructive" });
-        setIsAddingLiquidity(false);
-        return;
-      }
-
-      if (wethAllowance !== undefined && neededWeth > wethAllowance) {
-        toast({ title: "Insufficient WETH allowance", description: "Please approve WETH first", variant: "destructive" });
-        setIsAddingLiquidity(false);
-        return;
-      }
+      // Refetch allowances to get fresh data
+      await Promise.all([refetchTitanAllowance(), refetchWethAllowance()]);
 
       toast({ title: "Adding liquidity...", description: "Please confirm in your wallet" });
+
+      // Calculate minimum amounts based on slippage
+      const slippageMultiplier = BigInt(Math.floor((100 - slippage) * 100));
+      const amount0Min = (amt0 * slippageMultiplier) / BigInt(10000);
+      const amount1Min = (amt1 * slippageMultiplier) / BigInt(10000);
 
       const hash = await writeContractAsync({
         address: config.contracts.liquidityRouter,
@@ -494,6 +639,8 @@ export function useLiquidityV4() {
             tickUpper,
             amount0Desired: amt0,
             amount1Desired: amt1,
+            amount0Min,
+            amount1Min,
             recipient: address,
           },
         ],
@@ -528,6 +675,7 @@ export function useLiquidityV4() {
     amount0,
     amount1,
     tickRange,
+    slippage,
     titanIsCurrency0,
     currency0,
     currency1,
@@ -535,6 +683,8 @@ export function useLiquidityV4() {
     writeContractAsync,
     refetchTitanBalance,
     refetchWethBalance,
+    refetchTitanAllowance,
+    refetchWethAllowance,
     fetchPoolState,
     fetchPositions,
   ]);
@@ -572,6 +722,8 @@ export function useLiquidityV4() {
               tickLower,
               tickUpper,
               liquidity: liquidityToRemove,
+              amount0Min: BigInt(0),
+              amount1Min: BigInt(0),
               recipient: address,
             },
           ],
@@ -606,6 +758,66 @@ export function useLiquidityV4() {
       refetchTitanBalance,
       refetchWethBalance,
       fetchPoolState,
+      fetchPositions,
+    ]
+  );
+
+  // Collect fees from a position
+  const collectFees = useCallback(
+    async (tickLower: number, tickUpper: number) => {
+      if (!isConnected || !address || !publicClient) {
+        toast({ title: "Wallet not connected", variant: "destructive" });
+        return;
+      }
+
+      setIsCollectingFees(true);
+      try {
+        toast({ title: "Collecting fees...", description: "Please confirm in your wallet" });
+
+        const hash = await writeContractAsync({
+          address: config.contracts.liquidityRouter,
+          abi: LIQUIDITY_ROUTER_ABI,
+          functionName: "collectFees",
+          args: [
+            {
+              token0: currency0,
+              token1: currency1,
+              fee: POOL_FEE,
+              tickSpacing: TICK_SPACING,
+              tickLower,
+              tickUpper,
+              recipient: address,
+            },
+          ],
+          chainId: sepolia.id,
+        });
+
+        const receipt = await waitForTx(publicClient, hash);
+        console.log("[collectFees] Receipt:", receipt);
+
+        toast({ title: "Fees collected!", variant: "success" });
+
+        await Promise.all([
+          refetchTitanBalance(),
+          refetchWethBalance(),
+          fetchPositions(),
+        ]);
+      } catch (error) {
+        console.error("Collect fees error:", error);
+        toast({ title: "Collect fees failed", description: parseError(error), variant: "destructive" });
+      } finally {
+        setIsCollectingFees(false);
+      }
+    },
+    [
+      isConnected,
+      address,
+      publicClient,
+      currency0,
+      currency1,
+      writeContractAsync,
+      refetchTitanBalance,
+      refetchWethBalance,
       fetchPositions,
     ]
   );
@@ -651,7 +863,7 @@ export function useLiquidityV4() {
     // State
     isAddingLiquidity,
     isRemovingLiquidity,
-    isCollectingFees: false,
+    isCollectingFees,
     isApproving,
     isWrapping,
     isLoadingPositions,
@@ -688,7 +900,7 @@ export function useLiquidityV4() {
 
     // Totals
     totalPositionValue: positions.reduce((acc, p) => acc + Number(p.amount0) + Number(p.amount1), 0),
-    totalUnclaimedFees: 0,
+    totalUnclaimedFees: positions.reduce((acc, p) => acc + Number(p.fees0) + Number(p.fees1), 0),
 
     // Actions
     wrapETH,
@@ -703,8 +915,12 @@ export function useLiquidityV4() {
         await removeLiquidity(pos.tickLower, pos.tickUpper, percentage);
       }
     },
-    collectFees: async () => {
-      toast({ title: "Fee collection not implemented yet" });
+    collectFees: async (tokenId: bigint) => {
+      // Find position by tokenId
+      const pos = positions.find((p) => p.tokenId === tokenId);
+      if (pos) {
+        await collectFees(pos.tickLower, pos.tickUpper);
+      }
     },
     refetch: () => Promise.all([fetchPoolState(), fetchPositions()]),
 

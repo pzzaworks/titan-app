@@ -271,7 +271,7 @@ export function AddLiquidityCard({
               </Tooltip>
             </TooltipProvider>
           </div>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {TICK_RANGE_OPTIONS.map((option) => (
               <button
                 key={option.value}
@@ -337,6 +337,7 @@ export function AddLiquidityCard({
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-1.5 pt-3 text-[var(--color-muted-foreground)] hover:text-[#FF007A] transition-colors"
         >
+          <span className="text-xs">Powered by</span>
           <Image
             src="/uniswap-logo.svg"
             alt="Uniswap"

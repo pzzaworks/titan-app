@@ -249,6 +249,7 @@ export function SwapCard() {
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-1.5 pt-3 text-[var(--color-muted-foreground)] hover:text-[#FF007A] transition-colors"
         >
+          <span className="text-xs">Powered by</span>
           <Image
             src="/uniswap-logo.svg"
             alt="Uniswap"

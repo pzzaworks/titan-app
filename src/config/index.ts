@@ -12,7 +12,6 @@ export interface Token {
 const TITAN_TOKEN = "0xbA6720e72f929318E66AcED4389889640Aee0F6e" as `0x${string}`;
 const EARN = "0x166fef8E2B712393690F44adD86591ccb7a2648c" as `0x${string}`;
 const STAKED_TITAN = "0x4398317E8641E613a92e4af0Ea62eBFf7984818a" as `0x${string}`;
-const FARMING = "0x4D179B9742eafdF130bfa08b5d815a1fb8b980EB" as `0x${string}`;
 const GOVERNANCE = "0x482BFe34fC0535a2E3355EF8b4e2405bCD879f19" as `0x${string}`;
 const FAUCET = "0x7D34B7286d2dC4836e6B0C2761C17b6693e5d241" as `0x${string}`;
 const SWAP_ROUTER = "0x77a76b5eEC937361b8F05c15860AE81d9fe23b0E" as `0x${string}`;
@@ -31,7 +30,6 @@ export const config = {
     earn: EARN,
     staking: EARN,
     stakedTitan: STAKED_TITAN,
-    farming: FARMING,
     governance: GOVERNANCE,
     faucet: FAUCET,
     swapRouter: SWAP_ROUTER,

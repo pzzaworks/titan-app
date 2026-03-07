@@ -16,9 +16,10 @@ import { shortenAddress } from "@/lib/format";
 
 interface ConnectButtonProps {
   isHeroVisible?: boolean;
+  inMobileMenu?: boolean;
 }
 
-export function ConnectButton({ isHeroVisible = false }: ConnectButtonProps) {
+export function ConnectButton({ isHeroVisible = false, inMobileMenu = false }: ConnectButtonProps) {
   const { address, isConnected, isConnecting } = useAccount();
   const { disconnect } = useDisconnect();
   const { open } = useAppKit();
@@ -104,9 +105,11 @@ export function ConnectButton({ isHeroVisible = false }: ConnectButtonProps) {
             "cursor-pointer",
             "transition-all duration-200",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-            isHeroVisible
-              ? "border border-white/30 bg-transparent text-white hover:bg-white/10 hover:border-white/50 focus-visible:ring-white/30"
-              : "border border-[var(--color-border)] bg-transparent text-[var(--color-foreground)] hover:bg-[var(--color-foreground)]/5 hover:border-[var(--color-foreground)]/30 focus-visible:ring-[var(--color-ring)]/30"
+            inMobileMenu
+              ? "w-full bg-white text-[var(--color-foreground)] border border-[var(--color-border)] hover:bg-[var(--color-foreground)]/5"
+              : isHeroVisible
+                ? "bg-white text-[var(--color-foreground)] hover:bg-white/90 focus-visible:ring-white/30"
+                : "bg-white text-[var(--color-foreground)] border border-[var(--color-border)] hover:bg-[var(--color-foreground)]/5 focus-visible:ring-[var(--color-ring)]/30"
           )}
         >
           <Wallet className="h-4 w-4" />

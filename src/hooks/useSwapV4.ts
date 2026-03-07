@@ -11,7 +11,7 @@ import {
 import { parseUnits, formatUnits, encodeAbiParameters, keccak256 } from "viem";
 import { sepolia } from "viem/chains";
 import { config, Token } from "@/config";
-import { ERC20_ABI, STATE_VIEW_ABI, WETH_ABI, SWAP_ROUTER_ABI } from "@/lib/contracts";
+import { ERC20_ABI, STATE_VIEW_ABI, WETH_ABI, SWAP_ROUTER_ABI, V4_QUOTER_ABI } from "@/lib/contracts";
 import { toast } from "./useToast";
 import { parseError, waitForTx } from "@/lib/utils";
 import { formatTokenSmart } from "@/lib/format";
@@ -107,9 +107,12 @@ export function useSwapV4() {
     address,
   });
 
-  // Get token in balance
+  // Get token in balance (use WETH address for ETH to avoid invalid contract call)
+  const tokenInAddress = state.tokenIn.symbol === "ETH" ? config.contracts.weth : state.tokenIn.address;
+  const tokenOutAddress = state.tokenOut.symbol === "ETH" ? config.contracts.weth : state.tokenOut.address;
+
   const { data: tokenInBalance, refetch: refetchTokenInBalance } = useReadContract({
-    address: state.tokenIn.address,
+    address: tokenInAddress,
     abi: ERC20_ABI,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
@@ -120,7 +123,7 @@ export function useSwapV4() {
 
   // Get token out balance
   const { data: tokenOutBalance, refetch: refetchTokenOutBalance } = useReadContract({
-    address: state.tokenOut.address,
+    address: tokenOutAddress,
     abi: ERC20_ABI,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
@@ -131,7 +134,7 @@ export function useSwapV4() {
 
   // Get ERC20 allowance for SwapRouter
   const { data: tokenAllowanceForSwapRouter, refetch: refetchTokenAllowance } = useReadContract({
-    address: state.tokenIn.address,
+    address: tokenInAddress,
     abi: ERC20_ABI,
     functionName: "allowance",
     args: address ? [address, config.contracts.swapRouter] : undefined,
@@ -203,8 +206,8 @@ export function useSwapV4() {
     fetchPoolState();
   }, [fetchPoolState]);
 
-  // Calculate output amount from sqrtPriceX96
-  const calculateOutputAmount = useCallback(
+  // Fallback calculation if quoter fails
+  const calculateOutputFallback = useCallback(
     (amountIn: string): string => {
       if (!poolState || !poolState.initialized || !amountIn || parseFloat(amountIn) <= 0) {
         return "";
@@ -213,27 +216,18 @@ export function useSwapV4() {
       try {
         const amountInWei = parseUnits(amountIn, state.tokenIn.decimals);
         const sqrtPrice = poolState.sqrtPriceX96;
-
-        // price = (sqrtPriceX96 / 2^96)^2
-        // For zeroForOne: output = input * price
-        // For oneForZero: output = input / price
-
         const Q96 = BigInt(2) ** BigInt(96);
-        const price = (sqrtPrice * sqrtPrice) / Q96 / Q96;
 
         let amountOut: bigint;
         if (zeroForOne) {
-          // Selling currency0 for currency1
           amountOut = (amountInWei * sqrtPrice * sqrtPrice) / (Q96 * Q96);
         } else {
-          // Selling currency1 for currency0
           if (sqrtPrice === BigInt(0)) return "";
           amountOut = (amountInWei * Q96 * Q96) / (sqrtPrice * sqrtPrice);
         }
 
-        // Apply a small fee deduction estimate (0.3%)
+        // Apply fee (0.3%)
         amountOut = (amountOut * BigInt(9970)) / BigInt(10000);
-
         return formatUnits(amountOut, state.tokenOut.decimals);
       } catch (error) {
         console.error("Calculate output error:", error);
@@ -241,6 +235,48 @@ export function useSwapV4() {
       }
     },
     [poolState, state.tokenIn.decimals, state.tokenOut.decimals, zeroForOne]
+  );
+
+  // Get quote from V4 Quoter contract
+  const getQuoteFromQuoter = useCallback(
+    async (amountIn: string): Promise<string> => {
+      if (!publicClient || !poolState?.initialized || !amountIn || parseFloat(amountIn) <= 0) {
+        return "";
+      }
+
+      try {
+        const amountInWei = parseUnits(amountIn, state.tokenIn.decimals);
+
+        // Call quoter using simulateContract
+        const { result } = await publicClient.simulateContract({
+          address: config.contracts.quoter,
+          abi: V4_QUOTER_ABI,
+          functionName: "quoteExactInputSingle",
+          args: [
+            {
+              poolKey: {
+                currency0: poolKey.currency0,
+                currency1: poolKey.currency1,
+                fee: poolKey.fee,
+                tickSpacing: poolKey.tickSpacing,
+                hooks: poolKey.hooks,
+              },
+              zeroForOne,
+              exactAmount: amountInWei,
+              hookData: "0x" as `0x${string}`,
+            },
+          ],
+        });
+
+        const [amountOut] = result as [bigint, bigint];
+        return formatUnits(amountOut, state.tokenOut.decimals);
+      } catch (error) {
+        console.error("Quoter error:", error);
+        // Fallback to simple calculation if quoter fails
+        return calculateOutputFallback(amountIn);
+      }
+    },
+    [publicClient, poolState, state.tokenIn.decimals, state.tokenOut.decimals, poolKey, zeroForOne, calculateOutputFallback]
   );
 
   // Get quote when amount changes
@@ -273,7 +309,7 @@ export function useSwapV4() {
       setState((prev) => ({ ...prev, isLoading: true }));
 
       try {
-        const amountOut = calculateOutputAmount(amountIn);
+        const amountOut = await getQuoteFromQuoter(amountIn);
 
         // Calculate approximate price impact
         let priceImpact = 0;
@@ -299,7 +335,7 @@ export function useSwapV4() {
         }));
       }
     },
-    [calculateOutputAmount, poolState]
+    [getQuoteFromQuoter, poolState]
   );
 
   // Debounced quote update
@@ -361,6 +397,11 @@ export function useSwapV4() {
   const approveToSwapRouter = useCallback(async () => {
     if (!isConnected || !address || !publicClient) {
       toast.error("Wallet not connected", { description: "Please connect your wallet to continue." });
+      return;
+    }
+
+    // Don't approve ETH (native token)
+    if (state.tokenIn.symbol === "ETH") {
       return;
     }
 
@@ -516,9 +557,7 @@ export function useSwapV4() {
     setIsSwapping(true);
 
     try {
-      // Estimate gas first
-      const gasEst = await estimateSwapGas();
-      const toastId = toast.loading(gasEst ? `Swapping... (Est. gas: ${parseFloat(gasEst).toFixed(6)} ETH)` : "Swapping...");
+      const toastId = toast.loading("Swapping...");
 
       const amountInWei = parseUnits(state.amountIn, state.tokenIn.decimals);
 
@@ -605,15 +644,15 @@ export function useSwapV4() {
       if (token.symbol === "ETH") {
         return ethBalance ? formatUnits(ethBalance.value, 18) : "0";
       }
-      if (token.address === state.tokenIn.address && tokenInBalance) {
+      if (token.symbol === state.tokenIn.symbol && tokenInBalance) {
         return formatUnits(tokenInBalance, token.decimals);
       }
-      if (token.address === state.tokenOut.address && tokenOutBalance) {
+      if (token.symbol === state.tokenOut.symbol && tokenOutBalance) {
         return formatUnits(tokenOutBalance, token.decimals);
       }
       return "0";
     },
-    [ethBalance, tokenInBalance, tokenOutBalance, state.tokenIn.address, state.tokenOut.address]
+    [ethBalance, tokenInBalance, tokenOutBalance, state.tokenIn.symbol, state.tokenOut.symbol]
   );
 
   // Check if this is a wrap/unwrap operation
