@@ -17,9 +17,10 @@
 
 - **Swap** - Trade tokens with Uniswap V4 pools
 - **Liquidity** - Add/remove liquidity to V4 pools
-- **Stake** - Stake TITAN to earn rewards
-- **Farm** - Yield farming with LP positions
-- **Governance** - Vote on proposals
+- **Earn** - Deposit ETH, earn TITAN rewards
+- **sTitan** - Stake TITAN, receive sTITAN with voting power
+- **Borrow** - Deposit TITAN collateral, borrow tUSD stablecoin
+- **Governance** - Create proposals and vote with sTITAN
 - **Faucet** - Get test tokens on Sepolia
 
 ## Tech Stack
@@ -38,7 +39,7 @@
 pnpm install
 ```
 
-Create `.env` file:
+Create `.env.local` file:
 
 ```env
 NEXT_PUBLIC_REOWN_PROJECT_ID=your_project_id_here
