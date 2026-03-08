@@ -13,6 +13,7 @@ const navLinks = [
   { href: "/liquidity", label: "Liquidity" },
   { href: "/earn", label: "Earn" },
   { href: "/stitan", label: "sTitan" },
+  { href: "/borrow", label: "Borrow" },
   { href: "/governance", label: "Governance" },
   { href: "/faucet", label: "Faucet" },
 ];

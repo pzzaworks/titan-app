@@ -16,6 +16,8 @@ const GOVERNANCE = "0x482BFe34fC0535a2E3355EF8b4e2405bCD879f19" as `0x${string}`
 const FAUCET = "0x7D34B7286d2dC4836e6B0C2761C17b6693e5d241" as `0x${string}`;
 const SWAP_ROUTER = "0x77a76b5eEC937361b8F05c15860AE81d9fe23b0E" as `0x${string}`;
 const LIQUIDITY_ROUTER = "0x11450A1214D485072c1DC0aA82E2547D1ba8040d" as `0x${string}`;
+const TITAN_USD = "0x092D01Ee9a1009211a509AF50Fa2AE11b8060C46" as `0x${string}`;
+const VAULT = "0x1955E35c1EcABf0290b190B85e11EAB705Ad233A" as `0x${string}`;
 
 export const config = {
   appName: "Titan",
@@ -34,6 +36,8 @@ export const config = {
     faucet: FAUCET,
     swapRouter: SWAP_ROUTER,
     liquidityRouter: LIQUIDITY_ROUTER,
+    titanUsd: TITAN_USD,
+    vault: VAULT,
     poolManager: "0xE03A1074c86CFeDd5C142C4F04F1a1536e203543" as `0x${string}`,
     universalRouter: "0x3A9D48AB9751398BbFa63ad67599Bb04e4BdF98b" as `0x${string}`,
     positionManager: "0x429ba70129df741B2Ca2a85BC3A2a3328e5c09b4" as `0x${string}`,
@@ -71,6 +75,13 @@ export const config = {
       decimals: 18,
       address: "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9" as `0x${string}`,
       logoUrl: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png",
+    },
+    tUSD: {
+      symbol: "tUSD",
+      name: "Titan USD",
+      decimals: 18,
+      address: TITAN_USD,
+      logoUrl: "/tusd-token.svg",
     },
   },
 
