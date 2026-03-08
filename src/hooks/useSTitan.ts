@@ -93,6 +93,17 @@ export function useSTitan() {
     },
   });
 
+  // Read voting power (from ERC20Votes)
+  const { data: votingPower, refetch: refetchVotingPower } = useReadContract({
+    address: config.contracts.stakedTitan,
+    abi: STAKED_TITAN_ABI,
+    functionName: "getVotes",
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address && config.contracts.stakedTitan !== "0x0000000000000000000000000000000000000000",
+    },
+  });
+
   // Preview deposit
   const { data: previewDepositResult } = useReadContract({
     address: config.contracts.stakedTitan,
@@ -251,6 +262,7 @@ export function useSTitan() {
           refetchTotalTitan(),
           refetchTotalSupply(),
           refetchExchangeRate(),
+          refetchVotingPower(),
         ]);
 
         toast({
@@ -286,6 +298,7 @@ export function useSTitan() {
       refetchTotalTitan,
       refetchTotalSupply,
       refetchExchangeRate,
+      refetchVotingPower,
     ]
   );
 
@@ -330,6 +343,7 @@ export function useSTitan() {
           refetchTotalTitan(),
           refetchTotalSupply(),
           refetchExchangeRate(),
+          refetchVotingPower(),
         ]);
 
         toast({
@@ -363,6 +377,7 @@ export function useSTitan() {
       refetchTotalTitan,
       refetchTotalSupply,
       refetchExchangeRate,
+      refetchVotingPower,
     ]
   );
 
@@ -419,6 +434,7 @@ export function useSTitan() {
         refetchTotalTitan(),
         refetchTotalSupply(),
         refetchExchangeRate(),
+        refetchVotingPower(),
       ]);
 
       toast({
@@ -449,6 +465,7 @@ export function useSTitan() {
     refetchTotalTitan,
     refetchTotalSupply,
     refetchExchangeRate,
+    refetchVotingPower,
   ]);
 
   // Calculate exchange rate as a readable number
@@ -471,6 +488,7 @@ export function useSTitan() {
     totalSupply: totalSupply ? formatEther(totalSupply) : "0",
     tokenBalance: tokenBalance ? formatEther(tokenBalance) : "0",
     allowance: allowance ? formatEther(allowance) : "0",
+    votingPower: votingPower ? formatEther(votingPower) : "0",
 
     // Actions
     approve,
@@ -490,6 +508,7 @@ export function useSTitan() {
         refetchTotalSupply(),
         refetchExchangeRate(),
         refetchAllowance(),
+        refetchVotingPower(),
       ]),
   };
 }

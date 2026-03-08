@@ -50,7 +50,7 @@ export function Navbar() {
           className={cn(
             "mt-4 pl-6 pr-3 py-3 rounded-full transition-colors duration-300",
             scrolled || mobileMenuOpen
-              ? "bg-white/95 backdrop-blur-sm shadow-[var(--shadow-subtle)]"
+              ? "bg-white/95 backdrop-blur-sm shadow-[var(--shadow-subtle)] border border-[var(--color-border)]"
               : "bg-transparent"
           )}
         >
@@ -83,7 +83,7 @@ export function Navbar() {
                         isActive
                           ? isHeroVisible
                             ? "bg-white text-[var(--color-foreground)]"
-                            : "bg-[var(--color-foreground)] text-white"
+                            : "bg-[var(--color-titan-green)] text-white"
                           : isHeroVisible
                             ? "text-white/70 hover:text-white hover:bg-white/10"
                             : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-foreground)]/5"

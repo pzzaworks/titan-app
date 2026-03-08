@@ -197,7 +197,10 @@ export function AddLiquidityCard({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setTitanAmount(titanBalance)}
+              onClick={() => {
+                const truncated = Math.floor(parseFloat(titanBalance) * 10000) / 10000;
+                setTitanAmount(truncated > 0 ? truncated.toString() : "");
+              }}
               className="text-[var(--color-primary)] hover:text-[var(--color-primary)] cursor-pointer"
             >
               MAX
@@ -245,7 +248,10 @@ export function AddLiquidityCard({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setWethAmount(wethBalance)}
+              onClick={() => {
+                const truncated = Math.floor(parseFloat(wethBalance) * 1000000) / 1000000;
+                setWethAmount(truncated > 0 ? truncated.toString() : "");
+              }}
               className="text-[var(--color-primary)] hover:text-[var(--color-primary)] cursor-pointer"
             >
               MAX

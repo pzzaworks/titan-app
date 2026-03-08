@@ -87,6 +87,27 @@ export default function BorrowPage() {
     ? parseEther(repayAmount) > tusdAllowance
     : false;
 
+  // Validation checks
+  const depositExceedsBalance = depositAmount && titanBalance
+    ? parseFloat(depositAmount) > parseFloat(formatEther(titanBalance))
+    : false;
+
+  const withdrawExceedsAvailable = withdrawAmount
+    ? parseFloat(withdrawAmount) > parseFloat(formatEther(maxWithdrawable))
+    : false;
+
+  const borrowExceedsMax = borrowAmount && position?.maxBorrow
+    ? parseFloat(borrowAmount) > parseFloat(formatEther(position.maxBorrow))
+    : false;
+
+  const repayExceedsDebt = repayAmount && position?.debt
+    ? parseFloat(repayAmount) > parseFloat(formatEther(position.debt))
+    : false;
+
+  const repayExceedsBalance = repayAmount && tusdBalance
+    ? parseFloat(repayAmount) > parseFloat(formatEther(tusdBalance))
+    : false;
+
   const handleDeposit = async () => {
     if (!depositAmount) return;
     if (needsTitanApproval) {
@@ -219,39 +240,89 @@ export default function BorrowPage() {
                 </div>
               </div>
 
-              {/* Collateral Ratio */}
+              {/* Vault Health */}
               {hasPosition && (
-                <div className="p-4 rounded-xl border border-[var(--color-border)]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-[var(--color-muted-foreground)]">Collateral Ratio</span>
-                    <span className={cn(
-                      "text-lg font-semibold",
-                      isRatioSafe && "text-green-600",
-                      isRatioWarning && "text-yellow-600",
-                      isRatioDanger && "text-red-600"
-                    )}>
-                      {position?.debt === BigInt(0) ? "∞" : `${formatPercent(collateralRatioPercent)}`}
-                    </span>
-                  </div>
-                  <div className="h-2 rounded-full bg-[var(--color-foreground)]/10 overflow-hidden">
-                    <div
-                      className={cn(
-                        "h-full rounded-full transition-all",
+                <div className={cn(
+                  "p-5 rounded-xl border transition-colors",
+                  isRatioSafe && "border-green-200 bg-green-50/50",
+                  isRatioWarning && "border-yellow-200 bg-yellow-50/50",
+                  isRatioDanger && "border-red-200 bg-red-50/50",
+                  !isRatioSafe && !isRatioWarning && !isRatioDanger && "border-[var(--color-border)] bg-[var(--color-foreground)]/5"
+                )}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className={cn(
+                        "w-3 h-3 rounded-full",
                         isRatioSafe && "bg-green-500",
                         isRatioWarning && "bg-yellow-500",
                         isRatioDanger && "bg-red-500"
-                      )}
-                      style={{ width: `${Math.min(collateralRatioPercent / 3, 100)}%` }}
+                      )} />
+                      <span className="font-medium">Vault Health</span>
+                    </div>
+                    <span className={cn(
+                      "text-sm font-semibold px-3 py-1 rounded-full",
+                      isRatioSafe && "bg-green-100 text-green-700",
+                      isRatioWarning && "bg-yellow-100 text-yellow-700",
+                      isRatioDanger && "bg-red-100 text-red-700"
+                    )}>
+                      {isRatioSafe ? "Healthy" : isRatioWarning ? "Caution" : isRatioDanger ? "At Risk" : "Safe"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-end gap-4 mb-4">
+                    <div className="flex-1">
+                      <p className="text-sm text-[var(--color-muted-foreground)] mb-1">Collateral Ratio</p>
+                      <p className={cn(
+                        "text-3xl font-bold",
+                        isRatioSafe && "text-green-600",
+                        isRatioWarning && "text-yellow-600",
+                        isRatioDanger && "text-red-600"
+                      )}>
+                        {position?.debt === BigInt(0) ? "∞" : `${formatPercent(collateralRatioPercent)}`}
+                      </p>
+                    </div>
+                    <div className="text-right text-sm text-[var(--color-muted-foreground)]">
+                      <p>Min: 150%</p>
+                      <p>Liq: 110%</p>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar - 100% to 200% range */}
+                  <div className="relative h-3 rounded-full bg-gradient-to-r from-red-300 via-yellow-300 via-50% to-green-300 overflow-hidden">
+                    {/* Marker for current position */}
+                    <div
+                      className="absolute top-0 bottom-0 w-1 bg-[var(--color-foreground)] rounded-full shadow-lg transition-all"
+                      style={{
+                        left: `${Math.min(Math.max(collateralRatioPercent - 100, 0), 100)}%`,
+                      }}
+                    />
+                    {/* Liquidation line at 110% = 10% of bar */}
+                    <div
+                      className="absolute top-0 bottom-0 w-0.5 bg-red-600"
+                      style={{ left: '10%' }}
+                    />
+                    {/* MCR line at 150% = 50% of bar */}
+                    <div
+                      className="absolute top-0 bottom-0 w-0.5 bg-green-600"
+                      style={{ left: '50%' }}
                     />
                   </div>
                   <div className="flex justify-between text-xs text-[var(--color-muted-foreground)] mt-1">
-                    <span>Liquidation: 110%</span>
-                    <span>Safe: 150%+</span>
+                    <span>100%</span>
+                    <span>150%</span>
+                    <span>200%+</span>
                   </div>
+
                   {isRatioDanger && (
-                    <div className="flex items-center gap-2 mt-3 p-2 rounded-lg bg-red-50 text-red-600 text-sm">
-                      <AlertTriangle className="h-4 w-4" />
-                      <span>Position at risk of liquidation!</span>
+                    <div className="flex items-center gap-2 mt-4 p-3 rounded-lg bg-red-100 text-red-700 text-sm font-medium">
+                      <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                      <span>Your position is at risk of liquidation! Add collateral or repay debt.</span>
+                    </div>
+                  )}
+                  {isRatioWarning && (
+                    <div className="flex items-center gap-2 mt-4 p-3 rounded-lg bg-yellow-100 text-yellow-700 text-sm font-medium">
+                      <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                      <span>Your position is below the safe threshold. Consider adding more collateral.</span>
                     </div>
                   )}
                 </div>
@@ -311,8 +382,13 @@ export default function BorrowPage() {
                         className="pr-20"
                       />
                       <button
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-titan-green)] font-medium"
-                        onClick={() => setDepositAmount(formatEther(titanBalance || BigInt(0)))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-titan-green)] font-medium cursor-pointer hover:bg-[var(--color-titan-green)]/10 px-2 py-1 rounded-full transition-colors"
+                        onClick={() => {
+                          const max = titanBalance || BigInt(0);
+                          const maxStr = formatEther(max);
+                          const truncated = Math.floor(parseFloat(maxStr) * 10000) / 10000;
+                          setDepositAmount(truncated > 0 ? truncated.toString() : "");
+                        }}
                       >
                         MAX
                       </button>
@@ -322,11 +398,24 @@ export default function BorrowPage() {
                     </p>
                   </div>
                   <Button
-                    className="w-full bg-[var(--color-titan-green)] hover:bg-[var(--color-titan-green-dark)] text-white"
+                    className={cn(
+                      "w-full",
+                      depositExceedsBalance
+                        ? "bg-red-500 hover:bg-red-600 text-white"
+                        : "bg-[var(--color-titan-green)] hover:bg-[var(--color-titan-green-dark)] text-white"
+                    )}
                     onClick={handleDeposit}
-                    disabled={!depositAmount || isDepositing || isApproving}
+                    disabled={!depositAmount || isDepositing || isApproving || depositExceedsBalance}
                   >
-                    {isApproving ? "Approving..." : isDepositing ? "Depositing..." : needsTitanApproval ? "Approve TITAN" : "Deposit"}
+                    {depositExceedsBalance
+                      ? "Insufficient Balance"
+                      : isApproving
+                      ? "Approving..."
+                      : isDepositing
+                      ? "Depositing..."
+                      : needsTitanApproval
+                      ? "Approve TITAN"
+                      : "Deposit"}
                   </Button>
                 </TabsContent>
 
@@ -344,8 +433,12 @@ export default function BorrowPage() {
                         className="pr-20"
                       />
                       <button
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-titan-green)] font-medium"
-                        onClick={() => setWithdrawAmount(formatEther(maxWithdrawable))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-titan-green)] font-medium cursor-pointer hover:bg-[var(--color-titan-green)]/10 px-2 py-1 rounded-full transition-colors"
+                        onClick={() => {
+                          const maxStr = formatEther(maxWithdrawable);
+                          const truncated = Math.floor(parseFloat(maxStr) * 10000) / 10000;
+                          setWithdrawAmount(truncated > 0 ? truncated.toString() : "");
+                        }}
                       >
                         MAX
                       </button>
@@ -355,12 +448,20 @@ export default function BorrowPage() {
                     </p>
                   </div>
                   <Button
-                    className="w-full"
-                    variant="outline"
+                    className={cn(
+                      "w-full",
+                      withdrawExceedsAvailable
+                        ? "bg-red-500 hover:bg-red-600 text-white"
+                        : "bg-[var(--color-titan-green)] hover:bg-[var(--color-titan-green-dark)] text-white"
+                    )}
                     onClick={handleWithdraw}
-                    disabled={!withdrawAmount || isWithdrawing}
+                    disabled={!withdrawAmount || isWithdrawing || withdrawExceedsAvailable}
                   >
-                    {isWithdrawing ? "Withdrawing..." : "Withdraw"}
+                    {withdrawExceedsAvailable
+                      ? "Exceeds Available"
+                      : isWithdrawing
+                      ? "Withdrawing..."
+                      : "Withdraw"}
                   </Button>
                 </TabsContent>
 
@@ -378,8 +479,14 @@ export default function BorrowPage() {
                         className="pr-20"
                       />
                       <button
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-titan-green)] font-medium"
-                        onClick={() => setBorrowAmount(formatEther(position?.maxBorrow || BigInt(0)))}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-titan-green)] font-medium cursor-pointer hover:bg-[var(--color-titan-green)]/10 px-2 py-1 rounded-full transition-colors"
+                        onClick={() => {
+                          const max = position?.maxBorrow || BigInt(0);
+                          // Truncate to 2 decimals to avoid precision issues
+                          const maxStr = formatEther(max);
+                          const truncated = Math.floor(parseFloat(maxStr) * 100) / 100;
+                          setBorrowAmount(truncated > 0 ? truncated.toString() : "");
+                        }}
                       >
                         MAX
                       </button>
@@ -387,13 +494,8 @@ export default function BorrowPage() {
                     <p className="text-sm text-[var(--color-muted-foreground)] mt-1">
                       Max borrow: {formatNumber(Number(formatEther(position?.maxBorrow || BigInt(0))), { decimals: 2 })} tUSD
                     </p>
-                    {borrowAmount && Number(borrowAmount) < 10 && (
-                      <p className="text-sm text-yellow-600 mt-1">
-                        Minimum borrow: 10 tUSD
-                      </p>
-                    )}
                   </div>
-                  {borrowAmount && newCollateralRatio < Infinity && (
+                  {borrowAmount && newCollateralRatio < Infinity && !borrowExceedsMax && (
                     <div className="p-3 rounded-lg bg-[var(--color-foreground)]/5">
                       <div className="flex justify-between text-sm">
                         <span className="text-[var(--color-muted-foreground)]">New Collateral Ratio:</span>
@@ -409,11 +511,20 @@ export default function BorrowPage() {
                     </div>
                   )}
                   <Button
-                    className="w-full bg-[var(--color-titan-green)] hover:bg-[var(--color-titan-green-dark)] text-white"
+                    className={cn(
+                      "w-full",
+                      borrowExceedsMax
+                        ? "bg-red-500 hover:bg-red-600 text-white"
+                        : "bg-[var(--color-titan-green)] hover:bg-[var(--color-titan-green-dark)] text-white"
+                    )}
                     onClick={handleBorrow}
-                    disabled={!borrowAmount || isBorrowing || !position?.collateral || position.collateral === BigInt(0) || Number(borrowAmount) < 10}
+                    disabled={!borrowAmount || isBorrowing || !position?.collateral || position.collateral === BigInt(0) || borrowExceedsMax}
                   >
-                    {isBorrowing ? "Borrowing..." : "Borrow tUSD"}
+                    {borrowExceedsMax
+                      ? "Exceeds Max Borrow"
+                      : isBorrowing
+                      ? "Borrowing..."
+                      : "Borrow tUSD"}
                   </Button>
                 </TabsContent>
 
@@ -431,28 +542,42 @@ export default function BorrowPage() {
                         className="pr-20"
                       />
                       <button
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-titan-green)] font-medium"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-titan-green)] font-medium cursor-pointer hover:bg-[var(--color-titan-green)]/10 px-2 py-1 rounded-full transition-colors"
                         onClick={() => {
                           const maxRepay = tusdBalance && position?.debt
                             ? (tusdBalance < position.debt ? tusdBalance : position.debt)
                             : BigInt(0);
-                          setRepayAmount(formatEther(maxRepay));
+                          const maxStr = formatEther(maxRepay);
+                          const truncated = Math.floor(parseFloat(maxStr) * 100) / 100;
+                          setRepayAmount(truncated > 0 ? truncated.toString() : "");
                         }}
                       >
                         MAX
                       </button>
                     </div>
                     <p className="text-sm text-[var(--color-muted-foreground)] mt-1">
-                      Debt: {formatNumber(Number(formatEther(position?.debt || BigInt(0))), { decimals: 2 })} tUSD
+                      Debt: {formatNumber(Number(formatEther(position?.debt || BigInt(0))), { decimals: 2 })} tUSD | Balance: {formatNumber(Number(formatEther(tusdBalance || BigInt(0))), { decimals: 2 })} tUSD
                     </p>
                   </div>
                   <Button
-                    className="w-full"
-                    variant="outline"
+                    className={cn(
+                      "w-full",
+                      repayExceedsBalance
+                        ? "bg-red-500 hover:bg-red-600 text-white"
+                        : "bg-[var(--color-titan-green)] hover:bg-[var(--color-titan-green-dark)] text-white"
+                    )}
                     onClick={handleRepay}
-                    disabled={!repayAmount || isRepaying || isApproving}
+                    disabled={!repayAmount || isRepaying || isApproving || repayExceedsBalance}
                   >
-                    {isApproving ? "Approving..." : isRepaying ? "Repaying..." : needsTusdApproval ? "Approve tUSD" : "Repay"}
+                    {repayExceedsBalance
+                      ? "Insufficient tUSD"
+                      : isApproving
+                      ? "Approving..."
+                      : isRepaying
+                      ? "Repaying..."
+                      : needsTusdApproval
+                      ? "Approve tUSD"
+                      : "Repay"}
                   </Button>
                 </TabsContent>
               </Tabs>

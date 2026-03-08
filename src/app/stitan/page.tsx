@@ -15,7 +15,7 @@ export default function STitanPage() {
             Stake TITAN, Get sTITAN
           </h1>
           <p className="text-[var(--color-muted-foreground)] max-w-md mx-auto">
-            Liquid staking token that appreciates in value as rewards accrue
+            Liquid staking with governance power. Earn rewards and vote on proposals.
           </p>
         </div>
         <STitanCard />

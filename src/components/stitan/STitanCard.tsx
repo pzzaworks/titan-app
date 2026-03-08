@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
-import { Coins, TrendingUp, ArrowRightLeft, Wallet } from "lucide-react";
+import { Coins, TrendingUp, ArrowRightLeft, Wallet, Vote } from "lucide-react";
 import { useSTitan } from "@/hooks/useSTitan";
 import { formatCompact, formatNumber } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { config } from "@/config";
+import { cn } from "@/lib/utils";
 
 export function STitanCard() {
   const { isConnected } = useAccount();
@@ -27,6 +28,7 @@ export function STitanCard() {
     exchangeRate,
     totalTitan,
     tokenBalance,
+    votingPower,
     deposit,
     withdraw,
   } = useSTitan();
@@ -64,6 +66,10 @@ export function STitanCard() {
     ? (parseFloat(withdrawAmount) * parseFloat(exchangeRate)).toFixed(4)
     : "0";
 
+  // Validation
+  const depositExceedsBalance = depositAmount ? parseFloat(depositAmount) > parseFloat(tokenBalance) : false;
+  const withdrawExceedsBalance = withdrawAmount ? parseFloat(withdrawAmount) > parseFloat(sTitanBalance) : false;
+
   if (!isContractDeployed) {
     return (
       <div className="w-full max-w-3xl mx-auto">
@@ -95,10 +101,10 @@ export function STitanCard() {
           icon={Coins}
         />
         <StatsCard
-          title="TITAN Value"
-          value={`${formatNumber(titanValue, { decimals: 2 })}`}
-          subtitle="TITAN"
-          icon={Wallet}
+          title="Voting Power"
+          value={formatCompact(parseFloat(votingPower))}
+          subtitle="votes"
+          icon={Vote}
         />
         <StatsCard
           title="Exchange Rate"
@@ -126,7 +132,8 @@ export function STitanCard() {
                 How sTITAN Works
               </h4>
               <p className="text-sm text-[var(--color-muted-foreground)]">
-                sTITAN is a liquid staking token. When you deposit TITAN, you receive sTITAN.
+                sTITAN is a liquid staking token with governance power. When you deposit TITAN,
+                you receive sTITAN and automatically gain voting power for governance proposals.
                 As rewards accrue, the exchange rate increases, meaning your sTITAN becomes
                 worth more TITAN over time. You can withdraw anytime.
               </p>
@@ -181,15 +188,18 @@ export function STitanCard() {
                   />
                   <Button
                     variant="outline"
-                    onClick={() => setDepositAmount(tokenBalance)}
-                    className="shrink-0"
+                    onClick={() => {
+                      const truncated = Math.floor(parseFloat(tokenBalance) * 10000) / 10000;
+                      setDepositAmount(truncated > 0 ? truncated.toString() : "");
+                    }}
+                    className="shrink-0 cursor-pointer"
                   >
                     MAX
                   </Button>
                 </div>
               </div>
 
-              {depositAmount && parseFloat(depositAmount) > 0 && (
+              {depositAmount && parseFloat(depositAmount) > 0 && !depositExceedsBalance && (
                 <div className="p-3 bg-[var(--color-foreground)]/5 rounded-lg">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-[var(--color-muted-foreground)]">You will receive</span>
@@ -201,15 +211,20 @@ export function STitanCard() {
               )}
 
               <Button
-                className="w-full"
+                className={cn(
+                  "w-full",
+                  depositExceedsBalance && isConnected && "bg-red-500 hover:bg-red-600 text-white"
+                )}
                 size="lg"
                 variant={!isConnected ? "green" : "default"}
                 onClick={handleDeposit}
-                disabled={isDepositing || (isConnected && !depositAmount)}
+                disabled={isDepositing || (isConnected && (!depositAmount || depositExceedsBalance))}
                 isLoading={isDepositing}
               >
                 {!isConnected
                   ? "Connect Wallet"
+                  : depositExceedsBalance
+                  ? "Insufficient Balance"
                   : isDepositing
                   ? "Depositing..."
                   : "Deposit TITAN"}
@@ -240,15 +255,18 @@ export function STitanCard() {
                   />
                   <Button
                     variant="outline"
-                    onClick={() => setWithdrawAmount(sTitanBalance)}
-                    className="shrink-0"
+                    onClick={() => {
+                      const truncated = Math.floor(parseFloat(sTitanBalance) * 10000) / 10000;
+                      setWithdrawAmount(truncated > 0 ? truncated.toString() : "");
+                    }}
+                    className="shrink-0 cursor-pointer"
                   >
                     MAX
                   </Button>
                 </div>
               </div>
 
-              {withdrawAmount && parseFloat(withdrawAmount) > 0 && (
+              {withdrawAmount && parseFloat(withdrawAmount) > 0 && !withdrawExceedsBalance && (
                 <div className="p-3 bg-[var(--color-foreground)]/5 rounded-lg">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-[var(--color-muted-foreground)]">You will receive</span>
@@ -260,15 +278,20 @@ export function STitanCard() {
               )}
 
               <Button
-                className="w-full"
+                className={cn(
+                  "w-full",
+                  withdrawExceedsBalance && isConnected && "bg-red-500 hover:bg-red-600 text-white"
+                )}
                 size="lg"
                 variant={!isConnected ? "green" : "default"}
                 onClick={handleWithdraw}
-                disabled={isWithdrawing || (isConnected && !withdrawAmount)}
+                disabled={isWithdrawing || (isConnected && (!withdrawAmount || withdrawExceedsBalance))}
                 isLoading={isWithdrawing}
               >
                 {!isConnected
                   ? "Connect Wallet"
+                  : withdrawExceedsBalance
+                  ? "Insufficient sTITAN"
                   : isWithdrawing
                   ? "Withdrawing..."
                   : "Withdraw TITAN"}

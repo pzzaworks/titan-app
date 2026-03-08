@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Vote, Users, FileText, Filter } from "lucide-react";
+import { Plus, Vote, Users, FileText, Filter, AlertCircle, Zap } from "lucide-react";
 import { useAccount } from "wagmi";
 import { formatEther } from "viem";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { ProposalCard } from "@/components/governance/ProposalCard";
 import { ProposalModal } from "@/components/governance/ProposalModal";
+import { ProposalDetailModal } from "@/components/governance/ProposalDetailModal";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -23,14 +24,25 @@ export default function GovernancePage() {
   const { isConnected } = useAccount();
   const [statusFilter, setStatusFilter] = useState("all");
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
+  const [selectedProposal, setSelectedProposal] = useState<number | null>(null);
 
   const {
     proposals,
     isLoadingProposals,
     proposalCount,
+    sTitanBalance,
     votingPower,
+    needsDelegate,
     isProposing,
+    isVoting,
+    isCanceling,
+    isDelegating,
+    currentBlock,
     createProposal,
+    vote,
+    cancel,
+    delegate,
+    getVoteReceipt,
   } = useGovernance();
 
   // Map proposals to the format expected by ProposalCard
@@ -43,6 +55,8 @@ export default function GovernancePage() {
     againstVotes: Number(formatEther(p.againstVotes)),
     startTime: p.startTime,
     endTime: p.endTime,
+    voteStart: p.voteStart,
+    voteEnd: p.voteEnd,
     status: p.status,
   }));
 
@@ -53,16 +67,28 @@ export default function GovernancePage() {
 
   const activeProposals = mappedProposals.filter((p) => p.status === "active").length;
   const totalVotingPower = parseFloat(votingPower);
-  const participationRate = 68.5;
+  const participationRate = proposalCount > 0 ? 68.5 : 0;
 
   const handleCreateProposal = async (data: {
     title: string;
     description: string;
-    actions: { target: string; value: string; calldata: string }[];
   }) => {
     await createProposal(data);
     setIsProposalModalOpen(false);
   };
+
+  const handleVote = async (proposalId: number, support: boolean) => {
+    await vote(proposalId, support);
+  };
+
+  const handleCancel = async (proposalId: number) => {
+    await cancel(proposalId);
+    setSelectedProposal(null);
+  };
+
+  const selectedProposalData = selectedProposal
+    ? mappedProposals.find((p) => p.id === selectedProposal) || null
+    : null;
 
   return (
     <PageContainer>
@@ -79,7 +105,7 @@ export default function GovernancePage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatsCard
           title="Active Proposals"
           value={activeProposals.toString()}
@@ -103,6 +129,30 @@ export default function GovernancePage() {
         />
       </div>
 
+      {/* Delegate Banner */}
+      {isConnected && needsDelegate && (
+        <div className="mb-6 p-4 rounded-2xl border border-yellow-200 bg-yellow-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-yellow-800">Activate Your Voting Power</p>
+              <p className="text-sm text-yellow-700 mt-0.5">
+                You have {formatCompact(parseFloat(sTitanBalance))} sTITAN. Activate voting power to start voting on proposals.
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={() => delegate()}
+            disabled={isDelegating}
+            isLoading={isDelegating}
+            className="cursor-pointer flex-shrink-0"
+          >
+            <Zap className="h-4 w-4 mr-2" />
+            {isDelegating ? "Activating..." : "Activate Now"}
+          </Button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
@@ -114,9 +164,13 @@ export default function GovernancePage() {
             <SelectContent>
               <SelectItem value="all" className="cursor-pointer">All Proposals</SelectItem>
               <SelectItem value="active" className="cursor-pointer">Active</SelectItem>
+              <SelectItem value="pending" className="cursor-pointer">Pending</SelectItem>
               <SelectItem value="passed" className="cursor-pointer">Passed</SelectItem>
-              <SelectItem value="failed" className="cursor-pointer">Failed</SelectItem>
+              <SelectItem value="queued" className="cursor-pointer">Queued</SelectItem>
               <SelectItem value="executed" className="cursor-pointer">Executed</SelectItem>
+              <SelectItem value="failed" className="cursor-pointer">Failed</SelectItem>
+              <SelectItem value="expired" className="cursor-pointer">Expired</SelectItem>
+              <SelectItem value="canceled" className="cursor-pointer">Canceled</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -134,21 +188,26 @@ export default function GovernancePage() {
 
       {/* Loading State */}
       {isLoadingProposals && (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-40 rounded-2xl bg-[var(--color-foreground)]/5 animate-pulse"
+              className="h-48 rounded-2xl bg-[var(--color-foreground)]/5 animate-pulse"
             />
           ))}
         </div>
       )}
 
-      {/* Proposals List */}
+      {/* Proposals Grid */}
       {!isLoadingProposals && (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredProposals.map((proposal) => (
-            <ProposalCard key={proposal.id} proposal={proposal} />
+            <ProposalCard
+              key={proposal.id}
+              proposal={proposal}
+              currentBlock={currentBlock}
+              onClick={() => setSelectedProposal(proposal.id)}
+            />
           ))}
         </div>
       )}
@@ -159,11 +218,28 @@ export default function GovernancePage() {
         </div>
       )}
 
-      {/* Proposal Modal */}
+      {/* Create Proposal Modal */}
       <ProposalModal
         open={isProposalModalOpen}
         onOpenChange={setIsProposalModalOpen}
         onSubmit={handleCreateProposal}
+      />
+
+      {/* Proposal Detail Modal */}
+      <ProposalDetailModal
+        open={selectedProposal !== null}
+        onOpenChange={(open) => !open && setSelectedProposal(null)}
+        proposal={selectedProposalData}
+        onVote={handleVote}
+        isVoting={isVoting}
+        getVoteReceipt={getVoteReceipt}
+        votingPower={votingPower}
+        needsDelegate={needsDelegate}
+        onDelegate={delegate}
+        isDelegating={isDelegating}
+        onCancel={handleCancel}
+        isCanceling={isCanceling}
+        currentBlock={currentBlock}
       />
     </PageContainer>
   );

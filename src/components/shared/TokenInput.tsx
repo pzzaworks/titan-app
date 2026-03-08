@@ -52,7 +52,9 @@ export function TokenInput({
 
   const handleMaxClick = () => {
     if (balance) {
-      onAmountChange?.(balance);
+      // Truncate to 6 decimals to avoid precision issues
+      const truncated = Math.floor(parseFloat(balance) * 1000000) / 1000000;
+      onAmountChange?.(truncated > 0 ? truncated.toString() : "");
     }
   };
 

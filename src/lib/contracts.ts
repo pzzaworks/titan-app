@@ -57,6 +57,28 @@ export const TITAN_TOKEN_ABI = [
     inputs: [],
     outputs: [{ name: "", type: "uint256" }],
   },
+  // ERC20Votes functions
+  {
+    name: "getVotes",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "delegates",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ name: "", type: "address" }],
+  },
+  {
+    name: "delegate",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "delegatee", type: "address" }],
+    outputs: [],
+  },
 ] as const;
 
 export const EARN_ABI = [
@@ -240,6 +262,28 @@ export const STAKED_TITAN_ABI = [
     ],
     outputs: [{ name: "", type: "uint256" }],
   },
+  // ERC20Votes functions (governance)
+  {
+    name: "getVotes",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "delegates",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ name: "", type: "address" }],
+  },
+  {
+    name: "delegate",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "delegatee", type: "address" }],
+    outputs: [],
+  },
 ] as const;
 
 export const ROUTER_ABI = [
@@ -401,29 +445,80 @@ export const GOVERNANCE_ABI = [
     type: "function",
     stateMutability: "nonpayable",
     inputs: [
-      { name: "description", type: "string" },
       { name: "targets", type: "address[]" },
       { name: "values", type: "uint256[]" },
       { name: "calldatas", type: "bytes[]" },
+      { name: "description", type: "string" },
     ],
     outputs: [{ name: "proposalId", type: "uint256" }],
   },
   {
-    name: "vote",
+    name: "castVote",
     type: "function",
     stateMutability: "nonpayable",
     inputs: [
       { name: "proposalId", type: "uint256" },
-      { name: "support", type: "bool" },
+      { name: "support", type: "uint8" },
     ],
+    outputs: [],
+  },
+  {
+    name: "castVoteWithReason",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "proposalId", type: "uint256" },
+      { name: "support", type: "uint8" },
+      { name: "reason", type: "string" },
+    ],
+    outputs: [],
+  },
+  {
+    name: "queue",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "proposalId", type: "uint256" }],
     outputs: [],
   },
   {
     name: "execute",
     type: "function",
+    stateMutability: "payable",
+    inputs: [{ name: "proposalId", type: "uint256" }],
+    outputs: [],
+  },
+  {
+    name: "cancel",
+    type: "function",
     stateMutability: "nonpayable",
     inputs: [{ name: "proposalId", type: "uint256" }],
     outputs: [],
+  },
+  {
+    name: "state",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "proposalId", type: "uint256" }],
+    outputs: [{ name: "", type: "uint8" }],
+  },
+  {
+    name: "proposals",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "proposalId", type: "uint256" }],
+    outputs: [
+      { name: "id", type: "uint256" },
+      { name: "proposer", type: "address" },
+      { name: "voteStart", type: "uint256" },
+      { name: "voteEnd", type: "uint256" },
+      { name: "snapshotBlock", type: "uint256" },
+      { name: "forVotes", type: "uint256" },
+      { name: "againstVotes", type: "uint256" },
+      { name: "abstainVotes", type: "uint256" },
+      { name: "canceled", type: "bool" },
+      { name: "executed", type: "bool" },
+      { name: "eta", type: "uint256" },
+    ],
   },
   {
     name: "getProposal",
@@ -431,13 +526,35 @@ export const GOVERNANCE_ABI = [
     stateMutability: "view",
     inputs: [{ name: "proposalId", type: "uint256" }],
     outputs: [
+      { name: "targets", type: "address[]" },
+      { name: "values", type: "uint256[]" },
+      { name: "calldatas", type: "bytes[]" },
       { name: "description", type: "string" },
-      { name: "proposer", type: "address" },
+    ],
+  },
+  {
+    name: "getVotes",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "proposalId", type: "uint256" }],
+    outputs: [
       { name: "forVotes", type: "uint256" },
       { name: "againstVotes", type: "uint256" },
-      { name: "startTime", type: "uint256" },
-      { name: "endTime", type: "uint256" },
-      { name: "executed", type: "bool" },
+      { name: "abstainVotes", type: "uint256" },
+    ],
+  },
+  {
+    name: "getReceipt",
+    type: "function",
+    stateMutability: "view",
+    inputs: [
+      { name: "proposalId", type: "uint256" },
+      { name: "account", type: "address" },
+    ],
+    outputs: [
+      { name: "hasVoted", type: "bool" },
+      { name: "support", type: "uint8" },
+      { name: "votes", type: "uint256" },
     ],
   },
   {
@@ -446,16 +563,6 @@ export const GOVERNANCE_ABI = [
     stateMutability: "view",
     inputs: [],
     outputs: [{ name: "", type: "uint256" }],
-  },
-  {
-    name: "hasVoted",
-    type: "function",
-    stateMutability: "view",
-    inputs: [
-      { name: "proposalId", type: "uint256" },
-      { name: "account", type: "address" },
-    ],
-    outputs: [{ name: "", type: "bool" }],
   },
   {
     name: "quorumPercentage",
@@ -469,6 +576,30 @@ export const GOVERNANCE_ABI = [
     type: "function",
     stateMutability: "view",
     inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "votingDelay",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "votingPeriod",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    name: "getVotingPower",
+    type: "function",
+    stateMutability: "view",
+    inputs: [
+      { name: "proposalId", type: "uint256" },
+      { name: "account", type: "address" },
+    ],
     outputs: [{ name: "", type: "uint256" }],
   },
 ] as const;

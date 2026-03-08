@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatsCard } from "@/components/shared/StatsCard";
+import { cn } from "@/lib/utils";
 
 export function StakeCard() {
   const { isConnected } = useAccount();
@@ -63,18 +64,24 @@ export function StakeCard() {
     await claimRewards();
   };
 
+  // Validation
+  const stakeExceedsBalance = stakeAmount ? parseFloat(stakeAmount) > parseFloat(tokenBalance) : false;
+  const unstakeExceedsStaked = unstakeAmount ? parseFloat(unstakeAmount) > parseFloat(stakedBalance) : false;
+
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatsCard
           title="Your Stake"
-          value={`${formatNumber(stakedBalance, { decimals: 2 })} TITAN`}
+          value={formatNumber(stakedBalance, { decimals: 2 })}
+          subtitle="TITAN"
           icon={Coins}
         />
         <StatsCard
           title="Pending Rewards"
-          value={`${formatNumber(pendingRewards, { decimals: 4 })} TITAN`}
+          value={formatNumber(pendingRewards, { decimals: 4 })}
+          subtitle="TITAN"
           icon={Gift}
         />
         <StatsCard
@@ -137,8 +144,11 @@ export function StakeCard() {
                   />
                   <Button
                     variant="outline"
-                    onClick={() => setStakeAmount(tokenBalance)}
-                    className="shrink-0"
+                    onClick={() => {
+                      const truncated = Math.floor(parseFloat(tokenBalance) * 10000) / 10000;
+                      setStakeAmount(truncated > 0 ? truncated.toString() : "");
+                    }}
+                    className="shrink-0 cursor-pointer"
                   >
                     MAX
                   </Button>
@@ -146,15 +156,20 @@ export function StakeCard() {
               </div>
 
               <Button
-                className="w-full"
+                className={cn(
+                  "w-full",
+                  stakeExceedsBalance && isConnected && "bg-red-500 hover:bg-red-600 text-white"
+                )}
                 size="lg"
                 variant={!isConnected ? "green" : "default"}
                 onClick={handleStake}
-                disabled={isStaking || (isConnected && !stakeAmount)}
+                disabled={isStaking || (isConnected && (!stakeAmount || stakeExceedsBalance))}
                 isLoading={isStaking}
               >
                 {!isConnected
                   ? "Connect Wallet"
+                  : stakeExceedsBalance
+                  ? "Insufficient Balance"
                   : isStaking
                   ? "Staking..."
                   : "Stake TITAN"}
@@ -185,8 +200,11 @@ export function StakeCard() {
                   />
                   <Button
                     variant="outline"
-                    onClick={() => setUnstakeAmount(stakedBalance)}
-                    className="shrink-0"
+                    onClick={() => {
+                      const truncated = Math.floor(parseFloat(stakedBalance) * 10000) / 10000;
+                      setUnstakeAmount(truncated > 0 ? truncated.toString() : "");
+                    }}
+                    className="shrink-0 cursor-pointer"
                   >
                     MAX
                   </Button>
@@ -194,15 +212,20 @@ export function StakeCard() {
               </div>
 
               <Button
-                className="w-full"
+                className={cn(
+                  "w-full",
+                  unstakeExceedsStaked && isConnected && "bg-red-500 hover:bg-red-600 text-white"
+                )}
                 size="lg"
                 variant={!isConnected ? "green" : "default"}
                 onClick={handleUnstake}
-                disabled={isUnstaking || (isConnected && !unstakeAmount)}
+                disabled={isUnstaking || (isConnected && (!unstakeAmount || unstakeExceedsStaked))}
                 isLoading={isUnstaking}
               >
                 {!isConnected
                   ? "Connect Wallet"
+                  : unstakeExceedsStaked
+                  ? "Exceeds Staked Amount"
                   : isUnstaking
                   ? "Unstaking..."
                   : "Unstake TITAN"}

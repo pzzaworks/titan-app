@@ -11,13 +11,13 @@ export interface Token {
 // Sepolia deployed contract addresses
 const TITAN_TOKEN = "0xbA6720e72f929318E66AcED4389889640Aee0F6e" as `0x${string}`;
 const EARN = "0x166fef8E2B712393690F44adD86591ccb7a2648c" as `0x${string}`;
-const STAKED_TITAN = "0x4398317E8641E613a92e4af0Ea62eBFf7984818a" as `0x${string}`;
-const GOVERNANCE = "0x482BFe34fC0535a2E3355EF8b4e2405bCD879f19" as `0x${string}`;
+const STAKED_TITAN = "0xa7CA1376bc77535537BF43bf12315AA75c68DA29" as `0x${string}`;
+const GOVERNANCE = "0x374A62ddeCa9739Bd4E586f586B12a355B8aA1D1" as `0x${string}`;
 const FAUCET = "0x7D34B7286d2dC4836e6B0C2761C17b6693e5d241" as `0x${string}`;
 const SWAP_ROUTER = "0x77a76b5eEC937361b8F05c15860AE81d9fe23b0E" as `0x${string}`;
 const LIQUIDITY_ROUTER = "0x11450A1214D485072c1DC0aA82E2547D1ba8040d" as `0x${string}`;
-const TITAN_USD = "0x092D01Ee9a1009211a509AF50Fa2AE11b8060C46" as `0x${string}`;
-const VAULT = "0x1955E35c1EcABf0290b190B85e11EAB705Ad233A" as `0x${string}`;
+const TITAN_USD = "0x0A8d148E2532fb19018D0A877edBf715c1674dBd" as `0x${string}`;
+const VAULT = "0xcd48147387341a99d2b64db0cBc84cBe9a4E928e" as `0x${string}`;
 
 export const config = {
   appName: "Titan",
@@ -86,7 +86,7 @@ export const config = {
   },
 
   links: {
-    github: "https://github.com/pzzaworks",
+    github: "https://github.com/pzzaworks/titan-app",
   },
 
   faucet: {
