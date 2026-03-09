@@ -11,8 +11,8 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", hoverable = false, ...props }, ref) => {
     const variantClasses = {
-      default: "border border-[var(--color-border)] bg-[var(--color-card)] shadow-[var(--shadow-card)]",
-      elevated: "border border-[var(--color-border)] bg-[var(--color-card)] shadow-[var(--shadow-elevated)]",
+      default: "border border-[var(--color-border)] bg-[var(--color-card)]",
+      elevated: "border border-[var(--color-border)] bg-[var(--color-card)]",
       outline: "border border-[var(--color-border)] bg-transparent",
     };
 
@@ -22,7 +22,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         className={cn(
           "rounded-2xl text-[var(--color-card-foreground)] transition-all duration-200",
           variantClasses[variant],
-          hoverable && "hover:border-[var(--color-foreground)]/20 hover:shadow-[var(--shadow-elevated)] cursor-pointer",
+          hoverable && "hover:border-[var(--color-foreground)]/20 cursor-pointer",
           className
         )}
         {...props}

@@ -130,7 +130,7 @@ export function SwapCard() {
           {/* Switch Button - positioned between inputs */}
           <div className="absolute left-1/2 -translate-x-1/2 -bottom-5 z-10">
             <button
-              className="p-2 rounded-full bg-white border border-[var(--color-border)] hover:border-[#999999] hover:bg-[#f5f5f5] transition-all duration-200 cursor-pointer group shadow-sm"
+              className="p-2 rounded-full bg-white border border-[var(--color-border)] hover:border-[#999999] hover:bg-[#f5f5f5] transition-all duration-200 cursor-pointer group"
               onClick={switchTokens}
             >
               <ArrowUpDown className="h-4 w-4 text-[var(--color-muted-foreground)] group-hover:text-[var(--color-foreground)] transition-colors" />

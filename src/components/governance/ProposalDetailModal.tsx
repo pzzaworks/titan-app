@@ -37,7 +37,15 @@ interface Proposal {
   endTime: number;
   voteStart?: number;
   voteEnd?: number;
-  status: "active" | "passed" | "failed" | "pending" | "executed" | "canceled" | "queued" | "expired";
+  status:
+    | "active"
+    | "passed"
+    | "failed"
+    | "pending"
+    | "executed"
+    | "canceled"
+    | "queued"
+    | "expired";
 }
 
 interface VoteReceipt {
@@ -55,7 +63,9 @@ interface ProposalDetailModalProps {
   getVoteReceipt: (proposalId: number) => Promise<VoteReceipt | null>;
   votingPower: string;
   needsDelegate: boolean;
-  onDelegate: (delegateeAddress?: `0x${string}`) => Promise<`0x${string}` | undefined>;
+  onDelegate: (
+    delegateeAddress?: `0x${string}`,
+  ) => Promise<`0x${string}` | undefined>;
   isDelegating: boolean;
   onCancel: (proposalId: number) => Promise<void>;
   isCanceling: boolean;
@@ -65,12 +75,14 @@ interface ProposalDetailModalProps {
 const statusConfig = {
   active: {
     label: "Active",
-    color: "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/20",
+    color:
+      "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/20",
     icon: Timer,
   },
   passed: {
     label: "Passed",
-    color: "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/20",
+    color:
+      "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/20",
     icon: CheckCircle2,
   },
   failed: {
@@ -141,7 +153,8 @@ export function ProposalDetailModal({
   if (!proposal) return null;
 
   const totalVotes = proposal.forVotes + proposal.againstVotes;
-  const forPercentage = totalVotes > 0 ? (proposal.forVotes / totalVotes) * 100 : 0;
+  const forPercentage =
+    totalVotes > 0 ? (proposal.forVotes / totalVotes) * 100 : 0;
   const statusInfo = statusConfig[proposal.status];
   const StatusIcon = statusInfo.icon;
 
@@ -151,8 +164,12 @@ export function ProposalDetailModal({
   const userVotedFor = hasVoted && voteReceipt?.support === 1;
   const userVotedAgainst = hasVoted && voteReceipt?.support === 0;
   const hasVotingPower = parseFloat(votingPower) > 0;
-  const isProposer = address && proposal.proposer.toLowerCase() === address.toLowerCase();
-  const canCancel = isProposer && proposal.status !== "canceled" && proposal.status !== "executed";
+  const isProposer =
+    address && proposal.proposer.toLowerCase() === address.toLowerCase();
+  const canCancel =
+    isProposer &&
+    proposal.status !== "canceled" &&
+    proposal.status !== "executed";
 
   const formatTimeRemaining = (seconds: number) => {
     if (seconds <= 0) return null;
@@ -217,7 +234,10 @@ export function ProposalDetailModal({
           <div className="flex items-center gap-2 mb-2">
             <Badge
               variant="outline"
-              className={cn("flex items-center gap-1 border font-mono uppercase text-xs", statusInfo.color)}
+              className={cn(
+                "flex items-center gap-1 border font-mono uppercase text-xs",
+                statusInfo.color,
+              )}
             >
               <StatusIcon className="h-3 w-3" />
               {statusInfo.label}
@@ -258,7 +278,8 @@ export function ProposalDetailModal({
                 For: {formatNumber(proposal.forVotes, { compact: true })}
               </span>
               <span className="text-red-500 font-medium font-mono">
-                Against: {formatNumber(proposal.againstVotes, { compact: true })}
+                Against:{" "}
+                {formatNumber(proposal.againstVotes, { compact: true })}
               </span>
             </div>
             <div className="relative h-3 rounded-full bg-red-100 overflow-hidden">
@@ -288,11 +309,19 @@ export function ProposalDetailModal({
                 {/* Already voted */}
                 {!isLoadingReceipt && hasVoted && (
                   <div className="text-center py-4 space-y-2">
-                    <div className={cn(
-                      "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
-                      userVotedFor ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]" : "bg-red-50 text-red-600"
-                    )}>
-                      {userVotedFor ? <ThumbsUp className="h-4 w-4" /> : <ThumbsDown className="h-4 w-4" />}
+                    <div
+                      className={cn(
+                        "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
+                        userVotedFor
+                          ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
+                          : "bg-red-50 text-red-600",
+                      )}
+                    >
+                      {userVotedFor ? (
+                        <ThumbsUp className="h-4 w-4" />
+                      ) : (
+                        <ThumbsDown className="h-4 w-4" />
+                      )}
                       <span className="font-medium">
                         You voted {userVotedFor ? "For" : "Against"}
                       </span>
@@ -304,110 +333,137 @@ export function ProposalDetailModal({
                 )}
 
                 {/* Needs to delegate */}
-                {!isLoadingReceipt && !hasVoted && isConnected && needsDelegate && (
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-2 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
-                      <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-yellow-800">Activate Voting Power</p>
-                        <p className="text-xs text-yellow-700 mt-1">
-                          You have staked TITAN (sTITAN) but need to activate your voting power.
-                        </p>
+                {!isLoadingReceipt &&
+                  !hasVoted &&
+                  isConnected &&
+                  needsDelegate && (
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-2 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
+                        <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-yellow-800">
+                            Activate Voting Power
+                          </p>
+                          <p className="text-xs text-yellow-700 mt-1">
+                            You have staked TITAN (sTITAN) but need to activate
+                            your voting power.
+                          </p>
+                        </div>
                       </div>
+                      <Button
+                        className="w-full cursor-pointer"
+                        size="lg"
+                        onClick={handleDelegate}
+                        disabled={isDelegating}
+                        isLoading={isDelegating}
+                      >
+                        {isDelegating
+                          ? "Activating..."
+                          : "Activate Voting Power"}
+                      </Button>
                     </div>
-                    <Button
-                      className="w-full cursor-pointer"
-                      size="lg"
-                      onClick={handleDelegate}
-                      disabled={isDelegating}
-                      isLoading={isDelegating}
-                    >
-                      {isDelegating ? "Activating..." : "Activate Voting Power"}
-                    </Button>
-                  </div>
-                )}
+                  )}
 
                 {/* No voting power */}
-                {!isLoadingReceipt && !hasVoted && isConnected && !needsDelegate && !hasVotingPower && (
-                  <div className="text-center py-4">
-                    <div className="flex items-center justify-center gap-2 text-[var(--color-muted-foreground)]">
-                      <AlertCircle className="h-4 w-4" />
-                      <p className="text-sm">You need to stake TITAN to vote</p>
+                {!isLoadingReceipt &&
+                  !hasVoted &&
+                  isConnected &&
+                  !needsDelegate &&
+                  !hasVotingPower && (
+                    <div className="text-center py-4">
+                      <div className="flex items-center justify-center gap-2 text-[var(--color-muted-foreground)]">
+                        <AlertCircle className="h-4 w-4" />
+                        <p className="text-sm">
+                          You need to stake TITAN to vote
+                        </p>
+                      </div>
+                      <p className="text-xs text-[var(--color-muted-foreground)] mt-1">
+                        Go to Stake page and stake TITAN to get voting power
+                      </p>
                     </div>
-                    <p className="text-xs text-[var(--color-muted-foreground)] mt-1">
-                      Go to Stake page and stake TITAN to get voting power
-                    </p>
-                  </div>
-                )}
+                  )}
 
                 {/* Can vote */}
-                {!isLoadingReceipt && !hasVoted && (!isConnected || (hasVotingPower && !needsDelegate)) && (
-                  <>
-                    <p className="text-sm font-medium text-[var(--color-foreground)]">Cast Your Vote</p>
+                {!isLoadingReceipt &&
+                  !hasVoted &&
+                  (!isConnected || (hasVotingPower && !needsDelegate)) && (
+                    <>
+                      <p className="text-sm font-medium text-[var(--color-foreground)]">
+                        Cast Your Vote
+                      </p>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <button
-                        onClick={() => setSelectedVote(true)}
-                        className={cn(
-                          "relative flex items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer",
-                          selectedVote === true
-                            ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-lg scale-[1.02]"
-                            : "border-[var(--color-border)] hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-primary)]/5"
-                        )}
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          onClick={() => setSelectedVote(true)}
+                          className={cn(
+                            "relative flex items-center justify-center gap-2 p-4 rounded-xl border transition-all duration-200 cursor-pointer",
+                            selectedVote === true
+                              ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white scale-[1.02]"
+                              : "border-[var(--color-border)] hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-primary)]/5",
+                          )}
+                        >
+                          <ThumbsUp className="h-5 w-5" />
+                          <span className="font-semibold">For</span>
+                          {selectedVote === true && (
+                            <CheckCircle2 className="absolute top-2 right-2 h-4 w-4" />
+                          )}
+                        </button>
+
+                        <button
+                          onClick={() => setSelectedVote(false)}
+                          className={cn(
+                            "relative flex items-center justify-center gap-2 p-4 rounded-xl border transition-all duration-200 cursor-pointer",
+                            selectedVote === false
+                              ? "border-red-500 bg-red-500 text-white scale-[1.02]"
+                              : "border-[var(--color-border)] hover:border-red-300 hover:bg-red-50",
+                          )}
+                        >
+                          <ThumbsDown className="h-5 w-5" />
+                          <span className="font-semibold">Against</span>
+                          {selectedVote === false && (
+                            <XCircle className="absolute top-2 right-2 h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+
+                      <Button
+                        className="w-full cursor-pointer"
+                        size="lg"
+                        variant={!isConnected ? "green" : "default"}
+                        onClick={handleVote}
+                        disabled={
+                          isVoting || (isConnected && selectedVote === null)
+                        }
+                        isLoading={isVoting}
                       >
-                        <ThumbsUp className="h-5 w-5" />
-                        <span className="font-semibold">For</span>
-                        {selectedVote === true && (
-                          <CheckCircle2 className="absolute top-2 right-2 h-4 w-4" />
-                        )}
-                      </button>
-
-                      <button
-                        onClick={() => setSelectedVote(false)}
-                        className={cn(
-                          "relative flex items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer",
-                          selectedVote === false
-                            ? "border-red-500 bg-red-500 text-white shadow-lg scale-[1.02]"
-                            : "border-[var(--color-border)] hover:border-red-300 hover:bg-red-50"
-                        )}
-                      >
-                        <ThumbsDown className="h-5 w-5" />
-                        <span className="font-semibold">Against</span>
-                        {selectedVote === false && (
-                          <XCircle className="absolute top-2 right-2 h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-
-                    <Button
-                      className="w-full cursor-pointer"
-                      size="lg"
-                      variant={!isConnected ? "green" : "default"}
-                      onClick={handleVote}
-                      disabled={isVoting || (isConnected && selectedVote === null)}
-                      isLoading={isVoting}
-                    >
-                      {!isConnected
-                        ? "Connect Wallet"
-                        : selectedVote === null
-                        ? "Select Vote"
-                        : isVoting
-                        ? "Submitting..."
-                        : "Submit Vote"}
-                    </Button>
-                  </>
-                )}
+                        {!isConnected
+                          ? "Connect Wallet"
+                          : selectedVote === null
+                            ? "Select Vote"
+                            : isVoting
+                              ? "Submitting..."
+                              : "Submit Vote"}
+                      </Button>
+                    </>
+                  )}
               </>
             ) : (
               <div className="text-center py-4">
                 <p className="text-sm text-[var(--color-muted-foreground)]">
-                  {proposal.status === "executed" && "This proposal has been executed."}
-                  {proposal.status === "passed" && "This proposal has passed and is awaiting execution."}
-                  {proposal.status === "failed" && "This proposal was rejected by the community."}
-                  {proposal.status === "pending" && "Voting has not started yet."}
-                  {proposal.status === "queued" && "This proposal is queued for execution."}
-                  {proposal.status === "expired" && "This proposal has expired."}
-                  {proposal.status === "canceled" && "This proposal was canceled."}
+                  {proposal.status === "executed" &&
+                    "This proposal has been executed."}
+                  {proposal.status === "passed" &&
+                    "This proposal has passed and is awaiting execution."}
+                  {proposal.status === "failed" &&
+                    "This proposal was rejected by the community."}
+                  {proposal.status === "pending" &&
+                    "Voting has not started yet."}
+                  {proposal.status === "queued" &&
+                    "This proposal is queued for execution."}
+                  {proposal.status === "expired" &&
+                    "This proposal has expired."}
+                  {proposal.status === "canceled" &&
+                    "This proposal was canceled."}
                 </p>
               </div>
             )}

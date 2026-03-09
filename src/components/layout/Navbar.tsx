@@ -50,7 +50,7 @@ export function Navbar() {
           className={cn(
             "mt-4 pl-6 pr-3 py-3 rounded-full transition-colors duration-300",
             scrolled || mobileMenuOpen
-              ? "bg-white/95 backdrop-blur-sm shadow-[var(--shadow-subtle)] border border-[var(--color-border)]"
+              ? "bg-white/95 backdrop-blur-sm border border-[var(--color-border)]"
               : "bg-transparent"
           )}
         >
@@ -128,7 +128,7 @@ export function Navbar() {
 
         {/* Mobile Navigation - Separate container */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-2 mx-2 p-4 bg-white/95 backdrop-blur-sm rounded-2xl shadow-[var(--shadow-subtle)]">
+          <div className="md:hidden mt-2 mx-2 p-4 bg-white/95 backdrop-blur-sm rounded-2xl border border-[var(--color-border)]">
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;

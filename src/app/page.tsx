@@ -4,8 +4,10 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowLeftRight,
-  Landmark,
-  Sprout,
+  Droplets,
+  Coins,
+  Gem,
+  Banknote,
   Vote,
   Zap,
   ChevronRight,
@@ -29,26 +31,48 @@ const features = [
     image: "/swap.jpg",
   },
   {
-    icon: Landmark,
-    title: "Stake",
+    icon: Droplets,
+    title: "Liquidity",
+    description:
+      "Provide liquidity to earn trading fees with concentrated liquidity positions.",
+    description2:
+      "Set custom price ranges for maximized capital efficiency and higher returns.",
+    href: "/liquidity",
+    badge: "LP",
+    image: "/liquidity.jpg",
+  },
+  {
+    icon: Coins,
+    title: "Earn",
     description:
       "Stake TITAN to earn rewards and gain governance power over protocol decisions.",
     description2:
       "Flexible staking periods with auto-compounding rewards and no lock-up requirements.",
-    href: "/stake",
+    href: "/earn",
     badge: "Staking",
-    image: "/stake.jpg",
+    image: "/earn.jpg",
   },
   {
-    icon: Sprout,
-    title: "Farm",
+    icon: Gem,
+    title: "sTitan",
     description:
-      "Provide liquidity to earn yield on your assets with competitive APRs.",
+      "Liquid staking for TITAN. Stake and stay liquid with sTITAN tokens.",
     description2:
-      "Concentrated liquidity positions for maximized capital efficiency and higher returns.",
-    href: "/farm",
-    badge: "Yield",
-    image: "/farm.jpg",
+      "Earn staking rewards while using your sTITAN across DeFi protocols.",
+    href: "/stitan",
+    badge: "Liquid Staking",
+    image: "/stitan.jpg",
+  },
+  {
+    icon: Banknote,
+    title: "Borrow",
+    description:
+      "Deposit collateral and borrow TUSD stablecoin against your assets.",
+    description2:
+      "Maintain exposure to your crypto while accessing liquidity for other opportunities.",
+    href: "/borrow",
+    badge: "Lending",
+    image: "/borrow.jpg",
   },
   {
     icon: Vote,
@@ -71,22 +95,22 @@ const stats = [
     icon: ArrowLeftRight,
   },
   {
-    label: "Staking",
+    label: "Liquidity",
     value: "Live",
-    change: "Earn TITAN",
-    icon: Landmark,
+    change: "Earn Fees",
+    icon: Droplets,
   },
   {
-    label: "Farming",
+    label: "Staking",
     value: "Active",
-    change: "LP Rewards",
-    icon: Sprout,
+    change: "sTITAN",
+    icon: Gem,
   },
   {
-    label: "Governance",
-    value: "DAO",
-    change: "Vote",
-    icon: Vote,
+    label: "Borrow",
+    value: "TUSD",
+    change: "Lending",
+    icon: Banknote,
   },
 ];
 
@@ -125,14 +149,14 @@ export default function Home() {
               <span className="inline-flex items-center font-mono uppercase tracking-wider text-xs text-white/80 mb-6 px-3 py-1.5 rounded-full border border-white/30 bg-white/10">
                 DeFi Protocol
               </span>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.1] tracking-tight text-white mb-6 [text-shadow:_0_2px_12px_rgb(0_0_0_/_40%)]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.1] tracking-tight text-white mb-6">
                 The all-in-one DeFi
                 <br />
                 protocol for Titans.
               </h1>
-              <p className="text-lg text-white mb-8 max-w-lg leading-relaxed [text-shadow:_0_1px_8px_rgb(0_0_0_/_50%)]">
-                Swap, stake, farm, and govern - all in one elegant interface. A
-                DeFi protocol built with Uniswap V4.
+              <p className="text-lg text-white mb-8 max-w-lg leading-relaxed">
+                Swap, stake, borrow, and govern - all in one elegant interface.
+                A DeFi protocol built with Uniswap V4.
               </p>
               <Link href="/swap">
                 <Button
@@ -152,7 +176,7 @@ export default function Home() {
                 return (
                   <div
                     key={stat.label}
-                    className="bg-white rounded-2xl p-5 hover:shadow-lg transition-all duration-200"
+                    className="bg-white rounded-2xl p-5 transition-all duration-200"
                   >
                     <div className="mb-3">
                       <Icon className="h-5 w-5 text-[var(--color-muted-foreground)]" />
@@ -195,11 +219,11 @@ export default function Home() {
               const Icon = feature.icon;
               return (
                 <Link key={feature.title} href={feature.href}>
-                  <div className="bg-white border border-[var(--color-border)] rounded-2xl p-2 h-full cursor-pointer group hover:border-[var(--color-foreground)]/20 transition-all duration-200 flex flex-col sm:flex-row">
+                  <div className="bg-white border border-[var(--color-border)] rounded-2xl p-2 h-full cursor-pointer group hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 transition-all duration-300 flex flex-col sm:flex-row">
                     <div className="flex-1 p-6 order-1 sm:order-1">
                       <div className="flex items-start justify-between mb-6">
-                        <Icon className="h-6 w-6 text-[var(--color-muted-foreground)]" />
-                        <span className="font-mono uppercase tracking-wider text-xs text-[var(--color-muted-foreground)]">
+                        <Icon className="h-6 w-6 text-[var(--color-muted-foreground)] group-hover:text-[var(--color-primary)] transition-colors duration-300" />
+                        <span className="font-mono uppercase tracking-wider text-xs text-[var(--color-muted-foreground)] group-hover:text-[var(--color-primary)] transition-colors duration-300">
                           {feature.badge}
                         </span>
                       </div>

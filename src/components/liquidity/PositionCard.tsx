@@ -64,10 +64,12 @@ export function PositionCard({
   const hasUnclaimedFees = totalFees > 0;
 
   // Determine range status - check if current tick is within position range
-  const isInRange = currentTick >= position.tickLower && currentTick < position.tickUpper;
+  const isInRange =
+    currentTick >= position.tickLower && currentTick < position.tickUpper;
 
   // Check if this is a full range position
-  const isFullRange = position.tickLower <= -887220 && position.tickUpper >= 887220;
+  const isFullRange =
+    position.tickLower <= -887220 && position.tickUpper >= 887220;
 
   // Calculate position within range for progress bar (0-100%)
   const rangeProgress = (() => {
@@ -75,12 +77,21 @@ export function PositionCard({
       // For full range, show position relative to reasonable bounds
       const displayLower = -200000;
       const displayUpper = 200000;
-      const clampedTick = Math.max(displayLower, Math.min(displayUpper, currentTick));
-      return ((clampedTick - displayLower) / (displayUpper - displayLower)) * 100;
+      const clampedTick = Math.max(
+        displayLower,
+        Math.min(displayUpper, currentTick),
+      );
+      return (
+        ((clampedTick - displayLower) / (displayUpper - displayLower)) * 100
+      );
     }
     if (currentTick <= position.tickLower) return 0;
     if (currentTick >= position.tickUpper) return 100;
-    return ((currentTick - position.tickLower) / (position.tickUpper - position.tickLower)) * 100;
+    return (
+      ((currentTick - position.tickLower) /
+        (position.tickUpper - position.tickLower)) *
+      100
+    );
   })();
 
   // Convert tick to price (TITAN per ETH)
@@ -98,7 +109,9 @@ export function PositionCard({
     const ethPerTitan = 1 / price;
     if (ethPerTitan < 0.0000001) return "< 0.0000001";
     if (ethPerTitan > 1000000) return "> 1M";
-    return ethPerTitan.toFixed(ethPerTitan < 0.001 ? 8 : ethPerTitan < 1 ? 6 : 4);
+    return ethPerTitan.toFixed(
+      ethPerTitan < 0.001 ? 8 : ethPerTitan < 1 ? 6 : 4,
+    );
   };
 
   // Format position ID for display
@@ -116,11 +129,14 @@ export function PositionCard({
     <Card className="overflow-hidden hover:border-[var(--color-foreground)]/20 transition-all duration-200">
       <CardContent className="p-0">
         {/* Main Row */}
-        <div className="p-4 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <div
+          className="p-4 cursor-pointer"
+          onClick={() => setExpanded(!expanded)}
+        >
           <div className="flex items-center gap-3">
             {/* Token Icons */}
             <div className="relative flex items-center flex-shrink-0">
-              <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white bg-[var(--color-background)] flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full overflow-hidden border border-white bg-[var(--color-background)] flex items-center justify-center">
                 <Image
                   src={config.tokens.TITAN.logoUrl}
                   alt="TITAN"
@@ -129,7 +145,7 @@ export function PositionCard({
                   className="rounded-full"
                 />
               </div>
-              <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white bg-[var(--color-background)] -ml-2.5 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full overflow-hidden border border-white bg-[var(--color-background)] -ml-2.5 flex items-center justify-center">
                 <Image
                   src={config.tokens.WETH.logoUrl}
                   alt="WETH"
@@ -143,13 +159,15 @@ export function PositionCard({
             {/* Position Info */}
             <div className="flex-shrink-0 min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="font-medium text-[var(--color-foreground)] text-sm">TITAN/WETH</span>
+                <span className="font-medium text-[var(--color-foreground)] text-sm">
+                  TITAN/WETH
+                </span>
                 <Badge
                   className={cn(
                     "text-[10px] px-1.5 py-0",
                     isInRange
                       ? "bg-green-500/10 text-green-600"
-                      : "bg-yellow-500/10 text-yellow-600"
+                      : "bg-yellow-500/10 text-yellow-600",
                   )}
                 >
                   {isInRange ? "In Range" : "Out"}
@@ -163,24 +181,41 @@ export function PositionCard({
             {/* Stats - flex grow to fill space */}
             <div className="flex items-center gap-4 sm:gap-6 ml-auto">
               <div className="text-right">
-                <p className="text-[10px] text-[var(--color-muted-foreground)] uppercase tracking-wide">Value</p>
+                <p className="text-[10px] text-[var(--color-muted-foreground)] uppercase tracking-wide">
+                  Value
+                </p>
                 <p className="font-medium text-[var(--color-foreground)] font-mono text-sm">
                   {formatNumber(parseFloat(titanAmount), { decimals: 2 })}
-                  <span className="text-[var(--color-muted-foreground)] ml-1 text-xs">TITAN</span>
+                  <span className="text-[var(--color-muted-foreground)] ml-1 text-xs">
+                    TITAN
+                  </span>
                 </p>
               </div>
               <div className="text-right hidden sm:block">
-                <p className="text-[10px] text-[var(--color-muted-foreground)] uppercase tracking-wide">Fees</p>
-                <p className={cn(
-                  "font-medium font-mono text-sm",
-                  hasUnclaimedFees ? "text-green-600" : "text-[var(--color-muted-foreground)]"
-                )}>
-                  {hasUnclaimedFees ? formatNumber(totalFees, { decimals: 4 }) : "-"}
+                <p className="text-[10px] text-[var(--color-muted-foreground)] uppercase tracking-wide">
+                  Fees
+                </p>
+                <p
+                  className={cn(
+                    "font-medium font-mono text-sm",
+                    hasUnclaimedFees
+                      ? "text-green-600"
+                      : "text-[var(--color-muted-foreground)]",
+                  )}
+                >
+                  {hasUnclaimedFees
+                    ? formatNumber(totalFees, { decimals: 4 })
+                    : "-"}
                 </p>
               </div>
 
               {/* Expand Icon */}
-              <div className={cn("transition-transform duration-200 flex-shrink-0", expanded && "rotate-180")}>
+              <div
+                className={cn(
+                  "transition-transform duration-200 flex-shrink-0",
+                  expanded && "rotate-180",
+                )}
+              >
                 <ChevronDown className="h-4 w-4 text-[var(--color-muted-foreground)]" />
               </div>
             </div>
@@ -201,13 +236,17 @@ export function PositionCard({
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between text-sm">
-                    <span className="text-[var(--color-muted-foreground)]">TITAN</span>
+                    <span className="text-[var(--color-muted-foreground)]">
+                      TITAN
+                    </span>
                     <span className="font-medium text-[var(--color-foreground)] font-mono">
                       {formatNumber(parseFloat(titanAmount), { decimals: 6 })}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-[var(--color-muted-foreground)]">WETH</span>
+                    <span className="text-[var(--color-muted-foreground)]">
+                      WETH
+                    </span>
                     <span className="font-medium text-[var(--color-foreground)] font-mono">
                       {formatNumber(parseFloat(wethAmount), { decimals: 6 })}
                     </span>
@@ -215,36 +254,58 @@ export function PositionCard({
                 </div>
               </div>
 
-              <div className={cn(
-                "rounded-xl border p-4",
-                hasUnclaimedFees
-                  ? "bg-green-500/5 border-green-500/20"
-                  : "bg-[var(--color-foreground)]/5 border-[var(--color-border)]"
-              )}>
-                <div className={cn(
-                  "flex items-center gap-2 text-sm mb-2",
-                  hasUnclaimedFees ? "text-green-600" : "text-[var(--color-muted-foreground)]"
-                )}>
+              <div
+                className={cn(
+                  "rounded-xl border p-4",
+                  hasUnclaimedFees
+                    ? "bg-green-500/5 border-green-500/20"
+                    : "bg-[var(--color-foreground)]/5 border-[var(--color-border)]",
+                )}
+              >
+                <div
+                  className={cn(
+                    "flex items-center gap-2 text-sm mb-2",
+                    hasUnclaimedFees
+                      ? "text-green-600"
+                      : "text-[var(--color-muted-foreground)]",
+                  )}
+                >
                   <DollarSign className="h-4 w-4" />
                   <span>Unclaimed Fees</span>
                 </div>
                 <div className="space-y-1">
                   <div className="flex justify-between text-sm">
-                    <span className="text-[var(--color-muted-foreground)]">TITAN</span>
-                    <span className={cn(
-                      "font-medium font-mono",
-                      parseFloat(titanFees) > 0 ? "text-green-600" : "text-[var(--color-muted-foreground)]"
-                    )}>
-                      {parseFloat(titanFees) > 0 ? formatNumber(parseFloat(titanFees), { decimals: 6 }) : "0"}
+                    <span className="text-[var(--color-muted-foreground)]">
+                      TITAN
+                    </span>
+                    <span
+                      className={cn(
+                        "font-medium font-mono",
+                        parseFloat(titanFees) > 0
+                          ? "text-green-600"
+                          : "text-[var(--color-muted-foreground)]",
+                      )}
+                    >
+                      {parseFloat(titanFees) > 0
+                        ? formatNumber(parseFloat(titanFees), { decimals: 6 })
+                        : "0"}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-[var(--color-muted-foreground)]">WETH</span>
-                    <span className={cn(
-                      "font-medium font-mono",
-                      parseFloat(wethFees) > 0 ? "text-green-600" : "text-[var(--color-muted-foreground)]"
-                    )}>
-                      {parseFloat(wethFees) > 0 ? formatNumber(parseFloat(wethFees), { decimals: 8 }) : "0"}
+                    <span className="text-[var(--color-muted-foreground)]">
+                      WETH
+                    </span>
+                    <span
+                      className={cn(
+                        "font-medium font-mono",
+                        parseFloat(wethFees) > 0
+                          ? "text-green-600"
+                          : "text-[var(--color-muted-foreground)]",
+                      )}
+                    >
+                      {parseFloat(wethFees) > 0
+                        ? formatNumber(parseFloat(wethFees), { decimals: 8 })
+                        : "0"}
                     </span>
                   </div>
                 </div>
@@ -269,14 +330,18 @@ export function PositionCard({
                 /* Full Range Display */
                 <div className="text-center py-2">
                   <div className="flex items-center justify-center gap-4 text-sm">
-                    <span className="text-[var(--color-muted-foreground)]">0</span>
+                    <span className="text-[var(--color-muted-foreground)]">
+                      0
+                    </span>
                     <div className="flex items-center gap-2 px-4 py-1.5 bg-green-500/10 rounded-full">
                       <div className="w-2 h-2 bg-green-500 rounded-full" />
                       <span className="font-mono text-green-600">
                         1 TITAN = {formatPriceDisplay(currentTick)} ETH
                       </span>
                     </div>
-                    <span className="text-[var(--color-muted-foreground)]">∞</span>
+                    <span className="text-[var(--color-muted-foreground)]">
+                      ∞
+                    </span>
                   </div>
                   <p className="text-xs text-[var(--color-muted-foreground)] mt-2">
                     Earns fees at any price
@@ -288,13 +353,17 @@ export function PositionCard({
                   {/* Price bounds */}
                   <div className="flex justify-between text-sm">
                     <div>
-                      <p className="text-xs text-[var(--color-muted-foreground)] mb-1">Min Price</p>
+                      <p className="text-xs text-[var(--color-muted-foreground)] mb-1">
+                        Min Price
+                      </p>
                       <p className="font-mono text-[var(--color-foreground)]">
                         {formatPriceDisplay(position.tickLower)} ETH
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-[var(--color-muted-foreground)] mb-1">Max Price</p>
+                      <p className="text-xs text-[var(--color-muted-foreground)] mb-1">
+                        Max Price
+                      </p>
                       <p className="font-mono text-[var(--color-foreground)]">
                         {formatPriceDisplay(position.tickUpper)} ETH
                       </p>
@@ -307,7 +376,7 @@ export function PositionCard({
                       <div
                         className={cn(
                           "h-full rounded-full",
-                          isInRange ? "bg-green-500/30" : "bg-yellow-500/30"
+                          isInRange ? "bg-green-500/30" : "bg-yellow-500/30",
                         )}
                         style={{ width: "100%" }}
                       />
@@ -315,16 +384,20 @@ export function PositionCard({
                     {/* Current price indicator */}
                     <div
                       className={cn(
-                        "absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white shadow-sm",
-                        isInRange ? "bg-green-500" : "bg-yellow-500"
+                        "absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-white",
+                        isInRange ? "bg-green-500" : "bg-yellow-500",
                       )}
-                      style={{ left: `calc(${Math.min(100, Math.max(0, rangeProgress))}% - 6px)` }}
+                      style={{
+                        left: `calc(${Math.min(100, Math.max(0, rangeProgress))}% - 6px)`,
+                      }}
                     />
                   </div>
 
                   {/* Current price */}
                   <div className="text-center">
-                    <span className="text-xs text-[var(--color-muted-foreground)]">Current: </span>
+                    <span className="text-xs text-[var(--color-muted-foreground)]">
+                      Current:{" "}
+                    </span>
                     <span className="text-xs font-mono text-[var(--color-foreground)]">
                       1 TITAN = {formatPriceDisplay(currentTick)} ETH
                     </span>
@@ -347,7 +420,10 @@ export function PositionCard({
                 Collect Fees
               </Button>
 
-              <Dialog open={removeDialogOpen} onOpenChange={setRemoveDialogOpen}>
+              <Dialog
+                open={removeDialogOpen}
+                onOpenChange={setRemoveDialogOpen}
+              >
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
@@ -394,7 +470,7 @@ export function PositionCard({
                             className={cn(
                               "flex-1 cursor-pointer",
                               removePercentage === pct &&
-                                "border-[var(--color-primary)] bg-[var(--color-primary)]/5"
+                                "border-[var(--color-primary)] bg-[var(--color-primary)]/5",
                             )}
                           >
                             {pct}%
@@ -408,20 +484,24 @@ export function PositionCard({
                         You will receive approximately:
                       </p>
                       <div className="flex justify-between text-sm">
-                        <span className="text-[var(--color-foreground)]">TITAN</span>
+                        <span className="text-[var(--color-foreground)]">
+                          TITAN
+                        </span>
                         <span className="font-medium text-[var(--color-foreground)] font-mono">
                           {formatNumber(
                             (parseFloat(titanAmount) * removePercentage) / 100,
-                            { decimals: 4 }
+                            { decimals: 4 },
                           )}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-[var(--color-foreground)]">WETH</span>
+                        <span className="text-[var(--color-foreground)]">
+                          WETH
+                        </span>
                         <span className="font-medium text-[var(--color-foreground)] font-mono">
                           {formatNumber(
                             (parseFloat(wethAmount) * removePercentage) / 100,
-                            { decimals: 4 }
+                            { decimals: 4 },
                           )}
                         </span>
                       </div>

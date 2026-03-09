@@ -30,8 +30,10 @@ const voteOptions = [
     type: "for" as VoteType,
     label: "For",
     icon: ThumbsUp,
-    activeClass: "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
-    hoverClass: "hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-primary)]/5",
+    activeClass:
+      "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
+    hoverClass:
+      "hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-primary)]/5",
   },
   {
     type: "against" as VoteType,
@@ -107,7 +109,9 @@ export function VoteModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-white border-[var(--color-border)]">
         <DialogHeader>
-          <DialogTitle className="text-[var(--color-foreground)]">Cast Your Vote</DialogTitle>
+          <DialogTitle className="text-[var(--color-foreground)]">
+            Cast Your Vote
+          </DialogTitle>
           <DialogDescription className="line-clamp-2">
             Proposal #{proposalId}: {proposalTitle}
           </DialogDescription>
@@ -124,16 +128,18 @@ export function VoteModal({
                   key={option.type}
                   onClick={() => setSelectedVote(option.type)}
                   className={cn(
-                    "w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer",
+                    "w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 cursor-pointer",
                     isSelected
                       ? option.activeClass
-                      : `border-[var(--color-border)] ${option.hoverClass}`
+                      : `border-[var(--color-border)] ${option.hoverClass}`,
                   )}
                 >
                   <div
                     className={cn(
                       "w-10 h-10 rounded-full flex items-center justify-center",
-                      isSelected ? "bg-white/50" : "bg-[var(--color-foreground)]/5"
+                      isSelected
+                        ? "bg-white/50"
+                        : "bg-[var(--color-foreground)]/5",
                     )}
                   >
                     <Icon className="h-5 w-5" />
@@ -156,10 +162,10 @@ export function VoteModal({
             {!isConnected
               ? "Connect Wallet"
               : !selectedVote
-              ? "Select Vote"
-              : isVoting
-              ? "Submitting..."
-              : "Submit Vote"}
+                ? "Select Vote"
+                : isVoting
+                  ? "Submitting..."
+                  : "Submit Vote"}
           </Button>
         </div>
       </DialogContent>

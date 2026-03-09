@@ -291,7 +291,7 @@ export default function BorrowPage() {
                   <div className="relative h-3 rounded-full bg-gradient-to-r from-red-300 via-yellow-300 via-50% to-green-300 overflow-hidden">
                     {/* Marker for current position */}
                     <div
-                      className="absolute top-0 bottom-0 w-1 bg-[var(--color-foreground)] rounded-full shadow-lg transition-all"
+                      className="absolute top-0 bottom-0 w-1 bg-[var(--color-foreground)] rounded-full transition-all"
                       style={{
                         left: `${Math.min(Math.max(collateralRatioPercent - 100, 0), 100)}%`,
                       }}

@@ -124,7 +124,7 @@ export function ProposalCard({ proposal, currentBlock = 0, onClick }: ProposalCa
 
   return (
     <Card
-      className="hover:border-[var(--color-foreground)]/20 hover:shadow-md transition-all duration-200 cursor-pointer h-full"
+      className="hover:border-[var(--color-foreground)]/20 transition-all duration-200 cursor-pointer h-full"
       onClick={onClick}
     >
       <CardContent className="p-5 flex flex-col h-full">

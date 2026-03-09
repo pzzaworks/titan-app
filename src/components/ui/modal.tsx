@@ -120,7 +120,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-[var(--shadow-elevated)]",
+          "fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6",
           sizeClasses[size],
           className
         )}
