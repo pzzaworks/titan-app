@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/titan-app.png" alt="Titan" width="200" />
+  <img src="public/titan-logo.svg" alt="Titan" width="80" />
 </p>
 
 <p align="center">
