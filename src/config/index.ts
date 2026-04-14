@@ -26,7 +26,7 @@ const VAULT = "0xcd48147387341a99d2b64db0cBc84cBe9a4E928e" as `0x${string}`;
 
 export const config = {
   appName: "Titan",
-  appDescription: "DeFi Super App",
+  appDescription: "DeFi app",
   appUrl: "https://titandefi.org",
 
   chains: [sepolia] as const,

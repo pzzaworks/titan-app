@@ -25,18 +25,18 @@
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: TailwindCSS
+- **Framework**: Next.js 16.1.6 (App Router)
+- **Language**: TypeScript 5.9.3
+- **Styling**: Tailwind CSS 4.2.1
 - **UI**: shadcn/ui + Radix UI
-- **Web3**: wagmi + viem
-- **Wallet**: Reown AppKit
-- **Animations**: Framer Motion
+- **Web3**: wagmi 3.5.0 + viem 2.46.3
+- **Wallet**: Reown AppKit 1.8.18
+- **Animations**: Framer Motion 12.34.3
 
 ## Getting Started
 
 ```bash
-pnpm install
+npm install
 ```
 
 Create `.env.local` file:
@@ -48,10 +48,10 @@ NEXT_PUBLIC_REOWN_PROJECT_ID=your_project_id_here
 Get your project ID at [cloud.reown.com](https://cloud.reown.com)
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3200](http://localhost:3200)
 
 ## Network
 
@@ -60,10 +60,10 @@ The app runs on **Ethereum Sepolia** testnet.
 ## Scripts
 
 ```bash
-pnpm dev       # Start development server
-pnpm build     # Build for production
-pnpm start     # Start production server
-pnpm lint      # Run ESLint
+npm run dev    # Start development server
+npm run build  # Build for production
+npm run start  # Start production server
+npm run lint   # Run ESLint
 ```
 
 ## License

@@ -85,11 +85,13 @@ export function ProposalModal({ open, onOpenChange, onSubmit }: ProposalModalPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-white border-[var(--color-border)]">
+      <DialogContent className="sm:max-w-lg bg-[var(--color-background)]">
         <DialogHeader>
-          <DialogTitle className="text-[var(--color-foreground)]">Create Proposal</DialogTitle>
+          <DialogTitle className="font-display text-[32px] leading-[0.98] font-[300] tracking-[-0.03em] text-[var(--color-foreground)]">
+            Create proposal
+          </DialogTitle>
           <DialogDescription>
-            Create a new governance proposal for the Titan DAO to vote on.
+            Write the title and description, then submit it to governance.
           </DialogDescription>
         </DialogHeader>
 
@@ -115,7 +117,7 @@ export function ProposalModal({ open, onOpenChange, onSubmit }: ProposalModalPro
               placeholder="Describe your proposal in detail..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="flex min-h-[150px] w-full rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-foreground)] ring-offset-background placeholder:text-[var(--color-muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 focus-visible:ring-offset-2 focus-visible:border-[var(--color-foreground)]/30 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 resize-none"
+              className="flex min-h-[150px] w-full resize-none rounded-xl bg-white/78 px-4 py-3 text-sm text-[var(--color-foreground)] ring-offset-background placeholder:text-[var(--color-muted-foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
             />
           </div>
 

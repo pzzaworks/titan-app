@@ -1,24 +1,33 @@
-"use client";
+import type { Metadata } from "next";
 
+import { Reveal } from "@/components/motion/Reveal";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { STitanCard } from "@/components/stitan/STitanCard";
+import { createPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "sTitan",
+  description:
+    "Deposit TITAN, receive sTITAN, and keep governance voting power attached in Titan's experimental liquid staking flow on Sepolia.",
+  path: "/stitan",
+  keywords: ["stitan", "liquid staking", "staking titan"],
+});
 
 export default function STitanPage() {
   return (
     <PageContainer>
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-10">
-          <span className="inline-flex items-center font-mono uppercase tracking-wider text-xs text-[var(--color-muted-foreground)] mb-4 px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-white">
-            Liquid Staking
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-medium leading-[1.15] tracking-tight text-[var(--color-foreground)] mb-2">
-            Stake TITAN, Get sTITAN
+        <Reveal className="mb-10 text-center">
+          <h1 className="mb-3 font-display text-[44px] leading-[0.95] font-[300] tracking-[-0.03em] text-[var(--color-foreground)] sm:text-[56px]">
+            sTitan
           </h1>
-          <p className="text-[var(--color-muted-foreground)] max-w-md mx-auto">
-            Liquid staking with governance power. Earn rewards and vote on proposals.
+          <p className="mx-auto max-w-md text-[17px] leading-[1.28] text-[var(--color-muted-foreground)]">
+            Deposit TITAN, receive sTITAN, and keep voting power attached.
           </p>
-        </div>
-        <STitanCard />
+        </Reveal>
+        <Reveal delay={0.08}>
+          <STitanCard />
+        </Reveal>
       </div>
     </PageContainer>
   );

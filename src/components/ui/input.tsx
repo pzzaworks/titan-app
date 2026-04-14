@@ -14,7 +14,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          "flex h-12 w-full rounded-full border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-2 text-sm text-[var(--color-foreground)] file:border-0 file:bg-transparent file:text-sm file:font-medium file:cursor-pointer placeholder:text-[var(--color-muted-foreground)] focus:outline-none focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none disabled:cursor-not-allowed disabled:opacity-50 transition-none",
+          "flex h-12 w-full rounded-xl bg-white/78 px-4 py-2 text-sm text-[var(--color-foreground)] file:border-0 file:bg-transparent file:text-sm file:font-medium file:cursor-pointer placeholder:text-[var(--color-muted-foreground)] focus:outline-none focus:ring-0 focus:shadow-none focus-visible:outline-none focus-visible:ring-0 focus-visible:shadow-none disabled:cursor-not-allowed disabled:opacity-50 transition-none",
           error && "border-[var(--color-destructive)]",
           className
         )}

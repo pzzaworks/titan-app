@@ -51,14 +51,14 @@ export function ConnectButton({ isHeroVisible = false, inMobileMenu = false }: C
           "inline-flex items-center justify-center gap-2",
           "h-10 px-4",
           "font-mono uppercase tracking-wider text-xs",
-          "rounded-full",
+          "rounded-xl",
           "cursor-pointer",
           "transition-all duration-200",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
           "disabled:pointer-events-none disabled:opacity-50",
           isHeroVisible
             ? "bg-white text-[var(--color-foreground)] hover:bg-white/90 focus-visible:ring-white/30"
-            : "bg-[var(--color-titan-green)] text-white hover:bg-[var(--color-titan-green-light)] focus-visible:ring-[var(--color-titan-green)]/30"
+            : "bg-[var(--color-titan-green)] text-[#243025] hover:bg-[var(--color-titan-green-light)] focus-visible:ring-[var(--color-titan-green)]/30"
         )}
       >
         {isConnecting ? (
@@ -97,19 +97,19 @@ export function ConnectButton({ isHeroVisible = false, inMobileMenu = false }: C
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <button
-          className={cn(
-            "inline-flex items-center justify-center gap-2",
-            "h-10 px-4",
-            "font-mono uppercase tracking-wider text-xs",
-            "rounded-full",
-            "cursor-pointer",
-            "transition-all duration-200",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-            inMobileMenu
-              ? "w-full bg-white text-[var(--color-foreground)] border border-[var(--color-border)] hover:bg-[var(--color-foreground)]/5"
+        className={cn(
+          "inline-flex items-center justify-center gap-2",
+          "h-10 px-4",
+          "font-mono uppercase tracking-wider text-xs",
+          "rounded-xl",
+          "cursor-pointer",
+          "transition-all duration-200",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+          inMobileMenu
+              ? "w-full bg-white/88 text-[var(--color-foreground)] hover:bg-white"
               : isHeroVisible
                 ? "bg-white text-[var(--color-foreground)] hover:bg-white/90 focus-visible:ring-white/30"
-                : "bg-white text-[var(--color-foreground)] border border-[var(--color-border)] hover:bg-[var(--color-foreground)]/5 focus-visible:ring-[var(--color-ring)]/30"
+                : "bg-white/88 text-[var(--color-foreground)] hover:bg-white focus-visible:ring-[var(--color-ring)]/30"
           )}
         >
           <Wallet className="h-4 w-4" />
@@ -117,10 +117,10 @@ export function ConnectButton({ isHeroVisible = false, inMobileMenu = false }: C
           <ChevronDown className="h-3 w-3 opacity-60" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-48 p-2">
         <DropdownMenuItem
           onClick={handleCopyAddress}
-          className="cursor-pointer"
+          className="cursor-pointer py-3 text-[15px]"
         >
           {copied ? (
             <Check className="h-4 w-4 text-[var(--color-primary)]" />
@@ -132,7 +132,7 @@ export function ConnectButton({ isHeroVisible = false, inMobileMenu = false }: C
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={handleDisconnect}
-          className="cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-500/10"
+          className="cursor-pointer py-3 text-[15px] text-[#b84c4c] focus:bg-[#f1d9d9] focus:text-[#b84c4c]"
         >
           <LogOut className="h-4 w-4" />
           <span>Disconnect</span>

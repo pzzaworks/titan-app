@@ -55,7 +55,7 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
         onMouseMove={handleDrag}
         {...props}
       >
-        <div className="relative h-2 w-full grow overflow-hidden rounded-full bg-[var(--color-foreground)]/10">
+        <div className="relative h-2 w-full grow overflow-hidden rounded-xl bg-[var(--color-foreground)]/10">
           <div
             className="absolute h-full bg-[var(--color-primary)] transition-all"
             style={{ width: `${percentage}%` }}
@@ -63,7 +63,7 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
         </div>
         <div
           className={cn(
-            "absolute h-5 w-5 rounded-full border border-[var(--color-primary)] bg-white transition-all",
+            "absolute h-5 w-5 rounded-xl border border-[var(--color-primary)] bg-white transition-all",
             !disabled && "cursor-grab active:cursor-grabbing",
           )}
           style={{ left: `calc(${percentage}% - 10px)` }}

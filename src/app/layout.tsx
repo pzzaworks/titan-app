@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { buildSchemaGraph, seoConfig } from "@/lib/seo";
 import "@/styles/globals.css";
 
 const robotoMono = Roboto_Mono({
@@ -12,35 +13,23 @@ const robotoMono = Roboto_Mono({
   variable: "--font-roboto-mono",
 });
 
-const siteUrl = "https://titandefi.org";
-const siteName = "Titan";
-const siteTitle = "Titan - DeFi Super App";
-const siteDescription = "Swap, stake, farm, and govern - all in one interface. Built with Uniswap V4 on Ethereum.";
+const schemaGraph = buildSchemaGraph();
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(seoConfig.siteUrl),
   title: {
-    default: siteTitle,
-    template: `%s | ${siteName}`,
+    default: seoConfig.siteTitle,
+    template: `%s | ${seoConfig.siteName}`,
   },
-  description: siteDescription,
-  keywords: [
-    "defi",
-    "ethereum",
-    "swap",
-    "staking",
-    "yield farming",
-    "governance",
-    "uniswap v4",
-    "titan",
-    "crypto",
-    "blockchain",
-    "web3",
-    "decentralized finance",
-  ],
+  description: seoConfig.siteDescription,
+  keywords: [...seoConfig.defaultKeywords],
+  applicationName: seoConfig.siteName,
   authors: [{ name: "Berke (pzzaworks)", url: "https://pzza.works" }],
   creator: "Berke (pzzaworks)",
   publisher: "Berke (pzzaworks)",
+  alternates: {
+    canonical: "/",
+  },
   robots: {
     index: true,
     follow: true,
@@ -53,31 +42,24 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/icon.svg",
-    shortcut: "/icon.svg",
-    apple: "/icon.svg",
+    icon: "/titan-logo.svg",
+    shortcut: "/titan-logo.svg",
+    apple: "/titan-logo.svg",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: siteUrl,
-    siteName: siteName,
-    title: siteTitle,
-    description: siteDescription,
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Titan - DeFi Super App",
-      },
-    ],
+    url: seoConfig.siteUrl,
+    siteName: seoConfig.siteName,
+    title: seoConfig.siteTitle,
+    description: seoConfig.siteDescription,
+    images: [seoConfig.defaultOgImage],
   },
   twitter: {
     card: "summary_large_image",
-    title: siteTitle,
-    description: siteDescription,
-    images: ["/og-image.png"],
+    title: seoConfig.siteTitle,
+    description: seoConfig.siteDescription,
+    images: [seoConfig.defaultOgImage.url],
     creator: "@pzzaworks",
   },
 };
@@ -92,8 +74,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${GeistSans.variable} ${robotoMono.variable} font-sans antialiased bg-eigenpal-cream`}>
+      <body
+        className={`${GeistSans.variable} ${robotoMono.variable} font-sans antialiased bg-eigenpal-cream`}
+      >
         <Providers cookies={cookies}>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaGraph) }}
+          />
           <div className="relative min-h-screen flex flex-col">
             <Navbar />
             <div className="flex-1">{children}</div>

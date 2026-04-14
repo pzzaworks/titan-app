@@ -29,42 +29,42 @@ interface ProposalCardProps {
 const statusConfig = {
   active: {
     label: "Active",
-    color: "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/20",
+    color: "bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
     icon: Timer,
   },
   passed: {
     label: "Passed",
-    color: "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/20",
+    color: "bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
     icon: CheckCircle2,
   },
   failed: {
     label: "Rejected",
-    color: "bg-red-50 text-red-600 border-red-200",
+    color: "bg-[#f1d9d9] text-[#9d3f3f]",
     icon: XCircle,
   },
   pending: {
     label: "Pending",
-    color: "bg-yellow-50 text-yellow-600 border-yellow-200",
+    color: "bg-[#efe6bd] text-[#8d7221]",
     icon: Clock,
   },
   executed: {
     label: "Executed",
-    color: "bg-purple-50 text-purple-600 border-purple-200",
+    color: "bg-white/72 text-[var(--color-foreground)]",
     icon: CheckCircle2,
   },
   canceled: {
     label: "Canceled",
-    color: "bg-gray-50 text-gray-600 border-gray-200",
+    color: "bg-white/72 text-[var(--color-muted-foreground)]",
     icon: Ban,
   },
   queued: {
     label: "Queued",
-    color: "bg-blue-50 text-blue-600 border-blue-200",
+    color: "bg-white/72 text-[var(--color-foreground)]",
     icon: Hourglass,
   },
   expired: {
     label: "Expired",
-    color: "bg-gray-50 text-gray-500 border-gray-200",
+    color: "bg-white/72 text-[var(--color-muted-foreground)]",
     icon: Clock,
   },
 };
@@ -124,15 +124,14 @@ export function ProposalCard({ proposal, currentBlock = 0, onClick }: ProposalCa
 
   return (
     <Card
-      className="hover:border-[var(--color-foreground)]/20 transition-all duration-200 cursor-pointer h-full"
+      className="h-full cursor-pointer transition-colors duration-200 hover:bg-white/72"
       onClick={onClick}
     >
       <CardContent className="p-5 flex flex-col h-full">
-        {/* Header */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <Badge
             variant="outline"
-            className={cn("flex items-center gap-1 border font-mono uppercase text-xs", statusInfo.color)}
+            className={cn("flex items-center gap-1 font-mono uppercase text-xs", statusInfo.color)}
           >
             <StatusIcon className="h-3 w-3" />
             {statusInfo.label}
@@ -142,26 +141,23 @@ export function ProposalCard({ proposal, currentBlock = 0, onClick }: ProposalCa
           </span>
         </div>
 
-        {/* Title */}
-        <h3 className="text-base font-semibold text-[var(--color-foreground)] line-clamp-2 mb-2">
+        <h3 className="mb-2 font-display text-[30px] leading-[0.98] font-[300] tracking-[-0.03em] text-[var(--color-foreground)] line-clamp-2">
           {proposal.title}
         </h3>
 
-        {/* Description */}
         <p className="text-sm text-[var(--color-muted-foreground)] line-clamp-2 mb-4 flex-grow">
           {proposal.description}
         </p>
 
-        {/* Voting Progress */}
         <div className="space-y-2 mb-3">
-          <div className="relative h-2 rounded-full bg-gray-100 overflow-hidden">
+          <div className="relative h-2 overflow-hidden rounded-xl bg-white/76">
             <div
-              className="absolute inset-y-0 left-0 bg-[var(--color-primary)] rounded-full transition-all duration-300"
+              className="absolute inset-y-0 left-0 rounded-xl bg-[var(--color-primary)] transition-all duration-300"
               style={{ width: `${forPercentage}%` }}
             />
             {totalVotes > 0 && forPercentage < 100 && (
               <div
-                className="absolute inset-y-0 right-0 bg-red-400 rounded-full"
+                className="absolute inset-y-0 right-0 rounded-xl bg-[#b84c4c]"
                 style={{ width: `${100 - forPercentage}%` }}
               />
             )}
@@ -170,14 +166,13 @@ export function ProposalCard({ proposal, currentBlock = 0, onClick }: ProposalCa
             <span className="text-[var(--color-primary)] font-medium font-mono">
               {formatNumber(proposal.forVotes, { compact: true })} For
             </span>
-            <span className="text-red-500 font-medium font-mono">
+            <span className="font-medium font-mono text-[#9d3f3f]">
               {formatNumber(proposal.againstVotes, { compact: true })} Against
             </span>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between text-xs text-[var(--color-muted-foreground)] pt-3 border-t border-[var(--color-border)]">
+        <div className="flex items-center justify-between pt-3 text-xs text-[var(--color-muted-foreground)]">
           <div className="flex items-center gap-1 font-mono">
             <User className="h-3 w-3" />
             {formatAddress(proposal.proposer)}

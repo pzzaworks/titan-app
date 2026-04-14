@@ -13,7 +13,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-12 items-center justify-center rounded-full bg-[var(--color-muted)] p-1 text-[var(--color-muted-foreground)]",
+      "inline-flex min-h-12 items-center justify-center rounded-xl bg-white/58 p-1 text-[var(--color-muted-foreground)]",
       className
     )}
     {...props}
@@ -28,7 +28,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-2.5 text-sm font-medium ring-offset-[var(--color-background)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed data-[state=active]:bg-[var(--color-card)] data-[state=active]:text-[var(--color-foreground)] cursor-pointer",
+      "inline-flex min-w-0 items-center justify-center rounded-xl px-2 py-2.5 text-center text-sm leading-tight font-medium ring-offset-[var(--color-background)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-ring)]/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed data-[state=active]:bg-white/92 data-[state=active]:text-[var(--color-foreground)] cursor-pointer sm:px-4",
       className
     )}
     {...props}

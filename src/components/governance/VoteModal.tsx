@@ -31,23 +31,23 @@ const voteOptions = [
     label: "For",
     icon: ThumbsUp,
     activeClass:
-      "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
+      "bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
     hoverClass:
-      "hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-primary)]/5",
+      "hover:bg-[var(--color-primary)]/5",
   },
   {
     type: "against" as VoteType,
     label: "Against",
     icon: ThumbsDown,
-    activeClass: "border-red-500 bg-red-50 text-red-600",
-    hoverClass: "hover:border-red-300 hover:bg-red-50",
+    activeClass: "bg-[#f1d9d9] text-[#9d3f3f]",
+    hoverClass: "hover:bg-[#f1d9d9]",
   },
   {
     type: "abstain" as VoteType,
     label: "Abstain",
     icon: MinusCircle,
-    activeClass: "border-gray-500 bg-gray-100 text-gray-600",
-    hoverClass: "hover:border-gray-400 hover:bg-gray-50",
+    activeClass: "bg-white/72 text-[var(--color-foreground)]",
+    hoverClass: "hover:bg-white/72",
   },
 ];
 
@@ -107,10 +107,10 @@ export function VoteModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-white border-[var(--color-border)]">
+      <DialogContent className="sm:max-w-md bg-[var(--color-background)]">
         <DialogHeader>
-          <DialogTitle className="text-[var(--color-foreground)]">
-            Cast Your Vote
+          <DialogTitle className="font-display text-[32px] leading-[0.98] font-[300] tracking-[-0.03em] text-[var(--color-foreground)]">
+            Cast your vote
           </DialogTitle>
           <DialogDescription className="line-clamp-2">
             Proposal #{proposalId}: {proposalTitle}
@@ -128,15 +128,15 @@ export function VoteModal({
                   key={option.type}
                   onClick={() => setSelectedVote(option.type)}
                   className={cn(
-                    "w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-200 cursor-pointer",
+                    "w-full cursor-pointer rounded-xl p-4 transition-all duration-200",
                     isSelected
                       ? option.activeClass
-                      : `border-[var(--color-border)] ${option.hoverClass}`,
+                      : `bg-white/58 ${option.hoverClass}`,
                   )}
                 >
                   <div
                     className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center",
+                      "flex h-10 w-10 items-center justify-center rounded-xl",
                       isSelected
                         ? "bg-white/50"
                         : "bg-[var(--color-foreground)]/5",

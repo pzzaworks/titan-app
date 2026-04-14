@@ -65,19 +65,19 @@ export function SwapSettings({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <button className="p-2 rounded-full hover:bg-[#f5f5f5] text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition-colors cursor-pointer">
+        <button className="cursor-pointer rounded-xl p-2 text-[var(--color-muted-foreground)] transition-colors hover:bg-white/72 hover:text-[var(--color-foreground)]">
           <Settings className="h-5 w-5" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
-        <div className="p-4 border-b border-[var(--color-border)]">
+        <div className="p-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium text-[var(--color-foreground)]">
-              Swap Settings
+            <h3 className="font-display text-[28px] leading-[1] font-[300] tracking-[-0.03em] text-[var(--color-foreground)]">
+              Swap settings
             </h3>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 rounded hover:bg-[#f5f5f5] text-[var(--color-muted-foreground)] cursor-pointer"
+              className="cursor-pointer rounded-xl p-1 text-[var(--color-muted-foreground)] hover:bg-white/72"
             >
               <X className="h-4 w-4" />
             </button>
@@ -108,10 +108,10 @@ export function SwapSettings({
                 <button
                   onClick={handleAutoSlippage}
                   className={cn(
-                    "flex-1 py-2 px-3 rounded-full text-sm font-medium transition-colors cursor-pointer",
+                    "flex-1 cursor-pointer rounded-xl px-3 py-2 text-sm font-medium transition-colors",
                     autoSlippage
-                      ? "bg-[var(--color-primary)] text-white"
-                      : "bg-[#f5f5f5] text-[var(--color-foreground)] hover:bg-[#ebebeb]"
+                      ? "bg-[var(--color-primary)] text-[#243025]"
+                      : "bg-white/72 text-[var(--color-foreground)] hover:bg-white"
                   )}
                 >
                   Auto
@@ -121,10 +121,10 @@ export function SwapSettings({
                     key={preset}
                     onClick={() => handleSlippagePreset(preset)}
                     className={cn(
-                      "flex-1 py-2 px-3 rounded-full text-sm font-medium transition-colors cursor-pointer",
+                      "flex-1 cursor-pointer rounded-xl px-3 py-2 text-sm font-medium transition-colors",
                       !autoSlippage && slippage === preset && !customSlippage
-                        ? "bg-[var(--color-primary)] text-white"
-                        : "bg-[#f5f5f5] text-[var(--color-foreground)] hover:bg-[#ebebeb]"
+                        ? "bg-[var(--color-primary)] text-[#243025]"
+                        : "bg-white/72 text-[var(--color-foreground)] hover:bg-white"
                     )}
                   >
                     {preset}%
@@ -138,8 +138,8 @@ export function SwapSettings({
                   onChange={(e) => handleCustomSlippage(e.target.value)}
                   placeholder="Custom"
                   className={cn(
-                    "w-full py-2 px-3 pr-8 rounded-full text-sm font-medium bg-[#f5f5f5] border border-transparent focus:border-[var(--color-primary)] focus:outline-none transition-colors",
-                    !autoSlippage && customSlippage && "border-[var(--color-primary)]"
+                    "w-full rounded-xl bg-white/72 px-3 py-2 pr-8 text-sm font-medium transition-colors focus:outline-none",
+                    !autoSlippage && customSlippage && "bg-white"
                   )}
                   min="0"
                   max="50"
@@ -167,7 +167,7 @@ export function SwapSettings({
                 type="number"
                 value={deadline}
                 onChange={(e) => handleDeadlineChange(e.target.value)}
-                className="w-20 py-2 px-3 rounded-full text-sm font-medium text-center bg-[#f5f5f5] border border-transparent focus:border-[var(--color-primary)] focus:outline-none transition-colors"
+                className="w-20 rounded-xl bg-white/72 px-3 py-2 text-center text-sm font-medium transition-colors focus:outline-none"
                 min="1"
                 max="180"
               />
@@ -179,8 +179,8 @@ export function SwapSettings({
 
           {/* Warning for high slippage */}
           {isHighSlippage && (
-            <div className="p-3 rounded-full bg-yellow-500/10 border border-yellow-500/20">
-              <p className="text-xs text-yellow-600">
+            <div className="rounded-xl bg-[#efe6bd] p-3">
+              <p className="text-xs text-[#8d7221]">
                 Your transaction may be frontrun due to high slippage tolerance.
               </p>
             </div>

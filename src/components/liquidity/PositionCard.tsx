@@ -126,37 +126,34 @@ export function PositionCard({
   };
 
   return (
-    <Card className="overflow-hidden hover:border-[var(--color-foreground)]/20 transition-all duration-200">
+    <Card className="overflow-hidden transition-colors duration-200 hover:bg-white/72">
       <CardContent className="p-0">
-        {/* Main Row */}
         <div
           className="p-4 cursor-pointer"
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex items-center gap-3">
-            {/* Token Icons */}
             <div className="relative flex items-center flex-shrink-0">
-              <div className="w-9 h-9 rounded-full overflow-hidden border border-white bg-[var(--color-background)] flex items-center justify-center">
+              <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/72">
                 <Image
                   src={config.tokens.TITAN.logoUrl}
                   alt="TITAN"
                   width={32}
                   height={32}
-                  className="rounded-full"
+                  className="rounded-xl"
                 />
               </div>
-              <div className="w-9 h-9 rounded-full overflow-hidden border border-white bg-[var(--color-background)] -ml-2.5 flex items-center justify-center">
+              <div className="-ml-2.5 flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/72">
                 <Image
                   src={config.tokens.WETH.logoUrl}
                   alt="WETH"
                   width={32}
                   height={32}
-                  className="rounded-full"
+                  className="rounded-xl"
                 />
               </div>
             </div>
 
-            {/* Position Info */}
             <div className="flex-shrink-0 min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="font-medium text-[var(--color-foreground)] text-sm">
@@ -166,8 +163,8 @@ export function PositionCard({
                   className={cn(
                     "text-[10px] px-1.5 py-0",
                     isInRange
-                      ? "bg-green-500/10 text-green-600"
-                      : "bg-yellow-500/10 text-yellow-600",
+                      ? "bg-[var(--color-primary)]/12 text-[var(--color-primary)]"
+                      : "bg-white/70 text-[var(--color-muted-foreground)]",
                   )}
                 >
                   {isInRange ? "In Range" : "Out"}
@@ -178,7 +175,6 @@ export function PositionCard({
               </p>
             </div>
 
-            {/* Stats - flex grow to fill space */}
             <div className="flex items-center gap-4 sm:gap-6 ml-auto">
               <div className="text-right">
                 <p className="text-[10px] text-[var(--color-muted-foreground)] uppercase tracking-wide">
@@ -209,7 +205,6 @@ export function PositionCard({
                 </p>
               </div>
 
-              {/* Expand Icon */}
               <div
                 className={cn(
                   "transition-transform duration-200 flex-shrink-0",
@@ -222,14 +217,12 @@ export function PositionCard({
           </div>
         </div>
 
-        {/* Expanded Content */}
         {expanded && (
           <div className="p-4 pt-0 space-y-4">
-            <div className="h-px bg-[var(--color-border)]" />
+            <div className="h-px bg-white/60" />
 
-            {/* Position Details */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-xl bg-[var(--color-foreground)]/5 border border-[var(--color-border)] p-4">
+              <div className="rounded-xl bg-[var(--color-foreground)]/4 p-4">
                 <div className="flex items-center gap-2 text-sm text-[var(--color-muted-foreground)] mb-2">
                   <Droplets className="h-4 w-4" />
                   <span>Liquidity</span>
@@ -256,10 +249,10 @@ export function PositionCard({
 
               <div
                 className={cn(
-                  "rounded-xl border p-4",
+                  "rounded-xl p-4",
                   hasUnclaimedFees
-                    ? "bg-green-500/5 border-green-500/20"
-                    : "bg-[var(--color-foreground)]/5 border-[var(--color-border)]",
+                    ? "bg-[var(--color-primary)]/10"
+                    : "bg-[var(--color-foreground)]/4",
                 )}
               >
                 <div
@@ -282,7 +275,7 @@ export function PositionCard({
                       className={cn(
                         "font-medium font-mono",
                         parseFloat(titanFees) > 0
-                          ? "text-green-600"
+                          ? "text-[var(--color-primary)]"
                           : "text-[var(--color-muted-foreground)]",
                       )}
                     >
@@ -299,7 +292,7 @@ export function PositionCard({
                       className={cn(
                         "font-medium font-mono",
                         parseFloat(wethFees) > 0
-                          ? "text-green-600"
+                          ? "text-[var(--color-primary)]"
                           : "text-[var(--color-muted-foreground)]",
                       )}
                     >
@@ -312,30 +305,28 @@ export function PositionCard({
               </div>
             </div>
 
-            {/* Price Range */}
-            <div className="rounded-xl bg-[var(--color-foreground)]/5 border border-[var(--color-border)] p-4">
+            <div className="rounded-xl bg-[var(--color-foreground)]/4 p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2 text-sm text-[var(--color-muted-foreground)]">
                   <TrendingUp className="h-4 w-4" />
                   <span>Price Range</span>
                 </div>
                 {isFullRange && (
-                  <Badge className="bg-blue-500/10 text-blue-600 text-xs">
+                  <Badge className="bg-white/72 text-[var(--color-muted-foreground)] text-xs">
                     Full Range
                   </Badge>
                 )}
               </div>
 
               {isFullRange ? (
-                /* Full Range Display */
                 <div className="text-center py-2">
                   <div className="flex items-center justify-center gap-4 text-sm">
                     <span className="text-[var(--color-muted-foreground)]">
                       0
                     </span>
-                    <div className="flex items-center gap-2 px-4 py-1.5 bg-green-500/10 rounded-full">
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      <span className="font-mono text-green-600">
+                    <div className="flex items-center gap-2 rounded-xl bg-[var(--color-primary)]/12 px-4 py-1.5">
+                      <div className="h-2 w-2 rounded-xl bg-[var(--color-primary)]" />
+                      <span className="font-mono text-[var(--color-primary)]">
                         1 TITAN = {formatPriceDisplay(currentTick)} ETH
                       </span>
                     </div>
@@ -348,9 +339,7 @@ export function PositionCard({
                   </p>
                 </div>
               ) : (
-                /* Normal Range Display */
                 <div className="space-y-3">
-                  {/* Price bounds */}
                   <div className="flex justify-between text-sm">
                     <div>
                       <p className="text-xs text-[var(--color-muted-foreground)] mb-1">
@@ -370,22 +359,20 @@ export function PositionCard({
                     </div>
                   </div>
 
-                  {/* Range bar with current price */}
                   <div className="relative">
-                    <div className="h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
+                    <div className="h-2 overflow-hidden rounded-xl bg-white/72">
                       <div
                         className={cn(
-                          "h-full rounded-full",
-                          isInRange ? "bg-green-500/30" : "bg-yellow-500/30",
+                          "h-full rounded-xl",
+                          isInRange ? "bg-[var(--color-primary)]/24" : "bg-[var(--color-muted-foreground)]/24",
                         )}
                         style={{ width: "100%" }}
                       />
                     </div>
-                    {/* Current price indicator */}
                     <div
                       className={cn(
-                        "absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-white",
-                        isInRange ? "bg-green-500" : "bg-yellow-500",
+                        "absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-xl",
+                        isInRange ? "bg-[var(--color-primary)]" : "bg-[var(--color-foreground)]/48",
                       )}
                       style={{
                         left: `calc(${Math.min(100, Math.max(0, rangeProgress))}% - 6px)`,
@@ -393,7 +380,6 @@ export function PositionCard({
                     />
                   </div>
 
-                  {/* Current price */}
                   <div className="text-center">
                     <span className="text-xs text-[var(--color-muted-foreground)]">
                       Current:{" "}
@@ -406,7 +392,6 @@ export function PositionCard({
               )}
             </div>
 
-            {/* Actions */}
             <div className="flex gap-2">
               <Button
                 className="flex-1 cursor-pointer"
@@ -435,7 +420,7 @@ export function PositionCard({
                 </DialogTrigger>
                 <DialogContent
                   onClick={(e) => e.stopPropagation()}
-                  className="bg-white border-[var(--color-border)]"
+                  className="bg-[var(--color-background)]"
                 >
                   <DialogHeader>
                     <DialogTitle className="text-[var(--color-foreground)]">
@@ -479,7 +464,7 @@ export function PositionCard({
                       </div>
                     </div>
 
-                    <div className="rounded-xl bg-[var(--color-foreground)]/5 border border-[var(--color-border)] p-4 space-y-2">
+                    <div className="rounded-xl bg-[var(--color-foreground)]/4 p-4 space-y-2">
                       <p className="text-sm text-[var(--color-muted-foreground)]">
                         You will receive approximately:
                       </p>

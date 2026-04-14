@@ -1,24 +1,33 @@
-"use client";
+import type { Metadata } from "next";
 
+import { Reveal } from "@/components/motion/Reveal";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { StakeCard } from "@/components/stake/StakeCard";
+import { createPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "Earn",
+  description:
+    "Stake TITAN, track rewards, and manage yield in Titan's experimental Sepolia earn interface.",
+  path: "/earn",
+  keywords: ["staking rewards", "earn titan", "defi staking"],
+});
 
 export default function EarnPage() {
   return (
     <PageContainer>
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-10">
-          <span className="inline-flex items-center font-mono uppercase tracking-wider text-xs text-[var(--color-muted-foreground)] mb-4 px-3 py-1.5 rounded-full border border-[var(--color-border)] bg-white">
+        <Reveal className="mb-10 text-center">
+          <h1 className="mb-3 font-display text-[44px] leading-[0.95] font-[300] tracking-[-0.03em] text-[var(--color-foreground)] sm:text-[56px]">
             Earn
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-medium leading-[1.15] tracking-tight text-[var(--color-foreground)] mb-2">
-            Earn TITAN Rewards
           </h1>
-          <p className="text-[var(--color-muted-foreground)] max-w-md mx-auto">
-            Stake your TITAN tokens to earn rewards over time
+          <p className="mx-auto max-w-md text-[17px] leading-[1.28] text-[var(--color-muted-foreground)]">
+            Stake TITAN and keep rewards easy to read.
           </p>
-        </div>
-        <StakeCard />
+        </Reveal>
+        <Reveal delay={0.08}>
+          <StakeCard />
+        </Reveal>
       </div>
     </PageContainer>
   );

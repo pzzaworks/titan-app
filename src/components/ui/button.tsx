@@ -11,21 +11,21 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[var(--color-titan-green)] text-white rounded-full hover:bg-[#1e322e]",
+          "bg-[var(--color-titan-green)] text-[#243025] rounded-xl hover:bg-[#1e322e]",
         secondary:
-          "bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)] rounded-full hover:bg-[#e5e5e5]",
+          "bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)] rounded-xl hover:bg-[#e5e5e5]",
         outline:
-          "border border-[var(--color-border)] bg-transparent text-[var(--color-foreground)] rounded-full hover:bg-[#f5f5f5] hover:border-[#999999]",
+          "bg-white/65 text-[var(--color-foreground)] rounded-xl hover:bg-white/82",
         ghost:
-          "text-[var(--color-muted-foreground)] hover:bg-[#f5f5f5] hover:text-[var(--color-foreground)] rounded-full",
+          "text-[var(--color-muted-foreground)] hover:bg-[#f5f5f5] hover:text-[var(--color-foreground)] rounded-xl",
         destructive:
-          "bg-[var(--color-destructive)] text-[var(--color-destructive-foreground)] rounded-full hover:bg-[#dc2626]",
+          "bg-[var(--color-destructive)] text-[var(--color-destructive-foreground)] rounded-xl hover:bg-[#dc2626]",
         link:
           "text-[var(--color-foreground)] underline-offset-4 hover:underline",
         primary:
-          "bg-[var(--color-primary)] text-[var(--color-primary-foreground)] rounded-full hover:bg-[#1e322e]",
+          "bg-[var(--color-primary)] text-[#243025] rounded-xl hover:bg-[#1e322e]",
         green:
-          "bg-[var(--color-titan-green)] text-white rounded-full hover:bg-[var(--color-titan-green-light)]",
+          "bg-[var(--color-titan-green)] text-[#243025] rounded-xl hover:bg-[var(--color-titan-green-light)]",
       },
       size: {
         default: "h-12 px-6 py-2",

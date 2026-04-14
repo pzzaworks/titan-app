@@ -64,12 +64,12 @@ export function TokenInput({
   };
 
   return (
-    <div className="rounded-xl bg-[var(--color-foreground)]/5 border border-[var(--color-border)] p-4 hover:border-[var(--color-foreground)]/20 transition-colors">
-      <div className="flex items-center justify-between mb-2">
+    <div className="rounded-xl bg-[var(--color-foreground)]/4 p-4 transition-colors">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <span className="text-sm text-[var(--color-muted-foreground)]">{label}</span>
         {balance && (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-[var(--color-muted-foreground)]">
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <span className="text-right text-sm text-[var(--color-muted-foreground)]">
               Balance: {formatNumber(balance, { decimals: 4 })}
             </span>
             {!readOnly && onAmountChange && (
@@ -86,8 +86,8 @@ export function TokenInput({
         )}
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex-1">
+      <div className="flex items-end gap-3">
+        <div className="min-w-0 flex-1">
           <input
             type="text"
             inputMode="decimal"
@@ -96,7 +96,7 @@ export function TokenInput({
             onChange={handleAmountChange}
             disabled={disabled || readOnly}
             className={cn(
-              "no-focus-ring w-full bg-transparent text-3xl font-medium text-[var(--color-foreground)] placeholder:text-[var(--color-muted-foreground)]/50",
+              "no-focus-ring w-full min-w-0 bg-transparent text-[clamp(1.875rem,8vw,2.25rem)] leading-none font-medium text-[var(--color-foreground)] placeholder:text-[var(--color-muted-foreground)]/50",
               readOnly && "cursor-default",
               isLoading && "animate-pulse"
             )}
@@ -107,17 +107,17 @@ export function TokenInput({
           <DialogTrigger asChild>
             <Button
               variant="ghost"
-              className="h-12 px-3 rounded-full bg-white border border-[var(--color-border)] hover:border-[var(--color-foreground)]/30 hover:bg-white flex items-center gap-2 cursor-pointer"
+              className="h-12 shrink-0 rounded-xl bg-white/88 px-3 hover:bg-white flex items-center gap-2 cursor-pointer"
               disabled={!tokens || tokens.length <= 1}
             >
-              <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center">
+              <div className="w-7 h-7 rounded-xl overflow-hidden flex items-center justify-center">
                 {token.logoUrl ? (
                   <Image
                     src={token.logoUrl}
                     alt={token.symbol}
                     width={28}
                     height={28}
-                    className="rounded-full"
+                    className="rounded-xl"
                   />
                 ) : (
                   <span className="text-xs font-bold text-[var(--color-muted-foreground)]">
@@ -132,7 +132,7 @@ export function TokenInput({
             </Button>
           </DialogTrigger>
 
-          <DialogContent className="sm:max-w-md bg-white border-[var(--color-border)]">
+          <DialogContent className="sm:max-w-md bg-white">
             <DialogHeader>
               <DialogTitle className="text-[var(--color-foreground)]">Select Token</DialogTitle>
             </DialogHeader>
@@ -149,14 +149,14 @@ export function TokenInput({
                   onClick={() => handleTokenSelect(t)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center">
                       {t.logoUrl ? (
                         <Image
                           src={t.logoUrl}
                           alt={t.symbol}
                           width={40}
                           height={40}
-                          className="rounded-full"
+                          className="rounded-xl"
                         />
                       ) : (
                         <span className="text-sm font-bold text-[var(--color-muted-foreground)]">

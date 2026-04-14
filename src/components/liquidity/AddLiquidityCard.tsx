@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
-import { Info, ArrowRight, Loader2 } from "lucide-react";
+import { Info } from "lucide-react";
 import { useAccount } from "wagmi";
 import { useAppKit } from "@reown/appkit/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,7 +82,6 @@ export function AddLiquidityCard({
 }: AddLiquidityCardProps) {
   const { isConnected } = useAccount();
   const { open } = useAppKit();
-  const [showWrapDialog, setShowWrapDialog] = useState(false);
 
   const titanAmount = titanIsCurrency0 ? amount0 : amount1;
   const wethAmount = titanIsCurrency0 ? amount1 : amount0;
@@ -174,25 +172,29 @@ export function AddLiquidityCard({
 
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-medium">Add Liquidity</CardTitle>
+      <CardHeader className="pb-4">
+        <CardTitle className="font-display text-[34px] leading-[0.98] font-[300] tracking-[-0.03em]">
+          Add liquidity
+        </CardTitle>
+        <p className="text-sm text-[var(--color-muted-foreground)]">
+          Choose amounts, set a range, and mint a new LP position.
+        </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* TITAN Input */}
-        <div className="rounded-xl bg-[var(--color-foreground)]/5 border border-[var(--color-border)] p-4">
-          <div className="flex justify-between items-center mb-2">
+        <div className="rounded-xl bg-[var(--color-foreground)]/4 p-4">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
             <span className="text-sm text-[var(--color-muted-foreground)]">TITAN</span>
             <span className="text-sm text-[var(--color-muted-foreground)]">
               Balance: {formatNumber(parseFloat(titanBalance), { decimals: 4 })}
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-end gap-2">
             <Input
               type="text"
               placeholder="0.0"
               value={titanAmount}
               onChange={(e) => setTitanAmount(e.target.value)}
-              className="text-xl font-medium border-0 bg-transparent p-0 h-auto !outline-none !ring-0 !shadow-none"
+              className="min-w-0 text-xl font-medium border-0 bg-transparent p-0 h-auto !outline-none !ring-0 !shadow-none"
             />
             <Button
               variant="ghost"
@@ -208,16 +210,14 @@ export function AddLiquidityCard({
           </div>
         </div>
 
-        {/* Plus icon */}
         <div className="flex justify-center">
           <span className="text-xl text-[var(--color-muted-foreground)]">+</span>
         </div>
 
-        {/* WETH Input */}
-        <div className="rounded-xl bg-[var(--color-foreground)]/5 border border-[var(--color-border)] p-4">
-          <div className="flex justify-between items-center mb-2">
+        <div className="rounded-xl bg-[var(--color-foreground)]/4 p-4">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
             <span className="text-sm text-[var(--color-muted-foreground)]">WETH</span>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
               <span className="text-sm text-[var(--color-muted-foreground)]">
                 Balance: {formatNumber(parseFloat(wethBalance), { decimals: 4 })}
               </span>
@@ -237,13 +237,13 @@ export function AddLiquidityCard({
               )}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-end gap-2">
             <Input
               type="text"
               placeholder="0.0"
               value={wethAmount}
               onChange={(e) => setWethAmount(e.target.value)}
-              className="text-xl font-medium border-0 bg-transparent p-0 h-auto !outline-none !ring-0 !shadow-none"
+              className="min-w-0 text-xl font-medium border-0 bg-transparent p-0 h-auto !outline-none !ring-0 !shadow-none"
             />
             <Button
               variant="ghost"
@@ -259,7 +259,6 @@ export function AddLiquidityCard({
           </div>
         </div>
 
-        {/* Price Range Selection */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-[var(--color-foreground)]">Price Range</span>
@@ -283,10 +282,10 @@ export function AddLiquidityCard({
                 key={option.value}
                 onClick={() => setTickRange(option.value)}
                 className={cn(
-                  "p-3 rounded-xl border text-center transition-all cursor-pointer",
+                  "rounded-xl bg-white/48 p-3 text-center transition-all cursor-pointer",
                   tickRange === option.value
-                    ? "border-[var(--color-primary)] bg-[var(--color-primary)]/5"
-                    : "border-[var(--color-border)] hover:border-[var(--color-foreground)]/20"
+                    ? "bg-[var(--color-primary)]/12 text-[var(--color-foreground)]"
+                    : "hover:bg-white/72"
                 )}
               >
                 <p className="text-sm font-medium text-[var(--color-foreground)]">{option.label}</p>
@@ -296,9 +295,8 @@ export function AddLiquidityCard({
           </div>
         </div>
 
-        {/* Pool Info */}
         {hasLiquidity && (
-          <div className="rounded-xl bg-[var(--color-foreground)]/5 border border-[var(--color-border)] p-3">
+          <div className="rounded-xl bg-[var(--color-primary)]/10 p-3">
             <div className="flex items-center gap-2 text-sm">
               <span className="text-[var(--color-muted-foreground)]">Pool Status:</span>
               <Badge variant="success" className="bg-green-500/10 text-green-600">
@@ -308,9 +306,8 @@ export function AddLiquidityCard({
           </div>
         )}
 
-        {/* Wrap ETH Info */}
         {wethAmount && parseFloat(wethAmount) > 0 && !hasEnoughWeth && hasEnoughEth && (
-          <div className="rounded-xl bg-[var(--color-foreground)]/5 border border-[var(--color-foreground)]/10 p-4">
+          <div className="rounded-xl bg-[var(--color-foreground)]/4 p-4">
             <div className="flex items-start gap-2">
               <Info className="h-4 w-4 text-[var(--color-foreground)] mt-0.5 flex-shrink-0" />
               <div className="text-sm text-[var(--color-foreground)]">
@@ -324,7 +321,6 @@ export function AddLiquidityCard({
           </div>
         )}
 
-        {/* Action Button */}
         <Button
           className="w-full cursor-pointer"
           size="lg"
@@ -336,7 +332,6 @@ export function AddLiquidityCard({
           {action.text}
         </Button>
 
-        {/* Uniswap Link */}
         <a
           href="https://uniswap.org"
           target="_blank"
@@ -349,7 +344,7 @@ export function AddLiquidityCard({
             alt="Uniswap"
             width={14}
             height={14}
-            className="rounded-full"
+            className="rounded-xl"
           />
           <span className="text-xs font-medium">Uniswap V4</span>
         </a>

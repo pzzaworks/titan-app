@@ -71,7 +71,7 @@ export function StakeCard() {
   return (
     <div className="w-full max-w-3xl mx-auto space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
         <StatsCard
           title="Your Stake"
           value={formatNumber(stakedBalance, { decimals: 2 })}
@@ -101,20 +101,25 @@ export function StakeCard() {
       {/* Main Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-medium">Earn Rewards</CardTitle>
+          <CardTitle className="font-display text-[30px] leading-[0.98] font-[300] tracking-[-0.03em] sm:text-[34px]">
+            Stake TITAN
+          </CardTitle>
+          <p className="text-sm text-[var(--color-muted-foreground)]">
+            Move between stake and unstake without extra chrome.
+          </p>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="stake" className="w-full">
-            <TabsList className="w-full bg-[var(--color-foreground)]/5 p-1 rounded-full">
+            <TabsList className="w-full">
               <TabsTrigger
                 value="stake"
-                className="flex-1 rounded-full data-[state=active]:bg-white data-[state=active]:text-[var(--color-foreground)]"
+                className="flex-1"
               >
                 Stake
               </TabsTrigger>
               <TabsTrigger
                 value="unstake"
-                className="flex-1 rounded-full data-[state=active]:bg-white data-[state=active]:text-[var(--color-foreground)]"
+                className="flex-1"
               >
                 Unstake
               </TabsTrigger>
@@ -122,7 +127,7 @@ export function StakeCard() {
 
             <TabsContent value="stake" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-[var(--color-muted-foreground)]">Amount to stake</span>
                   <span className="text-[var(--color-muted-foreground)]">
                     Balance: {formatNumber(tokenBalance, { decimals: 2 })} TITAN
@@ -140,7 +145,7 @@ export function StakeCard() {
                         setStakeAmount(value);
                       }
                     }}
-                    className="text-lg"
+                    className="min-w-0 text-lg"
                   />
                   <Button
                     variant="outline"
@@ -178,7 +183,7 @@ export function StakeCard() {
 
             <TabsContent value="unstake" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-[var(--color-muted-foreground)]">Amount to unstake</span>
                   <span className="text-[var(--color-muted-foreground)]">
                     Staked: {formatNumber(stakedBalance, { decimals: 2 })} TITAN
@@ -196,7 +201,7 @@ export function StakeCard() {
                         setUnstakeAmount(value);
                       }
                     }}
-                    className="text-lg"
+                    className="min-w-0 text-lg"
                   />
                   <Button
                     variant="outline"
@@ -238,10 +243,10 @@ export function StakeCard() {
       {/* Rewards Card */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div>
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="min-w-0">
               <p className="text-sm text-[var(--color-muted-foreground)]">Pending Rewards</p>
-              <p className="text-2xl font-medium text-[var(--color-foreground)]">
+              <p className="font-display text-[clamp(2rem,10vw,2.5rem)] leading-[0.94] font-[300] tracking-[-0.03em] text-[var(--color-foreground)]">
                 {formatNumber(pendingRewards, { decimals: 4 })} TITAN
               </p>
               <p className="text-sm text-[var(--color-muted-foreground)] font-mono">

@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "ABC Arizona Flare Variable";
+  src: url("https://itscraft.com/wp-content/themes/craft-2025/dist/ce61a08c47969bb1d01c.woff2")
+    format("woff2");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100 900;
+}
+
+@font-face {
+  font-family: "ABC Arizona Flare Condensed Variable";
+  src: url("https://itscraft.com/wp-content/themes/craft-2025/dist/54461443d88373700037.woff2")
+    format("woff2");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100 900;
+}
+
 /* Reset all input focus styles globally */
 input,
 textarea {
@@ -20,58 +38,54 @@ textarea:focus-within {
 
 /* Tailwind v4 Theme Configuration */
 @theme {
-  /* EigenPal-inspired colors */
-  --color-eigenpal-black: #0a0a0a;
-  --color-eigenpal-cream: #f3f2ef;
-  --color-eigenpal-green: #2c4540;
-  --color-eigenpal-green-dark: #2D5A27;
-  --color-eigenpal-purple: #9177CF;
-  --color-eigenpal-grid-border: #74675A;
+  --color-eigenpal-black: #2a1a1d;
+  --color-eigenpal-cream: #eae5dd;
+  --color-eigenpal-green: #213024;
+  --color-eigenpal-green-dark: #213024;
+  --color-eigenpal-purple: #9177cf;
+  --color-eigenpal-grid-border: #8b8376;
 
-  /* Titan brand colors */
-  --color-titan-green: #2c4540;
-  --color-titan-green-light: #2D5A27;
-  --color-titan-green-dark: #153515;
-  --color-titan-green-muted: #E8F0E8;
+  --color-titan-green: #26d862;
+  --color-titan-green-light: #26d260;
+  --color-titan-green-dark: #213024;
+  --color-titan-green-muted: #f2f0ec;
 
-  /* Warm neutral palette - EigenPal style */
-  --color-warm-50: #faf9f7;
-  --color-warm-100: #f3f2ef;
-  --color-warm-200: #e8e6e1;
-  --color-warm-300: #d4cfc5;
-  --color-warm-400: #b5ad9e;
-  --color-warm-500: #968d7d;
-  --color-warm-600: #7a7166;
-  --color-warm-700: #5c5650;
-  --color-warm-800: #3d3a37;
-  --color-warm-900: #1a1918;
+  --color-warm-50: #f7f4ed;
+  --color-warm-100: #efeae1;
+  --color-warm-200: #e2d9ca;
+  --color-warm-300: #cfc3b0;
+  --color-warm-400: #b2a58f;
+  --color-warm-500: #938770;
+  --color-warm-600: #746a58;
+  --color-warm-700: #594f43;
+  --color-warm-800: #352f28;
+  --color-warm-900: #171310;
 
-  /* Semantic colors */
-  --color-background: #f3f2ef;
-  --color-foreground: #0a0a0a;
+  --color-background: #eae5dd;
+  --color-foreground: #2a1a1d;
   --color-card: #ffffff;
-  --color-card-foreground: #0a0a0a;
-  --color-primary: #2c4540;
+  --color-card-foreground: #2a1a1d;
+  --color-primary: #26d862;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #ebe9e6;
-  --color-secondary-foreground: #1a1a1a;
-  --color-muted: #ebe9e6;
-  --color-muted-foreground: #666666;
-  --color-accent: #e8f0e8;
-  --color-accent-foreground: #2c4540;
+  --color-secondary: #f2f0ec;
+  --color-secondary-foreground: #2a1a1d;
+  --color-muted: #f2f0ec;
+  --color-muted-foreground: #645757;
+  --color-accent: #f7f5f2;
+  --color-accent-foreground: #2a1a1d;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #fafafa;
-  --color-border: #d4cfc5;
-  --color-input: #d9d5cc;
-  --color-ring: #2c4540;
+  --color-border: #d7d2cc;
+  --color-input: #d7d2cc;
+  --color-ring: #26d862;
 
   /* Border radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
-  --radius-3xl: 1.5rem;
+  --radius-sm: 0.875rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 0.875rem;
+  --radius-2xl: 0.875rem;
+  --radius-3xl: 0.875rem;
 
   /* Shadows - disabled */
   --shadow-subtle: none;
@@ -79,8 +93,10 @@ textarea:focus-within {
   --shadow-elevated: none;
 
   /* Fonts */
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Roboto Mono", ui-monospace, monospace;
+  --font-sans: "ABC Arizona Flare Variable", var(--font-geist-sans),
+    ui-sans-serif, system-ui, sans-serif;
+  --font-display: "ABC Arizona Flare Condensed Variable", Georgia, serif;
+  --font-mono: var(--font-roboto-mono), ui-monospace, monospace;
 
   /* Animations */
   --animate-fade-in: fadeIn 0.5s ease-out;
@@ -111,19 +127,20 @@ textarea:focus-within {
 
 /* Ensure CSS variables are set on :root */
 :root {
-  --color-eigenpal-black: #0a0a0a;
-  --color-eigenpal-cream: #f3f2ef;
-  --color-eigenpal-green: #2c4540;
-  --color-titan-green: #2c4540;
-  --color-titan-green-light: #2D5A27;
-  --color-foreground: #0a0a0a;
-  --color-background: #f3f2ef;
+  --color-eigenpal-black: #2a1a1d;
+  --color-eigenpal-cream: #eae5dd;
+  --color-eigenpal-green: #213024;
+  --color-titan-green: #26d862;
+  --color-titan-green-light: #26d260;
+  --hero-navbar-clearance: calc(env(safe-area-inset-top) + 5.75rem);
+  --color-foreground: #2a1a1d;
+  --color-background: #eae5dd;
   --color-card: #ffffff;
-  --color-primary: #2c4540;
+  --color-primary: #26d862;
   --color-primary-foreground: #ffffff;
-  --color-muted-foreground: #666666;
-  --color-border: #d4cfc5;
-  --color-ring: #2c4540;
+  --color-muted-foreground: #645757;
+  --color-border: #d7d2cc;
+  --color-ring: #26d862;
 }
 
 /* Base styles */
@@ -134,9 +151,11 @@ textarea:focus-within {
 body {
   background-color: var(--color-eigenpal-cream);
   color: var(--color-eigenpal-black);
+  font-family: var(--font-sans);
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 html {
@@ -166,6 +185,30 @@ html {
   --color-ring: #4a8f4a;
   --color-titan-green: #4a8f4a;
   --color-titan-green-light: #5aa05a;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
+}
+
+.section-shell {
+  width: min(1240px, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.18;
+  font-weight: 350;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.text-balance {
+  text-wrap: balance;
 }
 
 /* Component styles */
@@ -209,6 +252,11 @@ html {
 .section-green {
   background-color: var(--color-titan-green);
   color: white;
+}
+
+.titan-media {
+  position: relative;
+  background-color: var(--color-titan-green-dark);
 }
 
 .btn-primary {

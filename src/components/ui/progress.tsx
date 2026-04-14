@@ -32,7 +32,7 @@ const Progress = React.forwardRef<
     <ProgressPrimitive.Root
       ref={ref}
       className={cn(
-        "relative w-full overflow-hidden rounded-full bg-[var(--color-muted)]",
+        "relative w-full overflow-hidden rounded-xl bg-[var(--color-muted)]",
         sizeClasses[size],
         className
       )}
@@ -40,7 +40,7 @@ const Progress = React.forwardRef<
     >
       <ProgressPrimitive.Indicator
         className={cn(
-          "h-full w-full flex-1 transition-all duration-500 ease-out rounded-full",
+          "h-full w-full flex-1 rounded-xl transition-all duration-500 ease-out",
           variantClasses[variant],
           indicatorClassName
         )}

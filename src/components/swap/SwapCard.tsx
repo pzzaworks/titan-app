@@ -100,7 +100,7 @@ export function SwapCard() {
     (isConnected && (isWrapOrUnwrap ? !amountIn : (!needsWrap && !needsTokenApproval && (!amountIn || !amountOut || !hasLiquidity))));
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="mx-auto w-full max-w-md">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg font-medium">Swap</CardTitle>
         <SwapSettings
@@ -130,7 +130,7 @@ export function SwapCard() {
           {/* Switch Button - positioned between inputs */}
           <div className="absolute left-1/2 -translate-x-1/2 -bottom-5 z-10">
             <button
-              className="p-2 rounded-full bg-white border border-[var(--color-border)] hover:border-[#999999] hover:bg-[#f5f5f5] transition-all duration-200 cursor-pointer group"
+              className="rounded-xl bg-white p-2 transition-all duration-200 cursor-pointer group hover:bg-[#f5f5f5]"
               onClick={switchTokens}
             >
               <ArrowUpDown className="h-4 w-4 text-[var(--color-muted-foreground)] group-hover:text-[var(--color-foreground)] transition-colors" />
@@ -216,7 +216,7 @@ export function SwapCard() {
 
         {/* Wrap ETH Info */}
         {needsWrap && (
-          <div className="rounded-xl bg-[var(--color-foreground)]/5 border border-[var(--color-foreground)]/10 p-4 space-y-2">
+          <div className="rounded-xl bg-[var(--color-foreground)]/5 p-4 space-y-2">
             <div className="flex items-start gap-2">
               <Info className="h-4 w-4 text-[var(--color-foreground)] mt-0.5 flex-shrink-0" />
               <div className="text-sm text-[var(--color-foreground)]">
@@ -247,7 +247,7 @@ export function SwapCard() {
           href="https://uniswap.org"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-1.5 pt-3 text-[var(--color-muted-foreground)] hover:text-[#FF007A] transition-colors"
+          className="flex items-center justify-center gap-1.5 pt-3 text-[var(--color-muted-foreground)] transition-colors hover:text-[#FF007A]"
         >
           <span className="text-xs">Powered by</span>
           <Image
@@ -255,7 +255,7 @@ export function SwapCard() {
             alt="Uniswap"
             width={14}
             height={14}
-            className="rounded-full"
+            className="rounded-xl"
           />
           <span className="text-xs font-medium">Uniswap V4</span>
         </a>

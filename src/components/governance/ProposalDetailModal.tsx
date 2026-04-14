@@ -229,7 +229,7 @@ export function ProposalDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-white border-[var(--color-border)] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto bg-[var(--color-background)]">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
             <Badge
@@ -246,7 +246,7 @@ export function ProposalDetailModal({
               #{proposal.id}
             </span>
           </div>
-          <DialogTitle className="text-xl text-[var(--color-foreground)]">
+          <DialogTitle className="font-display text-[34px] leading-[0.98] font-[300] tracking-[-0.03em] text-[var(--color-foreground)]">
             {proposal.title}
           </DialogTitle>
         </DialogHeader>
@@ -282,9 +282,9 @@ export function ProposalDetailModal({
                 {formatNumber(proposal.againstVotes, { compact: true })}
               </span>
             </div>
-            <div className="relative h-3 rounded-full bg-red-100 overflow-hidden">
+            <div className="relative h-3 overflow-hidden rounded-xl bg-white/72">
               <div
-                className="absolute inset-y-0 left-0 bg-[var(--color-primary)] rounded-full transition-all duration-300"
+                className="absolute inset-y-0 left-0 rounded-xl bg-[var(--color-primary)] transition-all duration-300"
                 style={{ width: `${forPercentage}%` }}
               />
             </div>
@@ -294,7 +294,7 @@ export function ProposalDetailModal({
           </div>
 
           {/* Vote Section */}
-          <div className="space-y-4 pt-4 border-t border-[var(--color-border)]">
+          <div className="space-y-4 border-t border-[var(--color-border)] pt-4">
             {isVotingOpen ? (
               <>
                 {/* Loading state */}
@@ -311,10 +311,10 @@ export function ProposalDetailModal({
                   <div className="text-center py-4 space-y-2">
                     <div
                       className={cn(
-                        "inline-flex items-center gap-2 px-4 py-2 rounded-lg",
+                        "inline-flex items-center gap-2 rounded-xl px-4 py-2",
                         userVotedFor
                           ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-                          : "bg-red-50 text-red-600",
+                          : "bg-[#f1d9d9] text-[#9d3f3f]",
                       )}
                     >
                       {userVotedFor ? (
@@ -338,13 +338,13 @@ export function ProposalDetailModal({
                   isConnected &&
                   needsDelegate && (
                     <div className="space-y-3">
-                      <div className="flex items-start gap-2 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
-                        <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex items-start gap-2 rounded-xl bg-white/62 p-3">
+                        <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-foreground)]" />
                         <div>
-                          <p className="text-sm font-medium text-yellow-800">
-                            Activate Voting Power
+                          <p className="text-sm font-medium text-[var(--color-foreground)]">
+                            Activate voting power
                           </p>
-                          <p className="text-xs text-yellow-700 mt-1">
+                          <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
                             You have staked TITAN (sTITAN) but need to activate
                             your voting power.
                           </p>
@@ -396,10 +396,10 @@ export function ProposalDetailModal({
                         <button
                           onClick={() => setSelectedVote(true)}
                           className={cn(
-                            "relative flex items-center justify-center gap-2 p-4 rounded-xl border transition-all duration-200 cursor-pointer",
+                            "relative flex cursor-pointer items-center justify-center gap-2 rounded-xl p-4 transition-all duration-200",
                             selectedVote === true
-                              ? "border-[var(--color-primary)] bg-[var(--color-primary)] text-white scale-[1.02]"
-                              : "border-[var(--color-border)] hover:border-[var(--color-primary)]/50 hover:bg-[var(--color-primary)]/5",
+                              ? "bg-[var(--color-primary)] text-[#243025] scale-[1.02]"
+                              : "bg-white/58 hover:bg-[var(--color-primary)]/5",
                           )}
                         >
                           <ThumbsUp className="h-5 w-5" />
@@ -412,10 +412,10 @@ export function ProposalDetailModal({
                         <button
                           onClick={() => setSelectedVote(false)}
                           className={cn(
-                            "relative flex items-center justify-center gap-2 p-4 rounded-xl border transition-all duration-200 cursor-pointer",
+                            "relative flex cursor-pointer items-center justify-center gap-2 rounded-xl p-4 transition-all duration-200",
                             selectedVote === false
-                              ? "border-red-500 bg-red-500 text-white scale-[1.02]"
-                              : "border-[var(--color-border)] hover:border-red-300 hover:bg-red-50",
+                              ? "bg-[#b84c4c] text-white scale-[1.02]"
+                              : "bg-white/58 hover:bg-[#f1d9d9]",
                           )}
                         >
                           <ThumbsDown className="h-5 w-5" />
@@ -474,7 +474,7 @@ export function ProposalDetailModal({
             <div className="pt-4 border-t border-[var(--color-border)]">
               <Button
                 variant="outline"
-                className="w-full cursor-pointer text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 hover:border-red-300"
+                className="w-full cursor-pointer text-[#9d3f3f] hover:bg-[#f1d9d9] hover:text-[#9d3f3f]"
                 onClick={() => onCancel(proposal.id)}
                 disabled={isCanceling}
                 isLoading={isCanceling}
