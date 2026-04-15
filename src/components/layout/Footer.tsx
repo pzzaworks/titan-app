@@ -29,6 +29,13 @@ const legalLinks = [
   { href: "/privacy", label: "Privacy" },
 ];
 
+const footerSections = [
+  { title: "Product", links: productColumns[0] },
+  { title: "More", links: productColumns[1] },
+  { title: "Resources", links: resourceLinks },
+  { title: "Legal", links: legalLinks },
+];
+
 export function Footer() {
   return (
     <footer className="bg-[var(--color-titan-green-dark)] text-[var(--color-warm-50)]">
@@ -54,71 +61,37 @@ export function Footer() {
               </Link>
             </Reveal>
             <Reveal
-              className="grid grid-cols-2 gap-x-8 gap-y-8 pt-1 sm:grid-cols-4 md:gap-x-10 md:gap-y-10 md:pt-2 xl:justify-self-center xl:pt-4 xl:[grid-template-columns:160px_160px_170px_170px] xl:gap-16"
+              className="grid grid-cols-2 gap-x-8 gap-y-8 pt-1 min-[540px]:grid-cols-4 md:gap-x-10 md:gap-y-10 md:pt-2 xl:justify-self-center xl:pt-4 xl:[grid-template-columns:160px_160px_170px_170px] xl:gap-16"
               delay={0.08}
               y={40}
             >
-              <div className="col-span-2 grid gap-8 min-[460px]:grid-cols-2 sm:col-span-2 xl:col-span-2 xl:gap-10">
-                {productColumns.map((column, index) => (
-                  <div key={index} className="space-y-5">
-                    <p className="text-[15px] leading-[1.18] uppercase text-white/52 md:text-[18px]">
-                      {index === 0 ? "Product" : "More"}
-                    </p>
-                    <nav className="flex flex-col gap-4">
-                      {column.map((link) => (
-                        <Link
-                          key={link.label}
-                          href={link.href}
-                          className="text-[15px] leading-[1.18] font-[350] tracking-[-0.03em] text-white/70 transition-colors hover:text-white md:text-[18px]"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
-                    </nav>
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-5 sm:col-span-1 xl:col-span-1">
-                <p className="text-[15px] leading-[1.18] uppercase text-white/52 md:text-[18px]">
-                  Resources
-                </p>
-                <nav className="flex flex-col gap-4">
-                  {resourceLinks.map((link) => (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      target={link.href.startsWith("http") ? "_blank" : undefined}
-                      rel={
-                        link.href.startsWith("http")
-                          ? "noopener noreferrer"
-                          : undefined
-                      }
-                      className="text-[15px] leading-[1.18] font-[350] tracking-[-0.03em] text-white/70 transition-colors hover:text-white md:text-[18px]"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </nav>
-              </div>
-              <div className="space-y-5 sm:col-span-1 xl:col-span-1">
-                <p className="text-[15px] leading-[1.18] uppercase text-white/52 md:text-[18px]">
-                  Legal
-                </p>
-                <nav className="flex flex-col gap-4">
-                  {legalLinks.map((link) => (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      className="text-[15px] leading-[1.18] font-[350] tracking-[-0.03em] text-white/70 transition-colors hover:text-white md:text-[18px]"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </nav>
-              </div>
+              {footerSections.map((section) => (
+                <div key={section.title} className="space-y-5">
+                  <p className="text-[17px] leading-[1.18] uppercase text-white/52">
+                    {section.title}
+                  </p>
+                  <nav className="flex flex-col gap-4">
+                    {section.links.map((link) => (
+                      <Link
+                        key={link.label}
+                        href={link.href}
+                        target={link.href.startsWith("http") ? "_blank" : undefined}
+                        rel={
+                          link.href.startsWith("http")
+                            ? "noopener noreferrer"
+                            : undefined
+                        }
+                        className="text-[17px] leading-[1.18] font-[350] tracking-[-0.03em] text-white/70 transition-colors hover:text-white"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </nav>
+                </div>
+              ))}
             </Reveal>
             <Reveal
-              className="mt-auto flex flex-col gap-3 pt-10 text-[15px] leading-[1.18] font-[350] tracking-[-0.03em] text-white/68 sm:pt-12 md:text-[16px] xl:col-span-2 xl:flex-row xl:items-center xl:justify-between xl:gap-3 xl:pt-24 xl:text-[18px]"
+              className="mt-auto flex flex-col gap-3 pt-10 text-[17px] leading-[1.18] font-[350] tracking-[-0.03em] text-white/68 sm:pt-12 xl:col-span-2 xl:flex-row xl:items-center xl:justify-between xl:gap-3 xl:pt-24"
               delay={0.14}
               y={34}
             >

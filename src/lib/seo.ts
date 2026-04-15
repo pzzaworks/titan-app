@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const seoConfig = {
   siteUrl: "https://titandefi.org",
   siteName: "Titan",
-  siteTitle: "Titan",
+  siteTitle: "Titan - DeFi Super App",
   siteDescription:
     "Experimental DeFi app on Ethereum Sepolia for swap, liquidity, staking, borrowing, governance, and testnet faucet flows.",
   defaultKeywords: [
@@ -64,7 +64,7 @@ export function createPageMetadata({
   const pageTitle = buildTitle(title);
 
   return {
-    title,
+    title: pageTitle,
     description,
     keywords: [...seoConfig.defaultKeywords, ...keywords],
     alternates: {
