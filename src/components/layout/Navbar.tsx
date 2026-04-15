@@ -25,10 +25,12 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const navbarRef = useRef<HTMLDivElement | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const menuPanelRef = useRef<HTMLDivElement | null>(null);
 
   const isHomepage = pathname === "/";
-  const isHeroVisible = isHomepage && !scrolled && !mobileMenuOpen;
+  const isHeroVisible = isHomepage && !scrolled;
+  const showFloatingChrome = !isHomepage || scrolled || mobileMenuOpen;
 
   useEffect(() => {
     setMounted(true);
@@ -37,7 +39,8 @@ export function Navbar() {
       setScrolled(window.scrollY > 24);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -48,34 +51,54 @@ export function Navbar() {
   useEffect(() => {
     if (!mobileMenuOpen) return;
 
-    const handlePointerDown = (event: MouseEvent) => {
+    const handlePointerDown = (event: PointerEvent) => {
       const target = event.target;
       if (!(target instanceof Node)) return;
-      if (navbarRef.current?.contains(target)) return;
+      if (menuButtonRef.current?.contains(target)) return;
+      if (menuPanelRef.current?.contains(target)) return;
       setMobileMenuOpen(false);
     };
 
-    window.addEventListener("mousedown", handlePointerDown);
-    return () => window.removeEventListener("mousedown", handlePointerDown);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [mobileMenuOpen]);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            aria-hidden="true"
+            className="fixed inset-0 z-0 bg-transparent"
+            onClick={() => setMobileMenuOpen(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: prefersReducedMotion ? 0.01 : 0.2 }}
+          />
+        )}
+      </AnimatePresence>
+
       <motion.div
-        ref={navbarRef}
-        className="mt-4 w-full px-4 md:px-6"
+        className="relative z-10 mt-4 w-full px-4 md:px-6"
         initial={{ opacity: 0, y: prefersReducedMotion ? 0 : -18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: prefersReducedMotion ? 0.01 : 0.62, ease: [0.16, 1, 0.3, 1] }}
       >
         <div
           className={cn(
-            "relative w-full rounded-xl p-2 transition-all duration-300",
-            scrolled || mobileMenuOpen
-              ? "bg-[var(--color-background)]/96 text-[var(--color-foreground)] shadow-[0_14px_28px_rgba(0,0,0,0.06)] backdrop-blur-sm"
-              : isHomepage
-                ? "bg-transparent text-[var(--color-warm-50)]"
-                : "bg-transparent text-[var(--color-foreground)]"
+            "relative w-full p-2 transition-all duration-300",
+            isHomepage ? "text-[var(--color-warm-50)]" : "text-[var(--color-foreground)]"
           )}
         >
           <div className="grid grid-cols-[1fr_40px] items-center">
@@ -97,7 +120,12 @@ export function Navbar() {
             >
             <Link
               href="/"
-              className="ml-2 inline-flex h-11 items-center justify-self-start sm:ml-3"
+              className={cn(
+                "ml-2 inline-flex h-11 items-center justify-self-start rounded-xl px-3 transition-all duration-300 sm:ml-3",
+                showFloatingChrome
+                  ? "bg-[var(--color-background)]/96 text-[var(--color-foreground)] shadow-[0_14px_28px_rgba(0,0,0,0.06)] backdrop-blur-sm"
+                  : "bg-transparent text-[var(--color-warm-50)]"
+              )}
             >
               <Image
                 src={isHeroVisible ? "/titan-logo.svg" : "/titan-logo-black.svg"}
@@ -110,15 +138,16 @@ export function Navbar() {
             </motion.div>
 
             <motion.button
+              ref={menuButtonRef}
               onClick={() => setMobileMenuOpen((open) => !open)}
               aria-label="Open menu"
               className={cn(
-                "flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border transition-colors duration-200",
+                "flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border transition-all duration-300",
                 mobileMenuOpen
                   ? "border-[#213024] bg-[#213024] text-[#e1ded6]"
                   : isHeroVisible
-                    ? "border-white/30 text-[var(--color-warm-50)]"
-                    : "border-[color:color-mix(in_srgb,var(--color-foreground)_15%,transparent)] text-[var(--color-foreground)]"
+                    ? "border-white/30 bg-transparent text-[var(--color-warm-50)]"
+                    : "border-[color:color-mix(in_srgb,var(--color-foreground)_15%,transparent)] bg-[var(--color-background)]/96 text-[var(--color-foreground)] shadow-[0_14px_28px_rgba(0,0,0,0.06)] backdrop-blur-sm"
               )}
               initial={{ opacity: 0, y: prefersReducedMotion ? 0 : -12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -140,6 +169,7 @@ export function Navbar() {
         <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
+            ref={menuPanelRef}
             className="mt-2 w-full rounded-xl bg-[var(--color-background)] px-4 py-4 text-[var(--color-foreground)] shadow-[0_14px_28px_rgba(0,0,0,0.06)] sm:ml-auto sm:max-w-[360px]"
             initial={{ opacity: 0, y: prefersReducedMotion ? 0 : -10, scale: prefersReducedMotion ? 1 : 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

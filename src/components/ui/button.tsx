@@ -11,7 +11,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[var(--color-titan-green)] text-[#243025] rounded-xl hover:bg-[#1e322e]",
+          "bg-[var(--color-titan-green)] text-[#243025] rounded-xl hover:bg-[#1e322e] hover:text-[var(--color-warm-50)]",
         secondary:
           "bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)] rounded-xl hover:bg-[#e5e5e5]",
         outline:
@@ -23,7 +23,7 @@ const buttonVariants = cva(
         link:
           "text-[var(--color-foreground)] underline-offset-4 hover:underline",
         primary:
-          "bg-[var(--color-primary)] text-[#243025] rounded-xl hover:bg-[#1e322e]",
+          "bg-[var(--color-primary)] text-[#243025] rounded-xl hover:bg-[#1e322e] hover:text-[var(--color-warm-50)]",
         green:
           "bg-[var(--color-titan-green)] text-[#243025] rounded-xl hover:bg-[var(--color-titan-green-light)]",
       },

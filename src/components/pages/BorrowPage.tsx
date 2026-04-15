@@ -403,7 +403,7 @@ export default function BorrowPage() {
                       "w-full",
                       depositExceedsBalance
                         ? "bg-red-500 hover:bg-red-600 text-white"
-                        : "bg-[var(--color-titan-green)] hover:bg-[var(--color-titan-green-dark)] text-[#243025]"
+                        : "bg-[var(--color-titan-green)] text-[#243025] hover:bg-[var(--color-titan-green-dark)] hover:text-[var(--color-warm-50)]"
                     )}
                     onClick={handleDeposit}
                     disabled={!depositAmount || isDepositing || isApproving || depositExceedsBalance}
@@ -453,7 +453,7 @@ export default function BorrowPage() {
                       "w-full",
                       withdrawExceedsAvailable
                         ? "bg-red-500 hover:bg-red-600 text-white"
-                        : "bg-[var(--color-titan-green)] hover:bg-[var(--color-titan-green-dark)] text-[#243025]"
+                        : "bg-[var(--color-titan-green)] text-[#243025] hover:bg-[var(--color-titan-green-dark)] hover:text-[var(--color-warm-50)]"
                     )}
                     onClick={handleWithdraw}
                     disabled={!withdrawAmount || isWithdrawing || withdrawExceedsAvailable}
@@ -516,7 +516,7 @@ export default function BorrowPage() {
                       "w-full",
                       borrowExceedsMax
                         ? "bg-red-500 hover:bg-red-600 text-white"
-                        : "bg-[var(--color-titan-green)] hover:bg-[var(--color-titan-green-dark)] text-[#243025]"
+                        : "bg-[var(--color-titan-green)] text-[#243025] hover:bg-[var(--color-titan-green-dark)] hover:text-[var(--color-warm-50)]"
                     )}
                     onClick={handleBorrow}
                     disabled={!borrowAmount || isBorrowing || !position?.collateral || position.collateral === BigInt(0) || borrowExceedsMax}
@@ -565,7 +565,7 @@ export default function BorrowPage() {
                       "w-full",
                       repayExceedsBalance
                         ? "bg-red-500 hover:bg-red-600 text-white"
-                        : "bg-[var(--color-titan-green)] hover:bg-[var(--color-titan-green-dark)] text-[#243025]"
+                        : "bg-[var(--color-titan-green)] text-[#243025] hover:bg-[var(--color-titan-green-dark)] hover:text-[var(--color-warm-50)]"
                     )}
                     onClick={handleRepay}
                     disabled={!repayAmount || isRepaying || isApproving || repayExceedsBalance}
