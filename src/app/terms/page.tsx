@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/LegalPage";
 import type { LegalSection } from "@/components/legal/LegalPage";
+import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Terms",
+  title: "Titan Terms of Use",
   description:
-    "Terms of use for Titan, an experimental open-source DeFi app running on Ethereum Sepolia.",
+    "Terms of use covering Titan's experimental Sepolia DeFi interface, wallet transactions, third-party services, user responsibilities, and project limitations.",
   path: "/terms",
   keywords: ["terms of use", "legal"],
 });
@@ -94,18 +95,24 @@ const sections: LegalSection[] = [
 
 export default function TermsPage() {
   return (
-    <LegalPage
-      title="Terms of Use"
-      intro={
-        <>
-          Titan is an experimental DeFi interface built in public and currently deployed for
-          Sepolia testnet exploration. By using Titan, you acknowledge that this is an
-          open-source, unaudited, testnet-first project and that you are using it at your own
-          risk.
-        </>
-      }
-      updatedOn="April 14, 2026"
-      sections={sections}
-    />
+    <>
+      <SeoPageScaffold
+        title="Titan Terms of Use"
+        description="Terms of use for Titan's experimental Sepolia DeFi interface, wallet transactions, third-party services, user responsibilities, and project limitations."
+      />
+      <LegalPage
+        title="Terms of Use"
+        intro={
+          <>
+            Titan is an experimental DeFi interface built in public and currently deployed for
+            Sepolia testnet exploration. By using Titan, you acknowledge that this is an
+            open-source, unaudited, testnet-first project and that you are using it at your own
+            risk.
+          </>
+        }
+        updatedOn="April 14, 2026"
+        sections={sections}
+      />
+    </>
   );
 }

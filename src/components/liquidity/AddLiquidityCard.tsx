@@ -335,7 +335,7 @@ export function AddLiquidityCard({
         <a
           href="https://uniswap.org"
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer nofollow"
           className="flex items-center justify-center gap-1.5 pt-3 text-[var(--color-muted-foreground)] hover:text-[#FF007A] transition-colors"
         >
           <span className="text-xs">Powered by</span>

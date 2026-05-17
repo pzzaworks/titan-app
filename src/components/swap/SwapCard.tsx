@@ -246,7 +246,7 @@ export function SwapCard() {
         <a
           href="https://uniswap.org"
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer nofollow"
           className="flex items-center justify-center gap-1.5 pt-3 text-[var(--color-muted-foreground)] transition-colors hover:text-[#FF007A]"
         >
           <span className="text-xs">Powered by</span>

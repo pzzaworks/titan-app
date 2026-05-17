@@ -38,7 +38,7 @@
     "geist": "1.7.0",
     "jsbi": "3.2.5",
     "lucide-react": "0.575.0",
-    "next": "16.1.6",
+    "next": "16.2.6",
     "next-themes": "0.4.6",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -53,9 +53,20 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "eslint": "10.0.2",
-    "eslint-config-next": "16.1.6",
-    "postcss": "8.5.6",
+    "eslint-config-next": "16.2.6",
+    "postcss": "8.5.10",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "@openzeppelin/contracts": "4.9.6",
+      "cookie": "0.7.2",
+      "picomatch": "4.0.4",
+      "postcss": "8.5.10",
+      "serialize-javascript": "7.0.5",
+      "tmp": "0.2.5",
+      "undici": "6.25.0"
+    }
   }
 }

@@ -78,7 +78,7 @@ export function Footer() {
                         target={link.href.startsWith("http") ? "_blank" : undefined}
                         rel={
                           link.href.startsWith("http")
-                            ? "noopener noreferrer"
+                            ? "noopener noreferrer nofollow"
                             : undefined
                         }
                         className="text-[17px] leading-[1.18] font-[350] tracking-[-0.03em] text-white/70 transition-colors hover:text-white"

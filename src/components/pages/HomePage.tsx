@@ -33,25 +33,25 @@ const stats = [
 const imageCards = [
   {
     title: "Swap",
-    description: "Trade tokens.",
+    description: "Trade TITAN and supported Sepolia assets with routing and slippage controls.",
     href: "/swap",
     image: "/swap.jpg",
   },
   {
     title: "Liquidity",
-    description: "Open and manage LP positions.",
+    description: "Open TITAN and WETH pool positions, review ranges, and collect fees.",
     href: "/liquidity",
     image: "/liquidity.jpg",
   },
   {
     title: "Earn",
-    description: "Stake and track rewards.",
+    description: "Stake TITAN, track pending rewards, and manage yield from one panel.",
     href: "/earn",
     image: "/earn.jpg",
   },
   {
     title: "Borrow",
-    description: "Borrow tUSD against collateral.",
+    description: "Use TITAN as collateral, borrow tUSD, and monitor vault health.",
     href: "/borrow",
     image: "/borrow.jpg",
   },
@@ -60,19 +60,19 @@ const imageCards = [
 const journalCards = [
   {
     title: "sTitan",
-    description: "Stake TITAN for sTITAN.",
+    description: "Deposit TITAN for sTITAN while keeping governance voting power attached.",
     href: "/stitan",
     image: "/stitan.jpg",
   },
   {
     title: "Governance",
-    description: "Follow proposals and vote.",
+    description: "Read proposals, activate voting power, and vote with sTITAN.",
     href: "/governance",
     image: "/governance.jpg",
   },
   {
     title: "Faucet",
-    description: "Get test tokens before you start.",
+    description: "Claim Sepolia TITAN test tokens before trying the app flows.",
     href: "/faucet",
     image: "/why-titan.jpg",
   },
@@ -104,9 +104,7 @@ export default function Home() {
       >
         <div className="relative z-10 h-[100svh] min-h-[100svh] w-full">
           <div className="relative h-full">
-            <h1 className="sr-only">Titan</h1>
-            <motion.div
-              aria-hidden="true"
+            <motion.h1
               className="pointer-events-none absolute inset-x-0 bottom-0 top-[var(--hero-navbar-clearance)] z-10 flex items-end justify-center overflow-hidden"
               initial={{
                 opacity: 0,
@@ -124,12 +122,14 @@ export default function Home() {
                 transformOrigin: "center bottom",
               }}
             >
+              <span className="sr-only">Titan DeFi Super App on Sepolia</span>
               <img
                 src="/titan-text.svg"
                 alt=""
+                aria-hidden="true"
                 className="block h-full w-full max-w-none object-fill object-center"
               />
-            </motion.div>
+            </motion.h1>
           </div>
         </div>
       </section>

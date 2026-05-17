@@ -77,9 +77,9 @@ export function STitanCard() {
           <CardContent className="p-8 text-center">
             <div className="text-[var(--color-muted-foreground)] mb-4">
               <Coins className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="mb-2 font-display text-[30px] leading-[1] font-[300] tracking-[-0.03em] text-[var(--color-foreground)]">
+              <h2 className="mb-2 font-display text-[30px] leading-[1] font-[300] tracking-[-0.03em] text-[var(--color-foreground)]">
                 sTitan Not Yet Deployed
-              </h3>
+              </h2>
               <p className="text-sm">
                 The StakedTitan contract has not been deployed yet. Run the deployment script to enable liquid staking.
               </p>
@@ -128,9 +128,9 @@ export function STitanCard() {
               <TrendingUp className="h-5 w-5 text-[var(--color-foreground)]" />
             </div>
             <div className="min-w-0">
-              <h4 className="mb-2 font-display text-[24px] leading-[0.98] font-[300] tracking-[-0.03em] text-[var(--color-foreground)] sm:text-[28px]">
+              <h2 className="mb-2 font-display text-[24px] leading-[0.98] font-[300] tracking-[-0.03em] text-[var(--color-foreground)] sm:text-[28px]">
                 How sTITAN Works
-              </h4>
+              </h2>
               <p className="text-sm text-[var(--color-muted-foreground)]">
                 sTITAN is a liquid staking token with governance power. When you deposit TITAN,
                 you receive sTITAN and automatically gain voting power for governance proposals.

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/LegalPage";
 import type { LegalSection } from "@/components/legal/LegalPage";
+import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Privacy",
+  title: "Titan Privacy Notice",
   description:
-    "Privacy notice for Titan, an experimental open-source DeFi app running on Ethereum Sepolia.",
+    "Privacy notice explaining wallet data, cookies, public blockchain activity, infrastructure providers, and user choices for Titan on Ethereum Sepolia.",
   path: "/privacy",
   keywords: ["privacy notice", "privacy policy"],
 });
@@ -96,17 +97,23 @@ const sections: LegalSection[] = [
 
 export default function PrivacyPage() {
   return (
-    <LegalPage
-      title="Privacy Notice"
-      intro={
-        <>
-          Titan is currently a Sepolia-based experimental DeFi interface. The app aims to keep
-          data collection narrow and functional, but blockchain usage, wallet integrations, and
-          third-party infrastructure can still expose technical and public onchain information.
-        </>
-      }
-      updatedOn="April 14, 2026"
-      sections={sections}
-    />
+    <>
+      <SeoPageScaffold
+        title="Titan Privacy Notice"
+        description="Privacy notice covering wallet data, functional cookies, public blockchain activity, third-party infrastructure, retention, user choices, and Titan's Sepolia interface."
+      />
+      <LegalPage
+        title="Privacy Notice"
+        intro={
+          <>
+            Titan is currently a Sepolia-based experimental DeFi interface. The app aims to keep
+            data collection narrow and functional, but blockchain usage, wallet integrations, and
+            third-party infrastructure can still expose technical and public onchain information.
+          </>
+        }
+        updatedOn="April 14, 2026"
+        sections={sections}
+      />
+    </>
   );
 }

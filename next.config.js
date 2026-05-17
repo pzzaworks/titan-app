@@ -26,6 +26,14 @@ const nextConfig = {
     'encoding',
     '@react-native-async-storage/async-storage',
   ],
+  async rewrites() {
+    return [
+      {
+        source: '/api/rybbit/:path*',
+        destination: 'https://analytics.pzza.works/api/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

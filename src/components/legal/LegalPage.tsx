@@ -89,7 +89,7 @@ export function LegalPage({
             <Link
               href="https://github.com/pzzaworks/titan-app"
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noopener noreferrer nofollow"
               className="text-[var(--color-foreground)] underline decoration-[var(--color-border)] underline-offset-4 transition-colors hover:text-[var(--color-foreground)]/78"
             >
               GitHub repository

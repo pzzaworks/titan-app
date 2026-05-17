@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 export const seoConfig = {
   siteUrl: "https://titandefi.org",
   siteName: "Titan",
-  siteTitle: "Titan - DeFi Super App",
+  siteTitle: "Titan DeFi Super App on Sepolia",
   siteDescription:
-    "Experimental DeFi app on Ethereum Sepolia for swap, liquidity, staking, borrowing, governance, and testnet faucet flows.",
+    "Titan is an experimental DeFi app on Ethereum Sepolia that brings swaps, liquidity, staking, borrowing, governance, sTITAN, and faucet flows into one interface.",
   defaultKeywords: [
     "defi",
     "ethereum",
