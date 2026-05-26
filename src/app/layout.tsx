@@ -141,9 +141,9 @@ export default async function RootLayout({
           />
           {shouldLoadAnalytics ? (
             <Script
-              src="/api/rybbit/script.js"
-              data-site-id="3a835f280cbd"
-              strategy="afterInteractive"
+              src="https://analytics.pzza.works/api/script.js"
+              data-site-id="site-titan"
+              strategy="beforeInteractive"
             />
           ) : null}
           <div className="relative min-h-screen flex flex-col">
