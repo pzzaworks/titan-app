@@ -13,7 +13,12 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_REOWN_PROJECT_ID
 ENV NEXT_PUBLIC_REOWN_PROJECT_ID=$NEXT_PUBLIC_REOWN_PROJECT_ID
-RUN pnpm build
+RUN (while sleep 30; do echo "Next.js build still running..."; done) & \
+  heartbeat="$!"; \
+  pnpm build; \
+  status="$?"; \
+  kill "$heartbeat"; \
+  exit "$status"
 
 FROM node:22.13.1-alpine AS runner
 WORKDIR /app
