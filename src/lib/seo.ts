@@ -225,6 +225,31 @@ export function buildSchemaGraph(): JsonLdNode[] {
   ];
 }
 
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+/**
+ * Builds FAQPage structured data. The question and answer text must match the
+ * visible FAQ content exactly, since Google requires the markup and the
+ * on-page text to be identical for rich-result eligibility.
+ */
+export function buildFaqSchema(items: FaqItem[]): JsonLdNode {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+}
+
 export interface PageSchemaConfig {
   /** Breadcrumb label for the current page, e.g. "Swap". */
   name: string;

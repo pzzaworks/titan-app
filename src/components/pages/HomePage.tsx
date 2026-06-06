@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { AnimatedWords } from "@/components/motion/AnimatedWords";
 import { Reveal } from "@/components/motion/Reveal";
+import { HomeFaq } from "@/components/pages/HomeFaq";
 
 const stats = [
   {
@@ -344,6 +345,8 @@ export default function Home() {
           </div>
         </Reveal>
       </section>
+
+      <HomeFaq />
     </div>
   );
 }
