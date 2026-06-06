@@ -8,6 +8,7 @@ export const metadata: Metadata = createPageMetadata({
     "Titan brings Sepolia swaps, liquidity, staking, borrowing, governance, sTITAN, and faucet flows together in one experimental DeFi interface.",
   path: "/",
   keywords: ["titan defi", "defi app", "sepolia defi"],
+  ogImage: "/og-image.png",
 });
 
 export default function Page() {

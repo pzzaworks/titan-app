@@ -67,13 +67,11 @@ export const metadata: Metadata = {
     siteName: seoConfig.siteName,
     title: seoConfig.siteTitle,
     description: seoConfig.siteDescription,
-    images: [seoConfig.defaultOgImage],
   },
   twitter: {
     card: "summary_large_image",
     title: seoConfig.siteTitle,
     description: seoConfig.siteDescription,
-    images: [seoConfig.defaultOgImage.url],
     creator: "@pzzaworks",
   },
 };

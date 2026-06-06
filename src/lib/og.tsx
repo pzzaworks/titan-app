@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 /**
  * Shared OpenGraph image size. Re-exported by each opengraph-image route so the
@@ -11,11 +13,26 @@ export const ogImageSize = {
 
 export const ogContentType = "image/png";
 
-// Brand colors sourced from src/styles/globals.css.
+// Brand palette taken from the original og-image.png / globals.css: a deep
+// forest-green canvas with a warm cream foreground.
+const brandGreen = "#213024";
 const brandCream = "#eae5dd";
-const brandInk = "#2a1a1d";
-const brandGreen = "#26d862";
-const brandMuted = "#645757";
+const brandMuted = "#9aae9d";
+
+function loadAsset(relativePath: string): string {
+  const buffer = readFileSync(join(process.cwd(), "public", relativePath));
+  return `data:image/png;base64,${buffer.toString("base64")}`;
+}
+
+// Pre-rasterized cream brand marks (recolored from the source SVGs) so the
+// star icon and serif wordmark identity from the original og-image are
+// preserved without shipping a custom font to Satori.
+const starMark = loadAsset("og/mark.png");
+const wordmark = loadAsset("og/wordmark.png");
+
+// The site's display font (ABC Arizona Flare) so the title matches the app.
+const fontData = readFileSync(join(process.cwd(), "public", "og", "font.ttf"));
+const FONT_FAMILY = "ABC Arizona Flare";
 
 interface OgImageOptions {
   /** Large headline, typically the page title. */
@@ -25,11 +42,10 @@ interface OgImageOptions {
 }
 
 /**
- * Builds an on-brand OpenGraph image using the default font (no remote or woff2
- * fonts) so the build stays deterministic and offline-safe. Layout is plain
- * flexbox with inline styles to respect ImageResponse/Satori constraints.
+ * Builds an on-brand OpenGraph image that echoes the original Titan og-image
+ * (forest-green canvas, cream serif wordmark) while surfacing the page title.
  */
-export function createOgImage({ title, eyebrow }: OgImageOptions): ImageResponse {
+export function createOgImage({ title }: OgImageOptions): ImageResponse {
   return new ImageResponse(
     (
       <div
@@ -39,90 +55,43 @@ export function createOgImage({ title, eyebrow }: OgImageOptions): ImageResponse
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          backgroundColor: brandCream,
-          backgroundImage: `radial-gradient(circle at 85% 15%, rgba(38, 216, 98, 0.18), transparent 45%)`,
-          padding: "72px 80px",
+          backgroundColor: brandGreen,
+          backgroundImage:
+            "radial-gradient(circle at 88% 12%, rgba(234,229,221,0.10), transparent 45%)",
+          padding: "76px 84px",
+          fontFamily: FONT_FAMILY,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <div
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 16,
-              backgroundColor: brandGreen,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff",
-              fontSize: 34,
-              fontWeight: 700,
-            }}
-          >
-            T
-          </div>
-          <div
-            style={{
-              marginLeft: 20,
-              fontSize: 34,
-              fontWeight: 600,
-              color: brandInk,
-            }}
-          >
-            Titan DeFi
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <img src={starMark} height={62} width={62} alt="" />
+          <img src={wordmark} height={58} width={157} alt="Titan" />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          {eyebrow ? (
-            <div
-              style={{
-                fontSize: 26,
-                color: brandMuted,
-                marginBottom: 18,
-                letterSpacing: 1,
-                textTransform: "uppercase",
-              }}
-            >
-              {eyebrow}
-            </div>
-          ) : null}
           <div
             style={{
-              fontSize: 76,
-              lineHeight: 1.05,
+              fontSize: 78,
+              lineHeight: 1.04,
               fontWeight: 700,
-              color: brandInk,
-              maxWidth: 980,
+              color: brandCream,
+              maxWidth: 1000,
             }}
           >
             {title}
           </div>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            fontSize: 26,
-            color: brandMuted,
-          }}
-        >
-          <div
-            style={{
-              width: 14,
-              height: 14,
-              borderRadius: 7,
-              backgroundColor: brandGreen,
-              marginRight: 14,
-            }}
-          />
+        <div style={{ display: "flex", fontSize: 27, color: brandMuted }}>
           titandefi.org
         </div>
       </div>
     ),
     {
       ...ogImageSize,
+      fonts: [
+        { name: FONT_FAMILY, data: fontData, weight: 400, style: "normal" },
+        { name: FONT_FAMILY, data: fontData, weight: 700, style: "normal" },
+      ],
     },
   );
 }

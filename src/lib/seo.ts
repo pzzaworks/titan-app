@@ -39,6 +39,11 @@ export interface PageMetadataConfig {
   path: string;
   keywords?: string[];
   noIndex?: boolean;
+  /**
+   * Static OG image to use instead of the per-page generated card. Set on the
+   * home route so it keeps the original brand og-image.
+   */
+  ogImage?: string;
 }
 
 function buildUrl(path: string): string {
@@ -84,10 +89,12 @@ export function createPageMetadata({
   path,
   keywords = [],
   noIndex = false,
+  ogImage,
 }: PageMetadataConfig): Metadata {
   const url = buildUrl(path);
   const pageTitle = resolveTitle(title);
   const socialTitle = buildSocialTitle(title);
+  const ogImages = ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : undefined;
 
   return {
     title: pageTitle,
@@ -116,14 +123,16 @@ export function createPageMetadata({
       siteName: seoConfig.siteName,
       title: socialTitle,
       description,
-      images: [seoConfig.defaultOgImage],
+      // Only set images for pages that opt into a static OG (the home route);
+      // other pages omit it so their file-convention opengraph-image card wins.
+      ...(ogImages ? { images: ogImages } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: socialTitle,
       description,
-      images: [seoConfig.defaultOgImage.url],
       creator: seoConfig.twitterHandle,
+      ...(ogImage ? { images: [ogImage] } : {}),
     },
   };
 }
