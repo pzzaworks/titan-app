@@ -5,9 +5,16 @@ import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
   description:
-    "Titan brings Sepolia swaps, liquidity, staking, borrowing, governance, sTITAN, and faucet flows together in one experimental DeFi interface.",
+    "Try Titan, an experimental Sepolia DeFi app with token swaps, TITAN/WETH liquidity, staking, sTITAN, tUSD borrowing, governance, and a testnet faucet in one app.",
   path: "/",
-  keywords: ["titan defi", "defi app", "sepolia defi"],
+  keywords: [
+    "titan defi",
+    "sepolia defi app",
+    "ethereum testnet defi",
+    "defi super app",
+    "experimental defi",
+    "sepolia dapp",
+  ],
   ogImage: "/og-image.png",
 });
 

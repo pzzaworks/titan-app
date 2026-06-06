@@ -18,11 +18,19 @@ const schema = buildPageSchemaGraph({
 });
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Earn TITAN Staking Rewards",
+  title: "Stake TITAN to Earn Rewards - Sepolia Staking",
   description:
-    "Stake TITAN, track pending rewards, review APR, and manage stake or unstake actions in Titan's experimental Sepolia earn interface.",
+    "Stake TITAN to earn rewards on Ethereum Sepolia. Track pending yield and APR, then stake or unstake anytime through Titan's experimental testnet earn interface.",
   path: "/earn",
-  keywords: ["staking rewards", "earn titan", "defi staking"],
+  keywords: [
+    "stake titan",
+    "titan staking rewards",
+    "sepolia staking",
+    "earn defi yield",
+    "staking apr",
+    "stake unstake",
+    "testnet staking rewards",
+  ],
 });
 
 export default function EarnPage() {

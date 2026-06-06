@@ -18,11 +18,20 @@ const schema = buildPageSchemaGraph({
 });
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Sepolia Token Swap",
+  title: "Sepolia Token Swap - Uniswap V4 Testnet DEX",
   description:
-    "Swap TITAN and supported Sepolia assets, review price impact and slippage settings, and route trades through Titan's experimental Uniswap V4 interface.",
+    "Swap TITAN and supported Sepolia tokens on a Uniswap V4 testnet DEX. Preview price impact, set slippage, and route trades through Titan's experimental app.",
   path: "/swap",
-  keywords: ["token swap", "uniswap v4 swap", "sepolia swap"],
+  keywords: [
+    "sepolia token swap",
+    "uniswap v4 testnet",
+    "testnet dex",
+    "swap titan token",
+    "sepolia testnet swap",
+    "price impact",
+    "slippage settings",
+    "swap weth sepolia",
+  ],
 });
 
 export default function SwapPage() {

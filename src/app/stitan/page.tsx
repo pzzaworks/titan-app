@@ -18,11 +18,19 @@ const schema = buildPageSchemaGraph({
 });
 
 export const metadata: Metadata = createPageMetadata({
-  title: "sTITAN Liquid Staking",
+  title: "sTITAN Liquid Staking - Stake TITAN on Sepolia",
   description:
-    "Deposit TITAN, receive sTITAN, monitor exchange rates, and keep governance voting power attached in Titan's experimental Sepolia liquid staking flow.",
+    "Deposit TITAN to mint sTITAN with Titan's Sepolia liquid staking. Track the exchange rate and keep governance voting power while your stake stays liquid.",
   path: "/stitan",
-  keywords: ["stitan", "liquid staking", "staking titan"],
+  keywords: [
+    "stitan liquid staking",
+    "liquid staking token",
+    "mint stitan",
+    "stake titan keep voting power",
+    "stitan exchange rate",
+    "sepolia liquid staking",
+    "liquid staked titan",
+  ],
 });
 
 export default function STitanPage() {

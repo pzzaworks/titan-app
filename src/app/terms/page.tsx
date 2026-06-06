@@ -11,11 +11,16 @@ const schema = buildPageSchemaGraph({
 });
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Titan Terms of Use",
+  title: "Terms of Use",
   description:
-    "Terms of use covering Titan's experimental Sepolia DeFi interface, wallet transactions, third-party services, user responsibilities, and project limitations.",
+    "Terms of use for Titan's experimental Sepolia DeFi app, covering wallet transactions, third-party services, user responsibilities, and project limitations.",
   path: "/terms",
-  keywords: ["terms of use", "legal"],
+  keywords: [
+    "titan terms of use",
+    "terms and conditions",
+    "defi disclaimer",
+    "experimental defi terms",
+  ],
 });
 
 const sections: LegalSection[] = [

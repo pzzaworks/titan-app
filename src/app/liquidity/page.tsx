@@ -15,11 +15,20 @@ const schema = buildPageSchemaGraph({
 });
 
 export const metadata: Metadata = createPageMetadata({
-  title: "TITAN WETH Liquidity",
+  title: "Add TITAN/WETH Liquidity - Uniswap V4 on Sepolia",
   description:
-    "Add TITAN and WETH liquidity, review LP positions, collect fees, and manage Uniswap V4-based Sepolia pool ranges in Titan.",
+    "Provide TITAN/WETH liquidity on a Uniswap V4 Sepolia pool. Add liquidity, manage pool ranges, track LP positions, and collect fees in Titan's testnet interface.",
   path: "/liquidity",
-  keywords: ["uniswap v4 liquidity", "titan liquidity", "lp positions"],
+  keywords: [
+    "add liquidity sepolia",
+    "uniswap v4 liquidity pool",
+    "titan weth pool",
+    "lp positions",
+    "provide liquidity testnet",
+    "concentrated liquidity",
+    "collect lp fees",
+    "sepolia liquidity provider",
+  ],
 });
 
 export default function Page() {

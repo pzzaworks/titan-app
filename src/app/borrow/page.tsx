@@ -15,11 +15,19 @@ const schema = buildPageSchemaGraph({
 });
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Borrow tUSD with TITAN Collateral",
+  title: "Borrow tUSD Against TITAN - Sepolia DeFi Vault",
   description:
-    "Deposit TITAN as collateral, borrow tUSD, watch collateral ratios, and manage repayment inside Titan's experimental Sepolia vault interface.",
+    "Borrow tUSD against TITAN collateral on Ethereum Sepolia. Open a vault, monitor your collateral ratio and health, and repay anytime in Titan's testnet app.",
   path: "/borrow",
-  keywords: ["borrow tusd", "titan vault", "defi borrowing"],
+  keywords: [
+    "borrow tusd",
+    "titan collateral vault",
+    "defi borrowing sepolia",
+    "collateral ratio",
+    "crypto loan testnet",
+    "stablecoin borrow",
+    "vault health",
+  ],
 });
 
 export default function Page() {

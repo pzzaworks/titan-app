@@ -15,11 +15,19 @@ const schema = buildPageSchemaGraph({
 });
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Sepolia TITAN Faucet",
+  title: "Sepolia TITAN Faucet - Free Testnet Tokens",
   description:
-    "Claim TITAN test tokens on Ethereum Sepolia, check faucet cooldowns, and prepare a wallet for Titan's swap, stake, borrow, and governance flows.",
+    "Claim free TITAN testnet tokens from the Sepolia faucet. Check cooldowns and fund your wallet for Titan's swap, staking, borrowing, and governance flows.",
   path: "/faucet",
-  keywords: ["sepolia faucet", "titan faucet", "test tokens"],
+  keywords: [
+    "sepolia faucet",
+    "titan faucet",
+    "free testnet tokens",
+    "claim test tokens",
+    "sepolia test tokens",
+    "testnet faucet",
+    "fund sepolia wallet",
+  ],
 });
 
 export default function Page() {

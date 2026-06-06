@@ -15,11 +15,19 @@ const schema = buildPageSchemaGraph({
 });
 
 export const metadata: Metadata = createPageMetadata({
-  title: "sTITAN Governance",
+  title: "sTITAN Governance - Vote On-Chain on Sepolia",
   description:
-    "Read proposals, activate voting power, filter governance status, and vote with sTITAN in Titan's experimental Sepolia governance interface.",
+    "Vote on Titan proposals with sTITAN voting power on Ethereum Sepolia. Read active proposals, filter by status, and cast on-chain votes in the testnet interface.",
   path: "/governance",
-  keywords: ["defi governance", "stitan voting", "onchain proposals"],
+  keywords: [
+    "stitan governance",
+    "onchain voting",
+    "dao proposals",
+    "stitan voting power",
+    "defi governance sepolia",
+    "vote on proposals",
+    "testnet dao",
+  ],
 });
 
 export default function Page() {

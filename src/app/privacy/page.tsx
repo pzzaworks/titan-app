@@ -11,11 +11,16 @@ const schema = buildPageSchemaGraph({
 });
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Titan Privacy Notice",
+  title: "Privacy Notice",
   description:
-    "Privacy notice explaining wallet data, cookies, public blockchain activity, infrastructure providers, and user choices for Titan on Ethereum Sepolia.",
+    "How Titan handles privacy: wallet data, cookies, public blockchain activity, infrastructure providers, and your choices when using the Sepolia DeFi app.",
   path: "/privacy",
-  keywords: ["privacy notice", "privacy policy"],
+  keywords: [
+    "titan privacy notice",
+    "privacy policy",
+    "wallet data privacy",
+    "defi privacy",
+  ],
 });
 
 const sections: LegalSection[] = [
