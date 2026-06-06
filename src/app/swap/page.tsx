@@ -2,9 +2,20 @@ import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
+import { StructuredData } from "@/components/seo/StructuredData";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { SwapCard } from "@/components/swap/SwapCard";
-import { createPageMetadata } from "@/lib/seo";
+import { buildPageSchemaGraph, createPageMetadata } from "@/lib/seo";
+
+const schema = buildPageSchemaGraph({
+  name: "Swap",
+  path: "/swap",
+  feature: {
+    name: "Titan Token Swap",
+    description:
+      "Swap TITAN and supported Ethereum Sepolia assets with visible routing, slippage controls, and price impact through Titan's Uniswap V4 interface.",
+  },
+});
 
 export const metadata: Metadata = createPageMetadata({
   title: "Sepolia Token Swap",
@@ -17,6 +28,7 @@ export const metadata: Metadata = createPageMetadata({
 export default function SwapPage() {
   return (
     <>
+      <StructuredData data={schema} />
       <SeoPageScaffold
         title="Sepolia Token Swap"
         description="Swap TITAN and supported Sepolia assets, review price impact, adjust slippage settings, and route trades through Titan's experimental Uniswap V4 interface."

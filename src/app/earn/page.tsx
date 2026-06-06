@@ -2,9 +2,20 @@ import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
+import { StructuredData } from "@/components/seo/StructuredData";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { StakeCard } from "@/components/stake/StakeCard";
-import { createPageMetadata } from "@/lib/seo";
+import { buildPageSchemaGraph, createPageMetadata } from "@/lib/seo";
+
+const schema = buildPageSchemaGraph({
+  name: "Earn",
+  path: "/earn",
+  feature: {
+    name: "TITAN Staking Rewards",
+    description:
+      "Stake TITAN to earn rewards, track pending yield and APR, and manage stake or unstake actions on Ethereum Sepolia.",
+  },
+});
 
 export const metadata: Metadata = createPageMetadata({
   title: "Earn TITAN Staking Rewards",
@@ -17,6 +28,7 @@ export const metadata: Metadata = createPageMetadata({
 export default function EarnPage() {
   return (
     <>
+      <StructuredData data={schema} />
       <SeoPageScaffold
         title="Earn TITAN Staking Rewards"
         description="Stake TITAN, track pending staking rewards, review APR, and manage stake or unstake actions from one Sepolia earn panel in Titan."

@@ -4,7 +4,6 @@ import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
 import { createPageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Titan DeFi Super App",
   description:
     "Titan brings Sepolia swaps, liquidity, staking, borrowing, governance, sTITAN, and faucet flows together in one experimental DeFi interface.",
   path: "/",

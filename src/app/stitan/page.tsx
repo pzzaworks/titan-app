@@ -2,9 +2,20 @@ import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
 import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
+import { StructuredData } from "@/components/seo/StructuredData";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { STitanCard } from "@/components/stitan/STitanCard";
-import { createPageMetadata } from "@/lib/seo";
+import { buildPageSchemaGraph, createPageMetadata } from "@/lib/seo";
+
+const schema = buildPageSchemaGraph({
+  name: "sTITAN",
+  path: "/stitan",
+  feature: {
+    name: "sTITAN Liquid Staking",
+    description:
+      "Deposit TITAN to receive sTITAN, track the exchange rate, and keep governance voting power while staked on Ethereum Sepolia.",
+  },
+});
 
 export const metadata: Metadata = createPageMetadata({
   title: "sTITAN Liquid Staking",
@@ -17,6 +28,7 @@ export const metadata: Metadata = createPageMetadata({
 export default function STitanPage() {
   return (
     <>
+      <StructuredData data={schema} />
       <SeoPageScaffold
         title="sTITAN Liquid Staking"
         description="Deposit TITAN, receive sTITAN, monitor exchange rates, and keep governance voting power attached through Titan's Sepolia liquid staking flow."

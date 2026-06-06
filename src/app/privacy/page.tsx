@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/LegalPage";
 import type { LegalSection } from "@/components/legal/LegalPage";
 import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
-import { createPageMetadata } from "@/lib/seo";
+import { StructuredData } from "@/components/seo/StructuredData";
+import { buildPageSchemaGraph, createPageMetadata } from "@/lib/seo";
+
+const schema = buildPageSchemaGraph({
+  name: "Privacy Notice",
+  path: "/privacy",
+});
 
 export const metadata: Metadata = createPageMetadata({
   title: "Titan Privacy Notice",
@@ -98,6 +104,7 @@ const sections: LegalSection[] = [
 export default function PrivacyPage() {
   return (
     <>
+      <StructuredData data={schema} />
       <SeoPageScaffold
         title="Titan Privacy Notice"
         description="Privacy notice covering wallet data, functional cookies, public blockchain activity, third-party infrastructure, retention, user choices, and Titan's Sepolia interface."

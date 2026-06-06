@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/LegalPage";
 import type { LegalSection } from "@/components/legal/LegalPage";
 import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
-import { createPageMetadata } from "@/lib/seo";
+import { StructuredData } from "@/components/seo/StructuredData";
+import { buildPageSchemaGraph, createPageMetadata } from "@/lib/seo";
+
+const schema = buildPageSchemaGraph({
+  name: "Terms of Use",
+  path: "/terms",
+});
 
 export const metadata: Metadata = createPageMetadata({
   title: "Titan Terms of Use",
@@ -96,6 +102,7 @@ const sections: LegalSection[] = [
 export default function TermsPage() {
   return (
     <>
+      <StructuredData data={schema} />
       <SeoPageScaffold
         title="Titan Terms of Use"
         description="Terms of use for Titan's experimental Sepolia DeFi interface, wallet transactions, third-party services, user responsibilities, and project limitations."

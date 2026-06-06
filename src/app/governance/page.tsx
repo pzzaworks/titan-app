@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
 import GovernancePage from "@/components/pages/GovernancePage";
 import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
-import { createPageMetadata } from "@/lib/seo";
+import { StructuredData } from "@/components/seo/StructuredData";
+import { buildPageSchemaGraph, createPageMetadata } from "@/lib/seo";
+
+const schema = buildPageSchemaGraph({
+  name: "Governance",
+  path: "/governance",
+  feature: {
+    name: "sTITAN Governance",
+    description:
+      "Read Titan proposals, activate sTITAN voting power, filter proposal status, and vote onchain on Ethereum Sepolia.",
+  },
+});
 
 export const metadata: Metadata = createPageMetadata({
   title: "sTITAN Governance",
@@ -14,6 +25,7 @@ export const metadata: Metadata = createPageMetadata({
 export default function Page() {
   return (
     <>
+      <StructuredData data={schema} />
       <SeoPageScaffold
         title="sTITAN Governance"
         description="Read Titan governance proposals, activate sTITAN voting power, filter proposal status, and submit votes through the Sepolia governance interface."
