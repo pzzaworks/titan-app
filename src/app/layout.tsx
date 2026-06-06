@@ -128,6 +128,15 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/*
+          Resolve DNS for the Sepolia RPC origin early. The connection itself is
+          only opened after the user interacts with the wallet, so dns-prefetch
+          (cheaper than preconnect) shaves latency off the first on-chain read
+          without holding an unused socket on pages that stay read-only.
+        */}
+        <link rel="dns-prefetch" href="https://ethereum-sepolia-rpc.publicnode.com" />
+      </head>
       <body
         className={`${GeistSans.variable} ${robotoMono.variable} font-sans antialiased bg-eigenpal-cream`}
       >

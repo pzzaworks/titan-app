@@ -148,19 +148,26 @@ export interface SitemapRoute {
     | "monthly"
     | "yearly"
     | "never";
+  /**
+   * Path to the route's source file, relative to the project root. The sitemap
+   * derives a real per-URL lastModified date from this file (git commit date,
+   * falling back to filesystem mtime) instead of stamping every URL with the
+   * build time.
+   */
+  sourceFile: string;
 }
 
 export const sitemapRoutes: SitemapRoute[] = [
-  { path: "/", priority: 1, changeFrequency: "weekly" },
-  { path: "/swap", priority: 0.9, changeFrequency: "weekly" },
-  { path: "/liquidity", priority: 0.9, changeFrequency: "weekly" },
-  { path: "/earn", priority: 0.8, changeFrequency: "weekly" },
-  { path: "/stitan", priority: 0.8, changeFrequency: "weekly" },
-  { path: "/borrow", priority: 0.8, changeFrequency: "weekly" },
-  { path: "/governance", priority: 0.8, changeFrequency: "weekly" },
-  { path: "/faucet", priority: 0.7, changeFrequency: "weekly" },
-  { path: "/terms", priority: 0.3, changeFrequency: "monthly" },
-  { path: "/privacy", priority: 0.3, changeFrequency: "monthly" },
+  { path: "/", priority: 1, changeFrequency: "weekly", sourceFile: "src/app/page.tsx" },
+  { path: "/swap", priority: 0.9, changeFrequency: "weekly", sourceFile: "src/app/swap/page.tsx" },
+  { path: "/liquidity", priority: 0.9, changeFrequency: "weekly", sourceFile: "src/app/liquidity/page.tsx" },
+  { path: "/earn", priority: 0.8, changeFrequency: "weekly", sourceFile: "src/app/earn/page.tsx" },
+  { path: "/stitan", priority: 0.8, changeFrequency: "weekly", sourceFile: "src/app/stitan/page.tsx" },
+  { path: "/borrow", priority: 0.8, changeFrequency: "weekly", sourceFile: "src/app/borrow/page.tsx" },
+  { path: "/governance", priority: 0.8, changeFrequency: "weekly", sourceFile: "src/app/governance/page.tsx" },
+  { path: "/faucet", priority: 0.7, changeFrequency: "weekly", sourceFile: "src/app/faucet/page.tsx" },
+  { path: "/terms", priority: 0.3, changeFrequency: "monthly", sourceFile: "src/app/terms/page.tsx" },
+  { path: "/privacy", priority: 0.3, changeFrequency: "monthly", sourceFile: "src/app/privacy/page.tsx" },
 ];
 
 /**
@@ -181,6 +188,20 @@ export interface JsonLdNode {
 
 const organizationId = `${seoConfig.siteUrl}/#organization`;
 const websiteId = `${seoConfig.siteUrl}/#website`;
+const personId = `${seoConfig.siteUrl}/#berke`;
+
+/**
+ * The site author / maintainer as a schema.org Person. Used for E-E-A-T so the
+ * Organization, WebSite, and SoftwareApplication nodes all attribute the work
+ * to a real, verifiable individual with linked X and GitHub profiles.
+ */
+const authorPerson: JsonLdNode = {
+  "@type": "Person",
+  "@id": personId,
+  name: "Berke (pzzaworks)",
+  url: "https://pzza.works",
+  sameAs: ["https://x.com/pzzaworks", "https://github.com/pzzaworks"],
+};
 
 /**
  * Root structured data shared across every page: Organization, WebSite, and the
@@ -197,6 +218,7 @@ export function buildSchemaGraph(): JsonLdNode[] {
       logo: seoConfig.logoUrl,
       description: seoConfig.siteDescription,
       sameAs: [seoConfig.githubUrl, seoConfig.twitterUrl],
+      founder: authorPerson,
     },
     {
       "@context": "https://schema.org",
@@ -216,6 +238,8 @@ export function buildSchemaGraph(): JsonLdNode[] {
       url: seoConfig.siteUrl,
       description: seoConfig.siteDescription,
       publisher: { "@id": organizationId },
+      author: { "@id": personId },
+      creator: { "@id": personId },
       offers: {
         "@type": "Offer",
         price: "0",
