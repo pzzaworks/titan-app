@@ -66,14 +66,6 @@ const nextConfig = {
       },
     ];
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/rybbit/:path*',
-        destination: 'https://analytics.pzza.works/api/:path*',
-      },
-    ];
-  },
 };
 
 module.exports = nextConfig;
