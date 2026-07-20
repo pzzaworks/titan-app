@@ -141,11 +141,19 @@ export default async function RootLayout({
         className={`${GeistSans.variable} ${robotoMono.variable} font-sans antialiased bg-eigenpal-cream`}
       >
         <StaticSeoFallback />
+        {/*
+          Emit the root JSON-LD graph as a direct child of <body> (a Server
+          Component boundary) rather than inside <Providers>, which is a client
+          component. React serializes markup nested under a client component
+          into the RSC flight payload, so a script placed there never lands in
+          the static HTML that non-JS crawlers (Bing, Yandex) read. Keeping it
+          here renders it into the server HTML alongside StaticSeoFallback.
+        */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaGraph) }}
+        />
         <Providers cookies={cookies}>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaGraph) }}
-          />
           {shouldLoadAnalytics ? (
             <Script
               src="/api/rybbit/script.js"
