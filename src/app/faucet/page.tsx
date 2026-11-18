@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import FaucetPage from "@/components/pages/FaucetPage";
-import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { buildPageSchemaGraph, createPageMetadata } from "@/lib/seo";
 
@@ -34,10 +33,6 @@ export default function Page() {
   return (
     <>
       <StructuredData data={schema} />
-      <SeoPageScaffold
-        title="Sepolia TITAN Faucet"
-        description="Claim Sepolia TITAN test tokens, check faucet cooldowns, prepare a wallet, and move into Titan swap, staking, borrowing, and governance flows."
-      />
       <FaucetPage />
     </>
   );

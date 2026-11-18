@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import LiquidityPage from "@/components/pages/LiquidityPage";
-import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { buildPageSchemaGraph, createPageMetadata } from "@/lib/seo";
 
@@ -35,10 +34,6 @@ export default function Page() {
   return (
     <>
       <StructuredData data={schema} />
-      <SeoPageScaffold
-        title="TITAN WETH Liquidity"
-        description="Add TITAN and WETH liquidity, review LP positions, collect fees, and manage Uniswap V4-based Sepolia pool ranges inside Titan."
-      />
       <LiquidityPage />
     </>
   );

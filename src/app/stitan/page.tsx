@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
-import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { STitanCard } from "@/components/stitan/STitanCard";
@@ -37,10 +36,6 @@ export default function STitanPage() {
   return (
     <>
       <StructuredData data={schema} />
-      <SeoPageScaffold
-        title="sTITAN Liquid Staking"
-        description="Deposit TITAN, receive sTITAN, monitor exchange rates, and keep governance voting power attached through Titan's Sepolia liquid staking flow."
-      />
       <PageContainer>
         <div className="max-w-3xl mx-auto">
           <Reveal className="mb-10 text-center">

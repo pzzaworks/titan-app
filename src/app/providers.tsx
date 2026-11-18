@@ -1,11 +1,16 @@
 "use client";
 
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState } from "react";
 import { ThemeProvider } from "next-themes";
 import { QueryClient, QueryClientProvider, MutationCache, QueryCache } from "@tanstack/react-query";
 import { WagmiProvider, cookieToInitialState } from "wagmi";
 import { Toaster } from "sonner";
 import { wagmiConfig, initializeAppKit } from "@/lib/wagmi";
+
+// Module scope, as Reown documents for the App Router: AppKit exists before the
+// first render on both server and client, so pages render their real content
+// into the server HTML instead of waiting for a client mount.
+initializeAppKit();
 
 interface ProvidersProps {
   children: ReactNode;
@@ -13,13 +18,6 @@ interface ProvidersProps {
 }
 
 export function Providers({ children, cookies }: ProvidersProps) {
-  const [appKitReady, setAppKitReady] = useState(false);
-
-  useEffect(() => {
-    initializeAppKit();
-    setAppKitReady(true);
-  }, []);
-
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -58,10 +56,6 @@ export function Providers({ children, cookies }: ProvidersProps) {
   );
 
   const initialState = cookieToInitialState(wagmiConfig, cookies);
-
-  if (!appKitReady) {
-    return null;
-  }
 
   return (
     <WagmiProvider config={wagmiConfig} initialState={initialState}>

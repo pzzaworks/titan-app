@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import GovernancePage from "@/components/pages/GovernancePage";
-import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { buildPageSchemaGraph, createPageMetadata } from "@/lib/seo";
 
@@ -34,10 +33,6 @@ export default function Page() {
   return (
     <>
       <StructuredData data={schema} />
-      <SeoPageScaffold
-        title="sTITAN Governance"
-        description="Read Titan governance proposals, activate sTITAN voting power, filter proposal status, and submit votes through the Sepolia governance interface."
-      />
       <GovernancePage />
     </>
   );

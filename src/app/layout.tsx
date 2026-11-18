@@ -16,18 +16,6 @@ const robotoMono = Roboto_Mono({
 
 const schemaGraph = buildSchemaGraph();
 const shouldLoadAnalytics = process.env.NODE_ENV === "production";
-const staticSeoRoutes = [
-  { href: "/", label: "Titan DeFi Super App" },
-  { href: "/swap", label: "Sepolia Token Swap" },
-  { href: "/liquidity", label: "TITAN WETH Liquidity" },
-  { href: "/earn", label: "Earn TITAN Staking Rewards" },
-  { href: "/stitan", label: "sTITAN Liquid Staking" },
-  { href: "/borrow", label: "Borrow tUSD with TITAN Collateral" },
-  { href: "/governance", label: "sTITAN Governance" },
-  { href: "/faucet", label: "Sepolia TITAN Faucet" },
-  { href: "/privacy", label: "Titan Privacy Notice" },
-  { href: "/terms", label: "Titan Terms of Use" },
-];
 
 export const metadata: Metadata = {
   metadataBase: new URL(seoConfig.siteUrl),
@@ -76,48 +64,6 @@ export const metadata: Metadata = {
   },
 };
 
-function StaticSeoFallback() {
-  return (
-    <section className="sr-only" aria-label="Titan crawlable route index">
-      <h1>Titan DeFi Super App on Ethereum Sepolia</h1>
-      <p>
-        Titan is an experimental DeFi interface for Ethereum Sepolia with token
-        swaps, TITAN WETH liquidity, staking rewards, sTITAN liquid staking,
-        tUSD borrowing, governance voting, faucet claims, privacy information,
-        and terms of use. These routes are available as crawlable links for
-        users, search engines, and technical SEO tools even when wallet
-        features hydrate on the client.
-      </p>
-      <p>
-        The app groups common testnet DeFi actions into one product surface:
-        reviewing token balances, preparing swaps, adding or removing
-        liquidity, staking TITAN, tracking sTITAN governance power, testing loan
-        flows, reading legal information, and using a faucet during development.
-        Titan is built as a production-style interface for protocol iteration,
-        so each route has a specific purpose and plain crawlable context in the
-        HTML source. The visible application keeps the cyberpunk DeFi design and
-        wallet interactions, while this hidden text gives non-JavaScript
-        crawlers enough semantic content to understand the site without changing
-        the experience for users.
-      </p>
-      <p>
-        Users can move between swap, liquidity, earn, sTITAN, borrow,
-        governance, faucet, privacy, and terms pages from the same navigation
-        model. Each page explains one part of the protocol workflow and keeps
-        the rest of the app reachable for crawlers that do not execute the
-        wallet-ready client bundle.
-      </p>
-      <nav aria-label="Titan pages">
-        {staticSeoRoutes.map((route) => (
-          <a key={route.href} href={route.href}>
-            {route.label}
-          </a>
-        ))}
-      </nav>
-    </section>
-  );
-}
-
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -140,14 +86,10 @@ export default async function RootLayout({
       <body
         className={`${GeistSans.variable} ${robotoMono.variable} font-sans antialiased bg-eigenpal-cream`}
       >
-        <StaticSeoFallback />
         {/*
           Emit the root JSON-LD graph as a direct child of <body> (a Server
-          Component boundary) rather than inside <Providers>, which is a client
-          component. React serializes markup nested under a client component
-          into the RSC flight payload, so a script placed there never lands in
-          the static HTML that non-JS crawlers (Bing, Yandex) read. Keeping it
-          here renders it into the server HTML alongside StaticSeoFallback.
+          Component boundary) rather than inside <Providers>, a client
+          component, so the script lands in the static HTML as-is.
         */}
         <script
           type="application/ld+json"

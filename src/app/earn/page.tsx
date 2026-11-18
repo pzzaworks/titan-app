@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import { Reveal } from "@/components/motion/Reveal";
-import { SeoPageScaffold } from "@/components/seo/SeoPageScaffold";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { PageContainer } from "@/components/shared/PageContainer";
 import { StakeCard } from "@/components/stake/StakeCard";
@@ -37,10 +36,6 @@ export default function EarnPage() {
   return (
     <>
       <StructuredData data={schema} />
-      <SeoPageScaffold
-        title="Earn TITAN Staking Rewards"
-        description="Stake TITAN, track pending staking rewards, review APR, and manage stake or unstake actions from one Sepolia earn panel in Titan."
-      />
       <PageContainer>
         <div className="max-w-3xl mx-auto">
           <Reveal className="mb-10 text-center">
