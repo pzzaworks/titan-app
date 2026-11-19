@@ -6,7 +6,8 @@ const contentSecurityPolicy = [
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://analytics.pzza.works",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
+  // The Reown AppKit wallet modal loads its typeface from fonts.reown.com.
+  "font-src 'self' data: https://fonts.reown.com",
   "connect-src 'self' https: wss:",
   "frame-src 'self' https:",
   "worker-src 'self' blob:",

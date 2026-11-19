@@ -41,7 +41,7 @@ export function LegalPage({
           <div className="mt-5 max-w-3xl text-[17px] leading-[1.55] text-[var(--color-muted-foreground)]">
             {intro}
           </div>
-          <p className="mt-6 text-sm uppercase tracking-[0.08em] text-[var(--color-muted-foreground)]/82">
+          <p className="mt-6 text-sm uppercase tracking-[0.08em] text-[var(--color-muted-foreground)]">
             Last updated {updatedOn}
           </p>
         </Reveal>

@@ -29,9 +29,14 @@ export function StatsCard({
 }: StatsCardProps) {
   const prefersReducedMotion = useReducedMotion();
 
+  // Every card spans three rows of its parent grid (title, value, subtitle) as a
+  // subgrid, so a title that wraps to two lines moves the whole row's values
+  // down together instead of leaving neighbouring values at different heights.
+  const rowSubgrid = "row-span-3 grid grid-rows-subgrid gap-y-0";
+
   if (isLoading) {
     return (
-      <div className={cn("rounded-xl bg-white/60 p-6", className)}>
+      <div className={cn(rowSubgrid, "rounded-xl bg-white/60 p-6", className)}>
         <Skeleton className="h-4 w-24 mb-3" />
         <Skeleton className="mb-3 h-12 w-32" />
         <Skeleton className="h-4 w-20" />
@@ -42,6 +47,7 @@ export function StatsCard({
   return (
     <motion.div
       className={cn(
+        rowSubgrid,
         "min-w-0 overflow-hidden rounded-xl bg-white/60 p-5 transition-colors duration-200 hover:bg-white/72 sm:p-6",
         className
       )}
