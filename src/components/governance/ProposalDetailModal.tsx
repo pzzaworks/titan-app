@@ -82,13 +82,13 @@ const statusConfig = {
   active: {
     label: "Active",
     color:
-      "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/20",
+      "bg-[var(--color-primary)]/10 text-[var(--color-titan-green-text)] border-[var(--color-primary)]/20",
     icon: Timer,
   },
   passed: {
     label: "Passed",
     color:
-      "bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/20",
+      "bg-[var(--color-primary)]/10 text-[var(--color-titan-green-text)] border-[var(--color-primary)]/20",
     icon: CheckCircle2,
   },
   failed: {
@@ -299,7 +299,7 @@ export function ProposalDetailModal({
           {/* Vote Counts */}
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-[var(--color-primary)] font-medium font-mono">
+              <span className="text-[var(--color-titan-green-text)] font-medium font-mono">
                 For: {formatNumber(proposal.forVotes, { compact: true })}
               </span>
               <span className="text-red-500 font-medium font-mono">
@@ -338,7 +338,7 @@ export function ProposalDetailModal({
                       className={cn(
                         "inline-flex items-center gap-2 rounded-xl px-4 py-2",
                         userVotedFor
-                          ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
+                          ? "bg-[var(--color-primary)]/10 text-[var(--color-titan-green-text)]"
                           : "bg-[#f1d9d9] text-[#9d3f3f]",
                       )}
                     >

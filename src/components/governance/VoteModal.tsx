@@ -31,7 +31,7 @@ const voteOptions = [
     label: "For",
     icon: ThumbsUp,
     activeClass:
-      "bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
+      "bg-[var(--color-primary)]/10 text-[var(--color-titan-green-text)]",
     hoverClass:
       "hover:bg-[var(--color-primary)]/5",
   },

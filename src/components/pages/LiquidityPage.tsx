@@ -211,7 +211,7 @@ export default function LiquidityPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[var(--color-muted-foreground)]">Status</span>
-                  <span className="font-medium text-[var(--color-primary)]">
+                  <span className="font-medium text-[var(--color-titan-green-text)]">
                     {poolState.initialized ? "Active" : "Not Initialized"}
                   </span>
                 </div>

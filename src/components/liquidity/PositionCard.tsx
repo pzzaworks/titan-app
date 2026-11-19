@@ -163,7 +163,7 @@ export function PositionCard({
                   className={cn(
                     "text-[10px] px-1.5 py-0",
                     isInRange
-                      ? "bg-[var(--color-primary)]/12 text-[var(--color-primary)]"
+                      ? "bg-[var(--color-primary)]/12 text-[var(--color-titan-green-text)]"
                       : "bg-white/70 text-[var(--color-muted-foreground)]",
                   )}
                 >
@@ -195,7 +195,7 @@ export function PositionCard({
                   className={cn(
                     "font-medium font-mono text-sm",
                     hasUnclaimedFees
-                      ? "text-green-600"
+                      ? "text-[var(--color-titan-green-text)]"
                       : "text-[var(--color-muted-foreground)]",
                   )}
                 >
@@ -259,7 +259,7 @@ export function PositionCard({
                   className={cn(
                     "flex items-center gap-2 text-sm mb-2",
                     hasUnclaimedFees
-                      ? "text-green-600"
+                      ? "text-[var(--color-titan-green-text)]"
                       : "text-[var(--color-muted-foreground)]",
                   )}
                 >
@@ -275,7 +275,7 @@ export function PositionCard({
                       className={cn(
                         "font-medium font-mono",
                         parseFloat(titanFees) > 0
-                          ? "text-[var(--color-primary)]"
+                          ? "text-[var(--color-titan-green-text)]"
                           : "text-[var(--color-muted-foreground)]",
                       )}
                     >
@@ -292,7 +292,7 @@ export function PositionCard({
                       className={cn(
                         "font-medium font-mono",
                         parseFloat(wethFees) > 0
-                          ? "text-[var(--color-primary)]"
+                          ? "text-[var(--color-titan-green-text)]"
                           : "text-[var(--color-muted-foreground)]",
                       )}
                     >
@@ -326,7 +326,7 @@ export function PositionCard({
                     </span>
                     <div className="flex items-center gap-2 rounded-xl bg-[var(--color-primary)]/12 px-4 py-1.5">
                       <div className="h-2 w-2 rounded-xl bg-[var(--color-primary)]" />
-                      <span className="font-mono text-[var(--color-primary)]">
+                      <span className="font-mono text-[var(--color-titan-green-text)]">
                         1 TITAN = {formatPriceDisplay(currentTick)} ETH
                       </span>
                     </div>

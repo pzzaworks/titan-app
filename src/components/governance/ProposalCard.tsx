@@ -29,12 +29,12 @@ interface ProposalCardProps {
 const statusConfig = {
   active: {
     label: "Active",
-    color: "bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
+    color: "bg-[var(--color-primary)]/10 text-[var(--color-titan-green-text)]",
     icon: Timer,
   },
   passed: {
     label: "Passed",
-    color: "bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
+    color: "bg-[var(--color-primary)]/10 text-[var(--color-titan-green-text)]",
     icon: CheckCircle2,
   },
   failed: {
@@ -107,14 +107,14 @@ export function ProposalCard({ proposal, currentBlock = 0, onClick }: ProposalCa
     // Active - show time until voting ends
     if (proposal.status === "active" && proposal.voteEnd) {
       if (currentBlock === 0) {
-        return { text: "Loading...", color: "text-[var(--color-primary)]" };
+        return { text: "Loading...", color: "text-[var(--color-titan-green-text)]" };
       }
       const blocksRemaining = proposal.voteEnd - currentBlock;
       if (blocksRemaining <= 0) {
         return { text: "Voting ended", color: "text-[var(--color-muted-foreground)]" };
       }
       const timeStr = formatTimeRemaining(blocksRemaining * BLOCK_TIME);
-      return { text: `${timeStr} left`, color: "text-[var(--color-primary)]" };
+      return { text: `${timeStr} left`, color: "text-[var(--color-titan-green-text)]" };
     }
 
     return null;
@@ -163,7 +163,7 @@ export function ProposalCard({ proposal, currentBlock = 0, onClick }: ProposalCa
             )}
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-[var(--color-primary)] font-medium font-mono">
+            <span className="text-[var(--color-titan-green-text)] font-medium font-mono">
               {formatNumber(proposal.forVotes, { compact: true })} For
             </span>
             <span className="font-medium font-mono text-[#9d3f3f]">

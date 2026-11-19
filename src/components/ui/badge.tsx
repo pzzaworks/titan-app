@@ -18,7 +18,7 @@ const badgeVariants = cva(
         outline:
           "bg-white/72 text-[var(--color-muted-foreground)]",
         success:
-          "bg-[var(--color-primary)]/10 text-[var(--color-primary)]",
+          "bg-[var(--color-primary)]/10 text-[var(--color-titan-green-text)]",
         warning:
           "bg-[var(--color-accent)] text-[var(--color-accent-foreground)]",
         tag:

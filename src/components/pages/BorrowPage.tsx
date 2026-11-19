@@ -272,7 +272,7 @@ export default function BorrowPage() {
                     </div>
                     <span className={cn(
                       "rounded-xl px-3 py-1 text-sm font-semibold",
-                      isRatioSafe && "bg-white/72 text-[var(--color-primary)]",
+                      isRatioSafe && "bg-white/72 text-[var(--color-titan-green-text)]",
                       isRatioWarning && "bg-white/62 text-[#8d7221]",
                       isRatioDanger && "bg-white/62 text-[#9d3f3f]"
                     )}>
@@ -285,7 +285,7 @@ export default function BorrowPage() {
                       <p className="text-sm text-[var(--color-muted-foreground)] mb-1">Collateral Ratio</p>
                       <p className={cn(
                         "text-[clamp(2rem,10vw,3rem)] font-bold",
-                        isRatioSafe && "text-green-600",
+                        isRatioSafe && "text-[var(--color-titan-green-text)]",
                         isRatioWarning && "text-yellow-600",
                         isRatioDanger && "text-red-600"
                       )}>
@@ -395,7 +395,7 @@ export default function BorrowPage() {
                         className="pr-20"
                       />
                       <button
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl px-2 py-1 text-sm font-medium text-[var(--color-titan-green)] transition-colors hover:bg-[var(--color-titan-green)]/10"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl px-2 py-1 text-sm font-medium text-[var(--color-titan-green-text)] transition-colors hover:bg-[var(--color-titan-green)]/10"
                         onClick={() => {
                           const max = titanBalance || BigInt(0);
                           const maxStr = formatEther(max);
@@ -446,7 +446,7 @@ export default function BorrowPage() {
                         className="pr-20"
                       />
                       <button
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl px-2 py-1 text-sm font-medium text-[var(--color-titan-green)] transition-colors hover:bg-[var(--color-titan-green)]/10"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl px-2 py-1 text-sm font-medium text-[var(--color-titan-green-text)] transition-colors hover:bg-[var(--color-titan-green)]/10"
                         onClick={() => {
                           const maxStr = formatEther(maxWithdrawable);
                           const truncated = Math.floor(parseFloat(maxStr) * 10000) / 10000;
@@ -492,7 +492,7 @@ export default function BorrowPage() {
                         className="pr-20"
                       />
                       <button
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl px-2 py-1 text-sm font-medium text-[var(--color-titan-green)] transition-colors hover:bg-[var(--color-titan-green)]/10"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl px-2 py-1 text-sm font-medium text-[var(--color-titan-green-text)] transition-colors hover:bg-[var(--color-titan-green)]/10"
                         onClick={() => {
                           const max = position?.maxBorrow || BigInt(0);
                           // Truncate to 2 decimals to avoid precision issues
@@ -514,7 +514,7 @@ export default function BorrowPage() {
                         <span className="text-[var(--color-muted-foreground)]">New Collateral Ratio:</span>
                         <span className={cn(
                           "font-medium",
-                          newCollateralRatio >= 150 && "text-green-600",
+                          newCollateralRatio >= 150 && "text-[var(--color-titan-green-text)]",
                           newCollateralRatio >= 110 && newCollateralRatio < 150 && "text-yellow-600",
                           newCollateralRatio < 110 && "text-red-600"
                         )}>
@@ -555,7 +555,7 @@ export default function BorrowPage() {
                         className="pr-20"
                       />
                       <button
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl px-2 py-1 text-sm font-medium text-[var(--color-titan-green)] transition-colors hover:bg-[var(--color-titan-green)]/10"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl px-2 py-1 text-sm font-medium text-[var(--color-titan-green-text)] transition-colors hover:bg-[var(--color-titan-green)]/10"
                         onClick={() => {
                           const maxRepay = tusdBalance && position?.debt
                             ? (tusdBalance < position.debt ? tusdBalance : position.debt)
@@ -610,7 +610,7 @@ export default function BorrowPage() {
           <div className="grid md:grid-cols-3 gap-6">
             <div>
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-titan-green)]/10">
-                <span className="text-[var(--color-titan-green)] font-semibold">1</span>
+                <span className="text-[var(--color-titan-green-text)] font-semibold">1</span>
               </div>
               <h3 className="font-medium mb-1">Deposit Collateral</h3>
               <p className="text-sm text-[var(--color-muted-foreground)]">
@@ -619,7 +619,7 @@ export default function BorrowPage() {
             </div>
             <div>
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-titan-green)]/10">
-                <span className="text-[var(--color-titan-green)] font-semibold">2</span>
+                <span className="text-[var(--color-titan-green-text)] font-semibold">2</span>
               </div>
               <h3 className="font-medium mb-1">Borrow tUSD</h3>
               <p className="text-sm text-[var(--color-muted-foreground)]">
@@ -628,7 +628,7 @@ export default function BorrowPage() {
             </div>
             <div>
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-titan-green)]/10">
-                <span className="text-[var(--color-titan-green)] font-semibold">3</span>
+                <span className="text-[var(--color-titan-green-text)] font-semibold">3</span>
               </div>
               <h3 className="font-medium mb-1">Maintain Ratio</h3>
               <p className="text-sm text-[var(--color-muted-foreground)]">

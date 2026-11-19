@@ -45,6 +45,8 @@ textarea:focus-within {
 
   --color-titan-green: #26d862;
   --color-titan-green-light: #26d260;
+  /* Brand green darkened (same hue) for text on light surfaces: >= 4.5:1 on cream, white and green-tinted cards */
+  --color-titan-green-text: #147133;
   --color-titan-green-dark: #213024;
   --color-titan-green-muted: #f2f0ec;
 
@@ -130,6 +132,7 @@ textarea:focus-within {
   --color-eigenpal-green: #213024;
   --color-titan-green: #26d862;
   --color-titan-green-light: #26d260;
+  --color-titan-green-text: #147133;
   --hero-navbar-clearance: calc(env(safe-area-inset-top) + 5.75rem);
   --color-foreground: #2a1a1d;
   --color-background: #eae5dd;
@@ -183,6 +186,7 @@ html {
   --color-ring: #4a8f4a;
   --color-titan-green: #4a8f4a;
   --color-titan-green-light: #5aa05a;
+  --color-titan-green-text: #6ab06a;
 }
 
 .font-display {
@@ -398,4 +402,19 @@ textarea:focus-visible {
   outline: none !important;
   box-shadow: none !important;
   border-color: inherit !important;
+}
+
+/* Keyboard focus for text fields. The resets above strip every input ring, so this restores
+   one visible indicator: a 2px outline in the dark text green, >= 3:1 against the cream and
+   white surfaces around the fields. A bare field inside a styled box (the token amount input)
+   opts out with .no-focus-ring and the box shows the outline through .focus-ring-within. */
+input:focus-visible:not(.no-focus-ring),
+textarea:focus-visible:not(.no-focus-ring) {
+  outline: 2px solid var(--color-titan-green-text) !important;
+  outline-offset: 2px;
+}
+
+.focus-ring-within:has(input:focus-visible) {
+  outline: 2px solid var(--color-titan-green-text);
+  outline-offset: 2px;
 }

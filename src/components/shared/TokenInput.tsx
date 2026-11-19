@@ -64,7 +64,7 @@ export function TokenInput({
   };
 
   return (
-    <div className="rounded-xl bg-[var(--color-foreground)]/4 p-4 transition-colors">
+    <div className="focus-ring-within rounded-xl bg-[var(--color-foreground)]/4 p-4 transition-colors">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <span className="text-sm text-[var(--color-muted-foreground)]">{label}</span>
         {balance && (
@@ -76,7 +76,7 @@ export function TokenInput({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 px-2 text-xs text-[var(--color-primary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 cursor-pointer"
+                className="h-6 px-2 text-xs text-[var(--color-titan-green-text)] hover:text-[var(--color-titan-green-text)] hover:bg-[var(--color-primary)]/10 cursor-pointer"
                 onClick={handleMaxClick}
               >
                 MAX

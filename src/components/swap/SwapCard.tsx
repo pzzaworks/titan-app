@@ -167,7 +167,7 @@ export function SwapCard() {
                 <span className="text-[var(--color-muted-foreground)]">
                   {isWrapOperation ? "Wrap" : "Unwrap"} Fee
                 </span>
-                <span className="font-medium text-green-600 font-mono">Free</span>
+                <span className="font-medium text-[var(--color-titan-green-text)] font-mono">Free</span>
               </div>
             ) : (
               <>
@@ -192,7 +192,7 @@ export function SwapCard() {
                         ? "text-red-500"
                         : priceImpact > 1
                         ? "text-yellow-600"
-                        : "text-[var(--color-primary)]"
+                        : "text-[var(--color-titan-green-text)]"
                     )}
                   >
                     {formatPercent(priceImpact)}

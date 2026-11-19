@@ -181,7 +181,7 @@ export function AddLiquidityCard({
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-xl bg-[var(--color-foreground)]/4 p-4">
+        <div className="focus-ring-within rounded-xl bg-[var(--color-foreground)]/4 p-4">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
             <span className="text-sm text-[var(--color-muted-foreground)]">TITAN</span>
             <span className="text-sm text-[var(--color-muted-foreground)]">
@@ -194,7 +194,7 @@ export function AddLiquidityCard({
               placeholder="0.0"
               value={titanAmount}
               onChange={(e) => setTitanAmount(e.target.value)}
-              className="min-w-0 text-xl font-medium border-0 bg-transparent p-0 h-auto !outline-none !ring-0 !shadow-none"
+              className="no-focus-ring min-w-0 text-xl font-medium border-0 bg-transparent p-0 h-auto !outline-none !ring-0 !shadow-none"
             />
             <Button
               variant="ghost"
@@ -203,7 +203,7 @@ export function AddLiquidityCard({
                 const truncated = Math.floor(parseFloat(titanBalance) * 10000) / 10000;
                 setTitanAmount(truncated > 0 ? truncated.toString() : "");
               }}
-              className="text-[var(--color-primary)] hover:text-[var(--color-primary)] cursor-pointer"
+              className="text-[var(--color-titan-green-text)] hover:text-[var(--color-titan-green-text)] cursor-pointer"
             >
               MAX
             </Button>
@@ -214,7 +214,7 @@ export function AddLiquidityCard({
           <span className="text-xl text-[var(--color-muted-foreground)]">+</span>
         </div>
 
-        <div className="rounded-xl bg-[var(--color-foreground)]/4 p-4">
+        <div className="focus-ring-within rounded-xl bg-[var(--color-foreground)]/4 p-4">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
             <span className="text-sm text-[var(--color-muted-foreground)]">WETH</span>
             <div className="flex flex-wrap items-center justify-end gap-2">
@@ -243,7 +243,7 @@ export function AddLiquidityCard({
               placeholder="0.0"
               value={wethAmount}
               onChange={(e) => setWethAmount(e.target.value)}
-              className="min-w-0 text-xl font-medium border-0 bg-transparent p-0 h-auto !outline-none !ring-0 !shadow-none"
+              className="no-focus-ring min-w-0 text-xl font-medium border-0 bg-transparent p-0 h-auto !outline-none !ring-0 !shadow-none"
             />
             <Button
               variant="ghost"
@@ -252,7 +252,7 @@ export function AddLiquidityCard({
                 const truncated = Math.floor(parseFloat(wethBalance) * 1000000) / 1000000;
                 setWethAmount(truncated > 0 ? truncated.toString() : "");
               }}
-              className="text-[var(--color-primary)] hover:text-[var(--color-primary)] cursor-pointer"
+              className="text-[var(--color-titan-green-text)] hover:text-[var(--color-titan-green-text)] cursor-pointer"
             >
               MAX
             </Button>
@@ -299,7 +299,7 @@ export function AddLiquidityCard({
           <div className="rounded-xl bg-[var(--color-primary)]/10 p-3">
             <div className="flex items-center gap-2 text-sm">
               <span className="text-[var(--color-muted-foreground)]">Pool Status:</span>
-              <Badge variant="success" className="bg-green-500/10 text-green-600">
+              <Badge variant="success" className="bg-green-500/10 text-[var(--color-titan-green-text)]">
                 Active
               </Badge>
             </div>

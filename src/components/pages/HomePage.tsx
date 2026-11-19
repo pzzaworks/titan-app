@@ -146,20 +146,20 @@ export default function Home() {
                     { text: "brings" },
                     {
                       text: "swap,",
-                      className: "text-[var(--color-primary)]",
+                      className: "text-[var(--color-titan-green-text)]",
                     },
                     {
                       text: "liquidity,",
-                      className: "text-[var(--color-primary)]",
+                      className: "text-[var(--color-titan-green-text)]",
                     },
                     {
                       text: "earn,",
-                      className: "text-[var(--color-primary)]",
+                      className: "text-[var(--color-titan-green-text)]",
                     },
                     { text: "and" },
                     {
                       text: "governance",
-                      className: "text-[var(--color-primary)]",
+                      className: "text-[var(--color-titan-green-text)]",
                     },
                     { text: "into" },
                     { text: "one" },
