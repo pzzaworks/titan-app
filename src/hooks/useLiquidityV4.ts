@@ -160,7 +160,7 @@ function wrapUint256(value: bigint): bigint {
 
 // Tick range presets
 const TICK_RANGES = {
-  full: { lower: -887220, upper: 887220 },
+  full: { lower: MIN_TICK, upper: MAX_TICK },
   wide: { lower: -120000, upper: 120000 },
   medium: { lower: -60000, upper: 60000 },
   narrow: { lower: -6000, upper: 6000 },
@@ -284,7 +284,6 @@ export function useLiquidityV4() {
   const fetchPoolState = useCallback(async () => {
     if (!publicClient) return;
 
-    console.log("[fetchPoolState] Fetching pool state for poolId:", poolId);
 
     try {
       const slot0 = (await publicClient.readContract({
@@ -294,7 +293,6 @@ export function useLiquidityV4() {
         args: [poolId],
       })) as [bigint, number, number, number];
 
-      console.log("[fetchPoolState] slot0:", slot0);
 
       const liquidity = (await publicClient.readContract({
         address: config.contracts.stateView,
@@ -303,7 +301,6 @@ export function useLiquidityV4() {
         args: [poolId],
       })) as bigint;
 
-      console.log("[fetchPoolState] liquidity:", liquidity.toString());
 
       const state = {
         sqrtPriceX96: slot0[0],
@@ -311,7 +308,6 @@ export function useLiquidityV4() {
         liquidity,
         initialized: slot0[0] > BigInt(0),
       };
-      console.log("[fetchPoolState] Pool state:", state);
       setPoolState(state);
     } catch (err) {
       console.error("[fetchPoolState] Error:", err);
@@ -327,8 +323,6 @@ export function useLiquidityV4() {
     }
 
     setIsLoadingPositions(true);
-    console.log("[fetchPositions] Starting fetch for address:", address);
-    console.log("[fetchPositions] currency0:", currency0, "currency1:", currency1);
 
     try {
       const fetchedPositions: Position[] = [];
@@ -338,7 +332,6 @@ export function useLiquidityV4() {
         const tickLower = Math.floor(range.lower / TICK_SPACING) * TICK_SPACING;
         const tickUpper = Math.floor(range.upper / TICK_SPACING) * TICK_SPACING;
 
-        console.log(`[fetchPositions] Checking ${rangeName}: tickLower=${tickLower}, tickUpper=${tickUpper}`);
 
         try {
           // Also try querying the positions mapping directly
@@ -354,7 +347,6 @@ export function useLiquidityV4() {
               [currency0, currency1, POOL_FEE, TICK_SPACING, "0x0000000000000000000000000000000000000000"]
             )
           );
-          console.log(`[fetchPositions] Computed poolId:`, localPoolId);
 
           const liquidity = (await publicClient.readContract({
             address: config.contracts.liquidityRouter,
@@ -363,7 +355,6 @@ export function useLiquidityV4() {
             args: [address, currency0, currency1, POOL_FEE, TICK_SPACING, tickLower, tickUpper],
           })) as bigint;
 
-          console.log(`[fetchPositions] ${rangeName} liquidity:`, liquidity.toString());
 
           if (liquidity > BigInt(0)) {
             // Get current pool state for amount calculations
@@ -426,7 +417,6 @@ export function useLiquidityV4() {
                 fee0 = formatUnits(fees0Wei, 18);
                 fee1 = formatUnits(fees1Wei, 18);
 
-                console.log(`[fetchPositions] Fees for ${rangeName}: fee0=${fee0}, fee1=${fee1}`);
               } catch (feeErr) {
                 console.error("Error calculating fees:", feeErr);
               }
@@ -456,7 +446,6 @@ export function useLiquidityV4() {
         }
       }
 
-      console.log("[fetchPositions] Found positions:", fetchedPositions.length);
       setPositions(fetchedPositions);
     } catch (error) {
       console.error("Error fetching positions:", error);
@@ -468,13 +457,6 @@ export function useLiquidityV4() {
 
   // Initial fetch
   useEffect(() => {
-    console.log("[useLiquidityV4] Initial fetch triggered");
-    console.log("[useLiquidityV4] TITAN address:", config.contracts.titanToken);
-    console.log("[useLiquidityV4] WETH address:", config.contracts.weth);
-    console.log("[useLiquidityV4] LiquidityRouter:", config.contracts.liquidityRouter);
-    console.log("[useLiquidityV4] currency0:", currency0);
-    console.log("[useLiquidityV4] currency1:", currency1);
-    console.log("[useLiquidityV4] titanIsCurrency0:", titanIsCurrency0);
     fetchPoolState();
     fetchPositions();
   }, [fetchPoolState, fetchPositions, currency0, currency1, titanIsCurrency0]);
@@ -494,10 +476,6 @@ export function useLiquidityV4() {
         ? BigInt("792281625142643375935439503") // TITAN is currency0: price ~0.0001
         : BigInt("7922816251426433759354395033600"); // WETH is currency0: price ~10000
 
-      console.log("[initializePool] Initializing pool...");
-      console.log("  currency0:", currency0);
-      console.log("  currency1:", currency1);
-      console.log("  sqrtPriceX96:", sqrtPriceX96.toString());
 
       toast({ title: "Initializing pool...", description: "Please confirm in your wallet" });
 
@@ -613,7 +591,6 @@ export function useLiquidityV4() {
 
     // Check if pool is initialized
     if (!poolState || !poolState.initialized) {
-      console.log("[addLiquidity] Pool not initialized, attempting to initialize...");
       toast({ title: "Pool not initialized", description: "Initializing pool first..." });
 
       try {
@@ -628,7 +605,6 @@ export function useLiquidityV4() {
           chainId: sepolia.id,
         });
         await waitForTx(publicClient, initHash);
-        console.log("[addLiquidity] Pool initialized successfully");
         priceForMins = sqrtPriceX96;
         toast({ title: "Pool initialized!" });
         await fetchPoolState();
@@ -640,7 +616,6 @@ export function useLiquidityV4() {
           return;
         }
         // Pool already initialized, continue
-        console.log("[addLiquidity] Pool was already initialized");
         // Someone else set its price; the minimums need that price, read on the next attempt.
         await fetchPoolState();
       }
@@ -661,10 +636,6 @@ export function useLiquidityV4() {
       const amt0 = parseUnits(amount0 || "0", 18);
       const amt1 = parseUnits(amount1 || "0", 18);
 
-      console.log("[addLiquidity] Parameters:");
-      console.log("  tickRange:", tickRange, "→", tickLower, "to", tickUpper);
-      console.log("  currency0:", currency0, titanIsCurrency0 ? "(TITAN)" : "(WETH)", "amount:", amt0.toString());
-      console.log("  currency1:", currency1, titanIsCurrency0 ? "(WETH)" : "(TITAN)", "amount:", amt1.toString());
 
       // Refetch allowances to get fresh data
       await Promise.all([refetchTitanAllowance(), refetchWethAllowance()]);
@@ -712,9 +683,7 @@ export function useLiquidityV4() {
         chainId: sepolia.id,
       });
 
-      console.log("[addLiquidity] Transaction hash:", hash);
       const receipt = await waitForTx(publicClient, hash);
-      console.log("[addLiquidity] Transaction receipt:", receipt);
 
       toast({ title: "Liquidity added!", variant: "success" });
 
@@ -878,7 +847,6 @@ export function useLiquidityV4() {
         });
 
         const receipt = await waitForTx(publicClient, hash);
-        console.log("[collectFees] Receipt:", receipt);
 
         toast({ title: "Fees collected!", variant: "success" });
 
@@ -929,16 +897,6 @@ export function useLiquidityV4() {
   const needsWethApproval =
     wethAmountWei > BigInt(0) &&
     (wethAllowance === undefined || wethAmountWei > wethAllowance);
-
-  // Debug approval state
-  console.log("[Approval Check]", {
-    titanAmountWei: titanAmountWei.toString(),
-    wethAmountWei: wethAmountWei.toString(),
-    titanAllowance: titanAllowance?.toString() ?? "undefined",
-    wethAllowance: wethAllowance?.toString() ?? "undefined",
-    needsTitanApproval,
-    needsWethApproval,
-  });
 
   const hasEnoughWeth = wethBalance !== undefined && wethBalance >= wethAmountWei;
   const hasEnoughTitan = titanBalance !== undefined && titanBalance >= titanAmountWei;
