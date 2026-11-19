@@ -14,6 +14,7 @@ import { config } from "@/config";
 import { ERC20_ABI, LIQUIDITY_ROUTER_ABI, STATE_VIEW_ABI, WETH_ABI } from "@/lib/contracts";
 import { toast } from "./useToast";
 import { parseError, waitForTx } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 // Pool configuration
 const POOL_FEE = 3000; // 0.3%
@@ -193,9 +194,6 @@ export function useLiquidityV4() {
   const [isCollectingFees, setIsCollectingFees] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [isWrapping, setIsWrapping] = useState(false);
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [isLoadingPositions, setIsLoadingPositions] = useState(true);
-  const [poolState, setPoolState] = useState<PoolState | null>(null);
 
   // Input state
   const [amount0, setAmount0] = useState("");
@@ -280,186 +278,187 @@ export function useLiquidityV4() {
     query: { enabled: !!address },
   });
 
-  // Fetch pool state
+  // Pool state and positions are queries: loaded for the current pool and wallet, refetched on
+  // demand after a transaction. A failed read is null / [] as before, not a global error toast.
+  const { data: poolState = null, refetch: refetchPoolState } = useQuery({
+    queryKey: ["liquidityPoolState", poolId],
+    enabled: !!publicClient,
+    queryFn: async (): Promise<PoolState | null> => {
+      if (!publicClient) return null;
+      try {
+        const slot0 = (await publicClient.readContract({
+          address: config.contracts.stateView,
+          abi: STATE_VIEW_ABI,
+          functionName: "getSlot0",
+          args: [poolId],
+        })) as [bigint, number, number, number];
+
+        const liquidity = (await publicClient.readContract({
+          address: config.contracts.stateView,
+          abi: STATE_VIEW_ABI,
+          functionName: "getLiquidity",
+          args: [poolId],
+        })) as bigint;
+
+        return {
+          sqrtPriceX96: slot0[0],
+          tick: slot0[1],
+          liquidity,
+          initialized: slot0[0] > BigInt(0),
+        };
+      } catch (err) {
+        console.error("[fetchPoolState] Error:", err);
+        return null;
+      }
+    },
+  });
+
   const fetchPoolState = useCallback(async () => {
-    if (!publicClient) return;
+    await refetchPoolState();
+  }, [refetchPoolState]);
 
+  // User positions from LiquidityRouter
+  const {
+    data: positions = [],
+    isFetching: isLoadingPositions,
+    refetch: refetchPositions,
+  } = useQuery({
+    queryKey: ["liquidityPositions", address, currency0, currency1],
+    enabled: !!publicClient && !!address,
+    queryFn: async (): Promise<Position[]> => {
+      if (!publicClient || !address) return [];
 
-    try {
-      const slot0 = (await publicClient.readContract({
-        address: config.contracts.stateView,
-        abi: STATE_VIEW_ABI,
-        functionName: "getSlot0",
-        args: [poolId],
-      })) as [bigint, number, number, number];
+      try {
+        const fetchedPositions: Position[] = [];
 
+        // Check for positions at each tick range preset
+        for (const [rangeName, range] of Object.entries(TICK_RANGES)) {
+          const tickLower = Math.floor(range.lower / TICK_SPACING) * TICK_SPACING;
+          const tickUpper = Math.floor(range.upper / TICK_SPACING) * TICK_SPACING;
 
-      const liquidity = (await publicClient.readContract({
-        address: config.contracts.stateView,
-        abi: STATE_VIEW_ABI,
-        functionName: "getLiquidity",
-        args: [poolId],
-      })) as bigint;
+          try {
+            // Also try querying the positions mapping directly
+            const localPoolId = keccak256(
+              encodeAbiParameters(
+                [
+                  { type: "address" },
+                  { type: "address" },
+                  { type: "uint24" },
+                  { type: "int24" },
+                  { type: "address" },
+                ],
+                [currency0, currency1, POOL_FEE, TICK_SPACING, "0x0000000000000000000000000000000000000000"]
+              )
+            );
 
+            const liquidity = (await publicClient.readContract({
+              address: config.contracts.liquidityRouter,
+              abi: LIQUIDITY_ROUTER_ABI,
+              functionName: "getPosition",
+              args: [address, currency0, currency1, POOL_FEE, TICK_SPACING, tickLower, tickUpper],
+            })) as bigint;
 
-      const state = {
-        sqrtPriceX96: slot0[0],
-        tick: slot0[1],
-        liquidity,
-        initialized: slot0[0] > BigInt(0),
-      };
-      setPoolState(state);
-    } catch (err) {
-      console.error("[fetchPoolState] Error:", err);
-      setPoolState(null);
-    }
-  }, [publicClient, poolId]);
+            if (liquidity > BigInt(0)) {
+              // Get current pool state for amount calculations
+              let amt0 = "0";
+              let amt1 = "0";
+              let fee0 = "0";
+              let fee1 = "0";
 
-  // Fetch user positions from LiquidityRouter
-  const fetchPositions = useCallback(async () => {
-    if (!publicClient || !address) {
-      setIsLoadingPositions(false);
-      return;
-    }
+              try {
+                const slot0 = (await publicClient.readContract({
+                  address: config.contracts.stateView,
+                  abi: STATE_VIEW_ABI,
+                  functionName: "getSlot0",
+                  args: [localPoolId],
+                })) as [bigint, number, number, number];
 
-    setIsLoadingPositions(true);
+                const sqrtPriceX96 = slot0[0];
+                const currentTick = slot0[1];
 
-    try {
-      const fetchedPositions: Position[] = [];
+                // Calculate actual token amounts using Uniswap math
+                const { amount0, amount1 } = getAmountsForLiquidity(
+                  sqrtPriceX96,
+                  tickLower,
+                  tickUpper,
+                  liquidity,
+                  currentTick
+                );
 
-      // Check for positions at each tick range preset
-      for (const [rangeName, range] of Object.entries(TICK_RANGES)) {
-        const tickLower = Math.floor(range.lower / TICK_SPACING) * TICK_SPACING;
-        const tickUpper = Math.floor(range.upper / TICK_SPACING) * TICK_SPACING;
+                amt0 = formatUnits(amount0, 18);
+                amt1 = formatUnits(amount1, 18);
 
+                // Calculate fees - get position info and current fee growth
+                try {
+                  const positionInfo = (await publicClient.readContract({
+                    address: config.contracts.stateView,
+                    abi: STATE_VIEW_ABI,
+                    functionName: "getPositionInfo",
+                    // The router keys each owner's v4 position by salt = owner address (LiquidityRouter._positionSalt).
+                    args: [localPoolId, config.contracts.liquidityRouter, tickLower, tickUpper, pad(address, { size: 32 })],
+                  })) as [bigint, bigint, bigint];
 
-        try {
-          // Also try querying the positions mapping directly
-          const localPoolId = keccak256(
-            encodeAbiParameters(
-              [
-                { type: "address" },
-                { type: "address" },
-                { type: "uint24" },
-                { type: "int24" },
-                { type: "address" },
-              ],
-              [currency0, currency1, POOL_FEE, TICK_SPACING, "0x0000000000000000000000000000000000000000"]
-            )
-          );
+                  const feeGrowthInside = (await publicClient.readContract({
+                    address: config.contracts.stateView,
+                    abi: STATE_VIEW_ABI,
+                    functionName: "getFeeGrowthInside",
+                    args: [localPoolId, tickLower, tickUpper],
+                  })) as [bigint, bigint];
 
-          const liquidity = (await publicClient.readContract({
-            address: config.contracts.liquidityRouter,
-            abi: LIQUIDITY_ROUTER_ABI,
-            functionName: "getPosition",
-            args: [address, currency0, currency1, POOL_FEE, TICK_SPACING, tickLower, tickUpper],
-          })) as bigint;
+                  const feeGrowth0Last = positionInfo[1];
+                  const feeGrowth1Last = positionInfo[2];
+                  const feeGrowth0Inside = feeGrowthInside[0];
+                  const feeGrowth1Inside = feeGrowthInside[1];
 
+                  // Calculate fees: (feeGrowthInside - feeGrowthLast) * liquidity / 2^128
+                  const Q128 = BigInt(2) ** BigInt(128);
+                  // Fee growth is a wrapping uint256 on-chain, so the difference wraps the same way.
+                  const fees0Wei = (wrapUint256(feeGrowth0Inside - feeGrowth0Last) * liquidity) / Q128;
+                  const fees1Wei = (wrapUint256(feeGrowth1Inside - feeGrowth1Last) * liquidity) / Q128;
 
-          if (liquidity > BigInt(0)) {
-            // Get current pool state for amount calculations
-            let amt0 = "0";
-            let amt1 = "0";
-            let fee0 = "0";
-            let fee1 = "0";
+                  fee0 = formatUnits(fees0Wei, 18);
+                  fee1 = formatUnits(fees1Wei, 18);
 
-            try {
-              const slot0 = (await publicClient.readContract({
-                address: config.contracts.stateView,
-                abi: STATE_VIEW_ABI,
-                functionName: "getSlot0",
-                args: [localPoolId],
-              })) as [bigint, number, number, number];
+                } catch (feeErr) {
+                  console.error("Error calculating fees:", feeErr);
+                }
+              } catch (e) {
+                console.error("Error calculating amounts:", e);
+                // Fallback to simple calculation
+                const liquidityNum = Number(formatUnits(liquidity, 18));
+                amt0 = (liquidityNum / 2).toFixed(4);
+                amt1 = (liquidityNum / 2).toFixed(4);
+              }
 
-              const sqrtPriceX96 = slot0[0];
-              const currentTick = slot0[1];
-
-              // Calculate actual token amounts using Uniswap math
-              const { amount0, amount1 } = getAmountsForLiquidity(
-                sqrtPriceX96,
+              // Generate a pseudo tokenId from tick range for UI purposes
+              const tokenId = BigInt(Math.abs(tickLower) * 1000000 + Math.abs(tickUpper));
+              fetchedPositions.push({
+                tokenId,
                 tickLower,
                 tickUpper,
                 liquidity,
-                currentTick
-              );
-
-              amt0 = formatUnits(amount0, 18);
-              amt1 = formatUnits(amount1, 18);
-
-              // Calculate fees - get position info and current fee growth
-              try {
-                const positionInfo = (await publicClient.readContract({
-                  address: config.contracts.stateView,
-                  abi: STATE_VIEW_ABI,
-                  functionName: "getPositionInfo",
-                  // The router keys each owner's v4 position by salt = owner address (LiquidityRouter._positionSalt).
-                  args: [localPoolId, config.contracts.liquidityRouter, tickLower, tickUpper, pad(address, { size: 32 })],
-                })) as [bigint, bigint, bigint];
-
-                const feeGrowthInside = (await publicClient.readContract({
-                  address: config.contracts.stateView,
-                  abi: STATE_VIEW_ABI,
-                  functionName: "getFeeGrowthInside",
-                  args: [localPoolId, tickLower, tickUpper],
-                })) as [bigint, bigint];
-
-                const feeGrowth0Last = positionInfo[1];
-                const feeGrowth1Last = positionInfo[2];
-                const feeGrowth0Inside = feeGrowthInside[0];
-                const feeGrowth1Inside = feeGrowthInside[1];
-
-                // Calculate fees: (feeGrowthInside - feeGrowthLast) * liquidity / 2^128
-                const Q128 = BigInt(2) ** BigInt(128);
-                // Fee growth is a wrapping uint256 on-chain, so the difference wraps the same way.
-                const fees0Wei = (wrapUint256(feeGrowth0Inside - feeGrowth0Last) * liquidity) / Q128;
-                const fees1Wei = (wrapUint256(feeGrowth1Inside - feeGrowth1Last) * liquidity) / Q128;
-
-                fee0 = formatUnits(fees0Wei, 18);
-                fee1 = formatUnits(fees1Wei, 18);
-
-              } catch (feeErr) {
-                console.error("Error calculating fees:", feeErr);
-              }
-            } catch (e) {
-              console.error("Error calculating amounts:", e);
-              // Fallback to simple calculation
-              const liquidityNum = Number(formatUnits(liquidity, 18));
-              amt0 = (liquidityNum / 2).toFixed(4);
-              amt1 = (liquidityNum / 2).toFixed(4);
+                amount0: amt0,
+                amount1: amt1,
+                fees0: fee0,
+                fees1: fee1,
+              });
             }
-
-            // Generate a pseudo tokenId from tick range for UI purposes
-            const tokenId = BigInt(Math.abs(tickLower) * 1000000 + Math.abs(tickUpper));
-            fetchedPositions.push({
-              tokenId,
-              tickLower,
-              tickUpper,
-              liquidity,
-              amount0: amt0,
-              amount1: amt1,
-              fees0: fee0,
-              fees1: fee1,
-            });
+          } catch (err) {
+            console.error(`[fetchPositions] Error fetching ${rangeName}:`, err);
           }
-        } catch (err) {
-          console.error(`[fetchPositions] Error fetching ${rangeName}:`, err);
         }
+
+        return fetchedPositions;
+      } catch (error) {
+        console.error("Error fetching positions:", error);
+        return [];
       }
+    },
+  });
 
-      setPositions(fetchedPositions);
-    } catch (error) {
-      console.error("Error fetching positions:", error);
-      setPositions([]);
-    } finally {
-      setIsLoadingPositions(false);
-    }
-  }, [publicClient, address, currency0, currency1]);
-
-  // Initial fetch
-  useEffect(() => {
-    fetchPoolState();
-    fetchPositions();
-  }, [fetchPoolState, fetchPositions, currency0, currency1, titanIsCurrency0]);
+  const fetchPositions = useCallback(async () => {
+    await refetchPositions();
+  }, [refetchPositions]);
 
   // Initialize pool if needed
   const initializePool = useCallback(async () => {
@@ -475,7 +474,6 @@ export function useLiquidityV4() {
       const sqrtPriceX96 = titanIsCurrency0
         ? BigInt("792281625142643375935439503") // TITAN is currency0: price ~0.0001
         : BigInt("7922816251426433759354395033600"); // WETH is currency0: price ~10000
-
 
       toast({ title: "Initializing pool...", description: "Please confirm in your wallet" });
 
@@ -635,7 +633,6 @@ export function useLiquidityV4() {
       // So we just use them directly - amount0 goes to currency0, amount1 goes to currency1
       const amt0 = parseUnits(amount0 || "0", 18);
       const amt1 = parseUnits(amount1 || "0", 18);
-
 
       // Refetch allowances to get fresh data
       await Promise.all([refetchTitanAllowance(), refetchWethAllowance()]);

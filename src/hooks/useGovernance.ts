@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useAccount, useReadContract, useWriteContract, usePublicClient } from "wagmi";
 import { parseEther, formatEther } from "viem";
 import { sepolia } from "viem/chains";
@@ -8,6 +8,7 @@ import { config } from "@/config";
 import { GOVERNANCE_ABI, TITAN_TOKEN_ABI } from "@/lib/contracts";
 import { toast } from "./useToast";
 import { parseError, waitForTx } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 // Proposal states from contract
 enum ProposalState {
@@ -82,6 +83,9 @@ function parseDescription(description: string): string {
   return parts.slice(1).join("\n\n").trim() || description;
 }
 
+// One shared empty list, so "no proposals" is the same value on every render.
+const EMPTY_PROPOSALS: Proposal[] = [];
+
 export function useGovernance() {
   const { address, isConnected } = useAccount();
   const [isProposing, setIsProposing] = useState(false);
@@ -89,9 +93,6 @@ export function useGovernance() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [isQueueing, setIsQueueing] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
-  const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [isLoadingProposals, setIsLoadingProposals] = useState(true);
-  const [currentBlock, setCurrentBlock] = useState<number>(0);
 
   const { writeContractAsync } = useWriteContract();
   const publicClient = usePublicClient({ chainId: sepolia.id });
@@ -158,129 +159,127 @@ export function useGovernance() {
   });
 
   // Fetch all proposals from contract
-  const fetchProposals = useCallback(async () => {
-    if (!publicClient || !proposalCount || proposalCount === BigInt(0)) {
-      setProposals([]);
-      setIsLoadingProposals(false);
-      return;
-    }
-
-    setIsLoadingProposals(true);
-    try {
-      const count = Number(proposalCount);
-      const fetchedProposals: Proposal[] = [];
-
-      // Get current block once
-      const fetchedCurrentBlock = await publicClient.getBlockNumber();
-      const currentBlockNum = Number(fetchedCurrentBlock);
-      setCurrentBlock(currentBlockNum);
-      const currentTime = Math.floor(Date.now() / 1000);
-
-      for (let i = 1; i <= count; i++) {
+  // A query keyed on the proposal count: a new proposal changes the count and refetches on its
+  // own, and actions refetch explicitly. (The count is a bigint, so the key holds its string.)
+  const { data: proposalsData, isFetching: isLoadingProposals, refetch: refetchProposalsQuery } =
+    useQuery({
+      queryKey: ["governanceProposals", proposalCount?.toString() ?? null],
+      enabled: !!publicClient && proposalCount !== undefined,
+      queryFn: async (): Promise<{ proposals: Proposal[]; currentBlock: number }> => {
+        if (!publicClient || !proposalCount) return { proposals: [], currentBlock: 0 };
         try {
-          // Get proposal details - proposals() returns non-array fields, getProposal() returns arrays + description
-          const [proposalData, proposalDetails, stateData, votesData] = await Promise.all([
-            publicClient.readContract({
-              address: config.contracts.governance,
-              abi: GOVERNANCE_ABI,
-              functionName: "proposals",
-              args: [BigInt(i)],
-            }),
-            publicClient.readContract({
-              address: config.contracts.governance,
-              abi: GOVERNANCE_ABI,
-              functionName: "getProposal",
-              args: [BigInt(i)],
-            }),
-            publicClient.readContract({
-              address: config.contracts.governance,
-              abi: GOVERNANCE_ABI,
-              functionName: "state",
-              args: [BigInt(i)],
-            }),
-            publicClient.readContract({
-              address: config.contracts.governance,
-              abi: GOVERNANCE_ABI,
-              functionName: "getVotes",
-              args: [BigInt(i)],
-            }),
-          ]);
+          const count = Number(proposalCount);
+          const fetchedProposals: Proposal[] = [];
 
-          // proposalData: [id, proposer, description, voteStart, voteEnd, snapshotBlock, forVotes, againstVotes, abstainVotes, canceled, executed, eta]
-          const proposal = proposalData as [bigint, `0x${string}`, string, bigint, bigint, bigint, bigint, bigint, bigint, boolean, boolean, bigint];
-          // proposalDetails: [targets, values, calldatas, description]
-          const details = proposalDetails as [string[], bigint[], string[], string];
-          const state = stateData as number;
-          const votes = votesData as [bigint, bigint, bigint];
+          // Get current block once
+          const fetchedCurrentBlock = await publicClient.getBlockNumber();
+          const currentBlockNum = Number(fetchedCurrentBlock);
+          const currentTime = Math.floor(Date.now() / 1000);
 
-          const description = proposal[2] || details[3]; // Prefer from proposals(), fallback to getProposal()
-          const voteStartBlock = Number(proposal[3]);
-          const voteEndBlock = Number(proposal[4]);
+          for (let i = 1; i <= count; i++) {
+            try {
+              // Get proposal details - proposals() returns non-array fields, getProposal() returns arrays + description
+              const [proposalData, proposalDetails, stateData, votesData] = await Promise.all([
+                publicClient.readContract({
+                  address: config.contracts.governance,
+                  abi: GOVERNANCE_ABI,
+                  functionName: "proposals",
+                  args: [BigInt(i)],
+                }),
+                publicClient.readContract({
+                  address: config.contracts.governance,
+                  abi: GOVERNANCE_ABI,
+                  functionName: "getProposal",
+                  args: [BigInt(i)],
+                }),
+                publicClient.readContract({
+                  address: config.contracts.governance,
+                  abi: GOVERNANCE_ABI,
+                  functionName: "state",
+                  args: [BigInt(i)],
+                }),
+                publicClient.readContract({
+                  address: config.contracts.governance,
+                  abi: GOVERNANCE_ABI,
+                  functionName: "getVotes",
+                  args: [BigInt(i)],
+                }),
+              ]);
 
-          // Get actual timestamps from blocks
-          let startTime = 0;
-          let endTime = 0;
+              // proposalData: [id, proposer, description, voteStart, voteEnd, snapshotBlock, forVotes, againstVotes, abstainVotes, canceled, executed, eta]
+              const proposal = proposalData as [bigint, `0x${string}`, string, bigint, bigint, bigint, bigint, bigint, bigint, boolean, boolean, bigint];
+              // proposalDetails: [targets, values, calldatas, description]
+              const details = proposalDetails as [string[], bigint[], string[], string];
+              const state = stateData as number;
+              const votes = votesData as [bigint, bigint, bigint];
 
-          try {
-            // For past/current blocks, get actual timestamp
-            if (voteStartBlock <= currentBlockNum) {
-              const startBlock = await publicClient.getBlock({ blockNumber: BigInt(voteStartBlock) });
-              startTime = Number(startBlock.timestamp);
-            } else {
-              // Future block - estimate
-              startTime = currentTime + ((voteStartBlock - currentBlockNum) * 12);
+              const description = proposal[2] || details[3]; // Prefer from proposals(), fallback to getProposal()
+              const voteStartBlock = Number(proposal[3]);
+              const voteEndBlock = Number(proposal[4]);
+
+              // Get actual timestamps from blocks
+              let startTime = 0;
+              let endTime = 0;
+
+              try {
+                // For past/current blocks, get actual timestamp
+                if (voteStartBlock <= currentBlockNum) {
+                  const startBlock = await publicClient.getBlock({ blockNumber: BigInt(voteStartBlock) });
+                  startTime = Number(startBlock.timestamp);
+                } else {
+                  // Future block - estimate
+                  startTime = currentTime + ((voteStartBlock - currentBlockNum) * 12);
+                }
+
+                if (voteEndBlock <= currentBlockNum) {
+                  const endBlock = await publicClient.getBlock({ blockNumber: BigInt(voteEndBlock) });
+                  endTime = Number(endBlock.timestamp);
+                } else {
+                  // Future block - estimate from start time
+                  endTime = startTime + ((voteEndBlock - voteStartBlock) * 12);
+                }
+              } catch {
+                // Fallback to estimation
+                startTime = currentTime + ((voteStartBlock - currentBlockNum) * 12);
+                endTime = currentTime + ((voteEndBlock - currentBlockNum) * 12);
+              }
+
+              fetchedProposals.push({
+                id: i,
+                title: parseTitle(description),
+                description: parseDescription(description),
+                proposer: proposal[1],
+                forVotes: votes[0],
+                againstVotes: votes[1],
+                abstainVotes: votes[2],
+                voteStart: voteStartBlock,
+                voteEnd: voteEndBlock,
+                startTime,
+                endTime,
+                executed: proposal[10],
+                canceled: proposal[9],
+                status: mapStateToStatus(state),
+              });
+            } catch (err) {
+              console.error(`Error fetching proposal ${i}:`, err);
             }
-
-            if (voteEndBlock <= currentBlockNum) {
-              const endBlock = await publicClient.getBlock({ blockNumber: BigInt(voteEndBlock) });
-              endTime = Number(endBlock.timestamp);
-            } else {
-              // Future block - estimate from start time
-              endTime = startTime + ((voteEndBlock - voteStartBlock) * 12);
-            }
-          } catch {
-            // Fallback to estimation
-            startTime = currentTime + ((voteStartBlock - currentBlockNum) * 12);
-            endTime = currentTime + ((voteEndBlock - currentBlockNum) * 12);
           }
 
-          fetchedProposals.push({
-            id: i,
-            title: parseTitle(description),
-            description: parseDescription(description),
-            proposer: proposal[1],
-            forVotes: votes[0],
-            againstVotes: votes[1],
-            abstainVotes: votes[2],
-            voteStart: voteStartBlock,
-            voteEnd: voteEndBlock,
-            startTime,
-            endTime,
-            executed: proposal[10],
-            canceled: proposal[9],
-            status: mapStateToStatus(state),
-          });
-        } catch (err) {
-          console.error(`Error fetching proposal ${i}:`, err);
+          // Sort by ID descending (newest first)
+          fetchedProposals.sort((a, b) => b.id - a.id);
+          return { proposals: fetchedProposals, currentBlock: currentBlockNum };
+        } catch (error) {
+          console.error("Error fetching proposals:", error);
+          return { proposals: [], currentBlock: 0 };
         }
-      }
+      },
+    });
+  const proposals = proposalsData?.proposals ?? EMPTY_PROPOSALS;
+  const currentBlock = proposalsData?.currentBlock ?? 0;
 
-      // Sort by ID descending (newest first)
-      fetchedProposals.sort((a, b) => b.id - a.id);
-      setProposals(fetchedProposals);
-    } catch (error) {
-      console.error("Error fetching proposals:", error);
-      setProposals([]);
-    } finally {
-      setIsLoadingProposals(false);
-    }
-  }, [publicClient, proposalCount]);
-
-  useEffect(() => {
-    fetchProposals();
-  }, [fetchProposals]);
-
-
+  const fetchProposals = useCallback(async () => {
+    await refetchProposalsQuery();
+  }, [refetchProposalsQuery]);
 
   // Check if user has voted on a proposal
   const hasVoted = useCallback(

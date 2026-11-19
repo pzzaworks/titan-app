@@ -15,6 +15,7 @@ import { ERC20_ABI, STATE_VIEW_ABI, WETH_ABI, SWAP_ROUTER_ABI, V4_QUOTER_ABI } f
 import { toast } from "./useToast";
 import { parseError, waitForTx } from "@/lib/utils";
 import { formatTokenSmart } from "@/lib/format";
+import { useQuery } from "@tanstack/react-query";
 
 // Pool configuration
 const POOL_FEE = 3000; // 0.3%
@@ -103,7 +104,6 @@ export function useSwapV4() {
   const [slippage, setSlippage] = useState(0.5); // 0.5% default
   const [autoSlippage, setAutoSlippage] = useState(true); // Auto mode enabled by default
   const [deadline, setDeadline] = useState(20); // 20 minutes default
-  const [poolState, setPoolState] = useState<PoolState | null>(null);
 
   const [state, setState] = useState<SwapState>({
     tokenIn: config.tokens.TITAN,
@@ -222,39 +222,44 @@ export function useSwapV4() {
   }, [poolKey]);
 
   // Fetch pool state from StateView
+  // Pool state as a query: loaded for the current pool and refetched on demand after a swap.
+  // A failed read is "no pool" (null), as before, rather than a global error toast.
+  const { data: poolState = null, refetch: refetchPoolState } = useQuery({
+    queryKey: ["swapPoolState", poolId],
+    enabled: !!publicClient,
+    queryFn: async (): Promise<PoolState | null> => {
+      if (!publicClient) return null;
+      try {
+        const slot0 = (await publicClient.readContract({
+          address: config.contracts.stateView,
+          abi: STATE_VIEW_ABI,
+          functionName: "getSlot0",
+          args: [poolId],
+        })) as [bigint, number, number, number];
+
+        const liquidity = (await publicClient.readContract({
+          address: config.contracts.stateView,
+          abi: STATE_VIEW_ABI,
+          functionName: "getLiquidity",
+          args: [poolId],
+        })) as bigint;
+
+        return {
+          sqrtPriceX96: slot0[0],
+          tick: slot0[1],
+          liquidity,
+          initialized: slot0[0] > BigInt(0),
+        };
+      } catch (error) {
+        console.error("Error fetching pool state:", error);
+        return null;
+      }
+    },
+  });
+
   const fetchPoolState = useCallback(async () => {
-    if (!publicClient) return;
-
-    try {
-      const slot0 = (await publicClient.readContract({
-        address: config.contracts.stateView,
-        abi: STATE_VIEW_ABI,
-        functionName: "getSlot0",
-        args: [poolId],
-      })) as [bigint, number, number, number];
-
-      const liquidity = (await publicClient.readContract({
-        address: config.contracts.stateView,
-        abi: STATE_VIEW_ABI,
-        functionName: "getLiquidity",
-        args: [poolId],
-      })) as bigint;
-
-      setPoolState({
-        sqrtPriceX96: slot0[0],
-        tick: slot0[1],
-        liquidity,
-        initialized: slot0[0] > BigInt(0),
-      });
-    } catch (error) {
-      console.error("Error fetching pool state:", error);
-      setPoolState(null);
-    }
-  }, [publicClient, poolId]);
-
-  useEffect(() => {
-    fetchPoolState();
-  }, [fetchPoolState]);
+    await refetchPoolState();
+  }, [refetchPoolState]);
 
   // Fallback calculation if quoter fails
   const calculateOutputFallback = useCallback(

@@ -79,8 +79,9 @@ export default function LiquidityPage() {
       </Reveal>
 
       <Reveal className="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" delay={0.06}>
+        {/* The user's own positions in USD; it was labeled as if it were the pool's total. */}
         <StatsCard
-          title="Pool Liquidity"
+          title="Your Liquidity (USD)"
           value={
             poolState && positions.length > 0
               ? `$${formatCompact(
