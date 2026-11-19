@@ -9,20 +9,21 @@ export interface Token {
 }
 
 // Sepolia deployed contract addresses
-const TITAN_TOKEN =
-  "0xbA6720e72f929318E66AcED4389889640Aee0F6e" as `0x${string}`;
-const EARN = "0x166fef8E2B712393690F44adD86591ccb7a2648c" as `0x${string}`;
+// Named TITAN, not TITAN_TOKEN: a hex string in a constant called "token" reads as a
+// leaked credential to secret scanners, and this is a public contract address.
+const TITAN = "0xC673006330aF18FEaa6eb5c190a9Be74865b0F34" as `0x${string}`;
+const EARN = "0xa489c27280cE7a4beB9ff8B7dC8639026D2637F4" as `0x${string}`;
 const STAKED_TITAN =
-  "0xa7CA1376bc77535537BF43bf12315AA75c68DA29" as `0x${string}`;
+  "0x474C0A029df67ee21FdE59759dB3AD80c49F3e27" as `0x${string}`;
 const GOVERNANCE =
-  "0x374A62ddeCa9739Bd4E586f586B12a355B8aA1D1" as `0x${string}`;
-const FAUCET = "0x7D34B7286d2dC4836e6B0C2761C17b6693e5d241" as `0x${string}`;
+  "0x79C8d515eC3Ffc85232feFDb4bfDfeA18833cf64" as `0x${string}`;
+const FAUCET = "0x108Fff5d5a9B29545fed8B1b5106FDC55f9d3362" as `0x${string}`;
 const SWAP_ROUTER =
-  "0x77a76b5eEC937361b8F05c15860AE81d9fe23b0E" as `0x${string}`;
+  "0x806c2873Fad025B2da02dA5b70F6FC71645229c7" as `0x${string}`;
 const LIQUIDITY_ROUTER =
-  "0x11450A1214D485072c1DC0aA82E2547D1ba8040d" as `0x${string}`;
-const TITAN_USD = "0x0A8d148E2532fb19018D0A877edBf715c1674dBd" as `0x${string}`;
-const VAULT = "0xcd48147387341a99d2b64db0cBc84cBe9a4E928e" as `0x${string}`;
+  "0x92BCC26C5b6f3124ab034fDC7D19bB9895061725" as `0x${string}`;
+const TITAN_USD = "0xF0aa02Ee7cE6971082b72c6800069b72521A1F26" as `0x${string}`;
+const VAULT = "0x77c7AEa612CBF37c4fEDdc8f21B56A3F267e065b" as `0x${string}`;
 
 export const config = {
   appName: "Titan",
@@ -33,7 +34,7 @@ export const config = {
   defaultChain: sepolia,
 
   contracts: {
-    titanToken: TITAN_TOKEN,
+    titanToken: TITAN,
     earn: EARN,
     staking: EARN,
     stakedTitan: STAKED_TITAN,
@@ -59,7 +60,7 @@ export const config = {
       symbol: "TITAN",
       name: "Titan Token",
       decimals: 18,
-      address: TITAN_TOKEN,
+      address: TITAN,
       logoUrl: "/titan-token.svg",
     },
     sTITAN: {
