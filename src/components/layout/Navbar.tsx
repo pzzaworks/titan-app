@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,6 +8,16 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConnectButton } from "@/components/wallet/ConnectButton";
+import { useIsClient } from "@/hooks/useIsClient";
+
+function subscribeToScroll(onChange: () => void): () => void {
+  window.addEventListener("scroll", onChange, { passive: true });
+  return () => window.removeEventListener("scroll", onChange);
+}
+
+function isScrolledPastHero(): boolean {
+  return window.scrollY > 24;
+}
 
 const menuLinks = [
   { href: "/swap", label: "Swap" },
@@ -22,31 +32,21 @@ const menuLinks = [
 export function Navbar() {
   const pathname = usePathname();
   const prefersReducedMotion = useReducedMotion();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const scrolled = useSyncExternalStore(subscribeToScroll, isScrolledPastHero, () => false);
+  // Navigating closes the mobile menu; adjusted while rendering the new route, not in an effect.
+  const [menuPathname, setMenuPathname] = useState(pathname);
+  if (menuPathname !== pathname) {
+    setMenuPathname(pathname);
+    setMobileMenuOpen(false);
+  }
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const menuPanelRef = useRef<HTMLDivElement | null>(null);
 
   const isHomepage = pathname === "/";
   const isHeroVisible = isHomepage && !scrolled;
   const showFloatingChrome = !isHomepage || scrolled || mobileMenuOpen;
-
-  useEffect(() => {
-    setMounted(true);
-
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 24);
-    };
-
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;

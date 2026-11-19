@@ -4,6 +4,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsClient } from "@/hooks/useIsClient";
 
 export interface ModalProps {
   open: boolean;
@@ -72,11 +73,8 @@ export function Modal({
   closeOnOverlayClick = true,
   closeOnEscape = true,
 }: ModalProps) {
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  // The portal target only exists on the client.
+  const mounted = useIsClient();
 
   // Handle escape key
   React.useEffect(() => {

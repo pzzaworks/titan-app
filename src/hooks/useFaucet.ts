@@ -12,7 +12,8 @@ import { parseError, waitForTx } from "@/lib/utils";
 export function useFaucet() {
   const { address, isConnected } = useAccount();
   const [isClaiming, setIsClaiming] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(0);
+  // Wall clock in seconds, ticking only while a cooldown is running; the remaining time is derived.
+  const [nowSeconds, setNowSeconds] = useState(() => Math.floor(Date.now() / 1000));
   const [estimatedGas, setEstimatedGas] = useState<string | null>(null);
 
   const { writeContractAsync } = useWriteContract();
@@ -61,25 +62,20 @@ export function useFaucet() {
     },
   });
 
-  // Calculate time remaining
+  // Calculate time remaining. Capped at the cooldown: right after a claim the clock may not
+  // have ticked yet, and the remaining time can never be more than the whole cooldown.
+  const timeRemaining =
+    lastClaimTime && cooldownPeriod
+      ? Math.min(
+          Number(cooldownPeriod),
+          Math.max(0, Number(lastClaimTime) + Number(cooldownPeriod) - nowSeconds),
+        )
+      : 0;
+
   useEffect(() => {
-    if (!lastClaimTime || !cooldownPeriod) {
-      setTimeRemaining(0);
-      return;
-    }
-
-    const calculateTimeRemaining = () => {
-      const now = Math.floor(Date.now() / 1000);
-      const cooldown = Number(cooldownPeriod);
-      const lastClaim = Number(lastClaimTime);
-      const nextClaimTime = lastClaim + cooldown;
-      const remaining = Math.max(0, nextClaimTime - now);
-      setTimeRemaining(remaining);
-    };
-
-    calculateTimeRemaining();
-    const interval = setInterval(calculateTimeRemaining, 1000);
-
+    if (!lastClaimTime || !cooldownPeriod) return;
+    const tick = () => setNowSeconds(Math.floor(Date.now() / 1000));
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [lastClaimTime, cooldownPeriod]);
 

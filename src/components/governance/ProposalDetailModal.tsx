@@ -135,20 +135,32 @@ export function ProposalDetailModal({
   const { isConnected, address } = useAccount();
   const { open: openWallet } = useAppKit();
   const [selectedVote, setSelectedVote] = useState<boolean | null>(null);
-  const [voteReceipt, setVoteReceipt] = useState<VoteReceipt | null>(null);
-  const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
+  // The receipt is stored with the proposal and account it was read for, so a receipt from a
+  // previous proposal or wallet is never shown and "loading" is simply "no receipt for this key yet".
+  const proposalId = proposal?.id;
+  const receiptKey =
+    open && proposalId !== undefined && isConnected && address ? `${proposalId}:${address}` : null;
+  const [receiptState, setReceiptState] = useState<{
+    key: string;
+    receipt: VoteReceipt | null;
+  } | null>(null);
+  const voteReceipt =
+    receiptKey !== null && receiptState?.key === receiptKey ? receiptState.receipt : null;
+  const isLoadingReceipt = receiptKey !== null && receiptState?.key !== receiptKey;
 
   // Fetch vote receipt when modal opens
   useEffect(() => {
-    if (open && proposal && isConnected) {
-      setIsLoadingReceipt(true);
-      getVoteReceipt(proposal.id)
-        .then(setVoteReceipt)
-        .finally(() => setIsLoadingReceipt(false));
-    } else {
-      setVoteReceipt(null);
-    }
-  }, [open, proposal?.id, isConnected, getVoteReceipt]);
+    if (receiptKey === null || proposalId === undefined) return;
+    let cancelled = false;
+    getVoteReceipt(proposalId)
+      .catch(() => null)
+      .then((receipt) => {
+        if (!cancelled) setReceiptState({ key: receiptKey, receipt });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [receiptKey, proposalId, getVoteReceipt]);
 
   if (!proposal) return null;
 
@@ -220,7 +232,7 @@ export function ProposalDetailModal({
     setSelectedVote(null);
     // Refresh vote receipt
     const receipt = await getVoteReceipt(proposal.id);
-    setVoteReceipt(receipt);
+    if (receiptKey !== null) setReceiptState({ key: receiptKey, receipt });
   };
 
   const handleDelegate = async () => {
