@@ -52,6 +52,8 @@ interface VoteReceipt {
   hasVoted: boolean;
   support: number; // 0 = Against, 1 = For, 2 = Abstain
   votes: bigint;
+  /** Voting power at the proposal's snapshot block, which is what castVote counts. */
+  snapshotVotes: bigint;
 }
 
 interface ProposalDetailModalProps {
@@ -69,6 +71,10 @@ interface ProposalDetailModalProps {
   isDelegating: boolean;
   onCancel: (proposalId: number) => Promise<void>;
   isCanceling: boolean;
+  onQueue: (proposalId: number) => Promise<void>;
+  isQueueing: boolean;
+  onExecute: (proposalId: number) => Promise<void>;
+  isExecuting: boolean;
   currentBlock?: number;
 }
 
@@ -130,6 +136,10 @@ export function ProposalDetailModal({
   isDelegating,
   onCancel,
   isCanceling,
+  onQueue,
+  isQueueing,
+  onExecute,
+  isExecuting,
   currentBlock = 0,
 }: ProposalDetailModalProps) {
   const { isConnected, address } = useAccount();
@@ -175,7 +185,10 @@ export function ProposalDetailModal({
   const hasVoted = voteReceipt?.hasVoted ?? false;
   const userVotedFor = hasVoted && voteReceipt?.support === 1;
   const userVotedAgainst = hasVoted && voteReceipt?.support === 0;
-  const hasVotingPower = parseFloat(votingPower) > 0;
+  // Power at the snapshot once the receipt is in; until then today's power is the best guess.
+  const hasVotingPower = voteReceipt
+    ? voteReceipt.snapshotVotes > BigInt(0)
+    : parseFloat(votingPower) > 0;
   const isProposer =
     address && proposal.proposer.toLowerCase() === address.toLowerCase();
   const canCancel =
@@ -386,11 +399,12 @@ export function ProposalDetailModal({
                       <div className="flex items-center justify-center gap-2 text-[var(--color-muted-foreground)]">
                         <AlertCircle className="h-4 w-4" />
                         <p className="text-sm">
-                          You need to stake TITAN to vote
+                          No voting power for this proposal
                         </p>
                       </div>
                       <p className="text-xs text-[var(--color-muted-foreground)] mt-1">
-                        Go to Stake page and stake TITAN to get voting power
+                        Votes count sTITAN held when the proposal was created. Stake TITAN to vote on
+                        the next one.
                       </p>
                     </div>
                   )}
@@ -465,18 +479,39 @@ export function ProposalDetailModal({
                   {proposal.status === "executed" &&
                     "This proposal has been executed."}
                   {proposal.status === "passed" &&
-                    "This proposal has passed and is awaiting execution."}
+                    "This proposal has passed. Queue it to start the timelock."}
                   {proposal.status === "failed" &&
                     "This proposal was rejected by the community."}
                   {proposal.status === "pending" &&
                     "Voting has not started yet."}
                   {proposal.status === "queued" &&
-                    "This proposal is queued for execution."}
+                    "This proposal is queued. It can be executed once the timelock passes."}
                   {proposal.status === "expired" &&
                     "This proposal has expired."}
                   {proposal.status === "canceled" &&
                     "This proposal was canceled."}
                 </p>
+                {/* Anyone may move a passed proposal on: queue it, then execute after the timelock. */}
+                {isConnected && proposal.status === "passed" && (
+                  <Button
+                    className="mt-4 w-full cursor-pointer"
+                    onClick={() => onQueue(proposal.id)}
+                    disabled={isQueueing}
+                    isLoading={isQueueing}
+                  >
+                    {isQueueing ? "Queueing..." : "Queue for Execution"}
+                  </Button>
+                )}
+                {isConnected && proposal.status === "queued" && (
+                  <Button
+                    className="mt-4 w-full cursor-pointer"
+                    onClick={() => onExecute(proposal.id)}
+                    disabled={isExecuting}
+                    isLoading={isExecuting}
+                  >
+                    {isExecuting ? "Executing..." : "Execute Proposal"}
+                  </Button>
+                )}
               </div>
             )}
           </div>

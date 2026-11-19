@@ -45,6 +45,56 @@ interface PoolState {
   initialized: boolean;
 }
 
+/**
+ * The pools hold WETH, never native ETH, and the router only takes native ETH for an
+ * address(0) currency. So ETH stays selectable only as one side of a wrap or unwrap; paired
+ * with any other token it becomes WETH. Before this, "ETH -> TITAN" sent no ETH and the router
+ * pulled the user's WETH instead, and "TITAN -> ETH" delivered WETH while showing ETH.
+ */
+export function settleablePair(tokenIn: Token, tokenOut: Token): { tokenIn: Token; tokenOut: Token } {
+  const symbols = [tokenIn.symbol, tokenOut.symbol].sort().join("/");
+  if (symbols === "ETH/WETH") return { tokenIn, tokenOut };
+  const toPoolToken = (token: Token) => (token.symbol === "ETH" ? config.tokens.WETH : token);
+  return { tokenIn: toPoolToken(tokenIn), tokenOut: toPoolToken(tokenOut) };
+}
+
+/**
+ * Price impact of a quote in percent: how far the quoted output falls short of what the
+ * pool's spot price pays for the same input, with the pool fee taken out first so the fee
+ * is not counted as impact. Amounts are in whole tokens; decimals convert the raw spot price.
+ */
+export function priceImpactPercent(params: {
+  amountIn: number;
+  amountOut: number;
+  sqrtPriceX96: bigint;
+  zeroForOne: boolean;
+  feePips: number;
+  decimals0: number;
+  decimals1: number;
+}): number {
+  const { amountIn, amountOut, sqrtPriceX96, zeroForOne, feePips, decimals0, decimals1 } = params;
+  const sqrt = Number(sqrtPriceX96) / 2 ** 96;
+  // currency1 per currency0, in whole tokens
+  const spot = sqrt * sqrt * 10 ** (decimals0 - decimals1);
+  if (!(spot > 0) || !(amountIn > 0)) return 0;
+  const spotOut = (zeroForOne ? amountIn * spot : amountIn / spot) * (1 - feePips / 1_000_000);
+  if (!(spotOut > 0)) return 0;
+  return Math.min(100, Math.max(0, (1 - amountOut / spotOut) * 100));
+}
+
+/** A stale quote changes nothing, except ending the spinner when no newer quote will come. */
+function settleStale(state: SwapState): SwapState {
+  return state.amountIn ? state : { ...state, isLoading: false };
+}
+
+function isCurrentQuote(state: SwapState, amountIn: string, tokenInSymbol: string, tokenOutSymbol: string) {
+  return (
+    state.amountIn === amountIn &&
+    state.tokenIn.symbol === tokenInSymbol &&
+    state.tokenOut.symbol === tokenOutSymbol
+  );
+}
+
 export function useSwapV4() {
   const { address, isConnected } = useAccount();
   const [isSwapping, setIsSwapping] = useState(false);
@@ -311,31 +361,43 @@ export function useSwapV4() {
       try {
         const amountOut = await getQuoteFromQuoter(amountIn);
 
-        // Calculate approximate price impact
+        // Price impact against the spot price; it drives the auto slippage, so it must be real.
         let priceImpact = 0;
-        if (poolState && poolState.liquidity > BigInt(0)) {
-          const inputValue = parseFloat(amountIn);
-          const liquidityNum = Number(formatUnits(poolState.liquidity, 18));
-          priceImpact = Math.min((inputValue / liquidityNum) * 100, 50);
+        if (poolState && poolState.initialized && amountOut) {
+          const tokenInIs0 = zeroForOne;
+          priceImpact = priceImpactPercent({
+            amountIn: parseFloat(amountIn),
+            amountOut: parseFloat(amountOut),
+            sqrtPriceX96: poolState.sqrtPriceX96,
+            zeroForOne,
+            feePips: poolKey.fee,
+            decimals0: tokenInIs0 ? state.tokenIn.decimals : state.tokenOut.decimals,
+            decimals1: tokenInIs0 ? state.tokenOut.decimals : state.tokenIn.decimals,
+          });
         }
 
-        setState((prev) => ({
-          ...prev,
-          amountOut: amountOut ? formatTokenSmart(amountOut, 8) : "",
-          priceImpact,
-          isLoading: false,
-        }));
+        // A quote that comes back after the input or the pair changed belongs to a trade the
+        // user no longer wants; applying it would set minOut from the wrong amount.
+        setState((prev) =>
+          isCurrentQuote(prev, amountIn, tokenInSymbol, tokenOutSymbol)
+            ? {
+                ...prev,
+                amountOut: amountOut ? formatTokenSmart(amountOut, 8) : "",
+                priceImpact,
+                isLoading: false,
+              }
+            : settleStale(prev)
+        );
       } catch (error) {
         console.error("Quote error:", error);
-        setState((prev) => ({
-          ...prev,
-          amountOut: "",
-          priceImpact: 0,
-          isLoading: false,
-        }));
+        setState((prev) =>
+          isCurrentQuote(prev, amountIn, tokenInSymbol, tokenOutSymbol)
+            ? { ...prev, amountOut: "", priceImpact: 0, isLoading: false }
+            : settleStale(prev)
+        );
       }
     },
-    [getQuoteFromQuoter, poolState]
+    [getQuoteFromQuoter, poolState, poolKey.fee, zeroForOne, state.tokenIn.decimals, state.tokenOut.decimals]
   );
 
   // Debounced quote update
@@ -354,13 +416,12 @@ export function useSwapV4() {
       if (token.symbol === prev.tokenOut.symbol) {
         return {
           ...prev,
-          tokenIn: token,
-          tokenOut: prev.tokenIn,
+          ...settleablePair(token, prev.tokenIn),
           amountIn: prev.amountOut,
           amountOut: prev.amountIn,
         };
       }
-      return { ...prev, tokenIn: token, amountOut: "" };
+      return { ...prev, ...settleablePair(token, prev.tokenOut), amountOut: "" };
     });
   }, []);
 
@@ -369,18 +430,20 @@ export function useSwapV4() {
       if (token.symbol === prev.tokenIn.symbol) {
         return {
           ...prev,
-          tokenIn: prev.tokenOut,
-          tokenOut: token,
+          ...settleablePair(prev.tokenOut, token),
           amountIn: prev.amountOut,
           amountOut: prev.amountIn,
         };
       }
-      return { ...prev, tokenOut: token, amountOut: "" };
+      return { ...prev, ...settleablePair(prev.tokenIn, token), amountOut: "" };
     });
   }, []);
 
   const setAmountIn = useCallback((amount: string) => {
-    setState((prev) => ({ ...prev, amountIn: amount }));
+    // The old quote is for the old amount: clear it so Swap waits for the new one.
+    setState((prev) =>
+      prev.amountIn === amount ? prev : { ...prev, amountIn: amount, amountOut: "", priceImpact: 0 }
+    );
   }, []);
 
   const switchTokens = useCallback(() => {
@@ -555,9 +618,10 @@ export function useSwapV4() {
     }
 
     setIsSwapping(true);
+    // Outside the try so a failure can dismiss it too; it used to spin forever after an error.
+    const toastId = toast.loading("Swapping...");
 
     try {
-      const toastId = toast.loading("Swapping...");
 
       const amountInWei = parseUnits(state.amountIn, state.tokenIn.decimals);
 
@@ -615,6 +679,7 @@ export function useSwapV4() {
       toast.success(`Swapped ${state.amountIn} ${state.tokenIn.symbol} for ~${state.amountOut} ${state.tokenOut.symbol}`);
     } catch (error: unknown) {
       console.error("Swap error:", error);
+      toast.dismiss(toastId);
       toast.error("Swap failed", { description: parseError(error) });
     } finally {
       setIsSwapping(false);

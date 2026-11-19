@@ -327,10 +327,14 @@ export function STitanCard() {
                 </p>
               </div>
             </div>
-            {parseFloat(titanValue) > parseFloat(sTitanBalance) && (
+            {/* The rate, not "earned": the TITAN staked is not kept on-chain, and subtracting the
+                balance from its value only equals the rewards when the rate was 1 at deposit. */}
+            {parseFloat(sTitanBalance) > 0 && parseFloat(titanValue) > parseFloat(sTitanBalance) && (
               <div className="mt-4 rounded-xl bg-[var(--color-foreground)]/5 p-3">
                 <p className="text-sm text-[var(--color-foreground)]">
-                  You have earned {formatNumber((parseFloat(titanValue) - parseFloat(sTitanBalance)).toString(), { decimals: 4 })} TITAN in rewards
+                  1 sTITAN is now worth{" "}
+                  {formatNumber((parseFloat(titanValue) / parseFloat(sTitanBalance)).toString(), { decimals: 4 })}{" "}
+                  TITAN, rewards included
                 </p>
               </div>
             )}

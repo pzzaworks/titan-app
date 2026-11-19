@@ -15,7 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { formatPercent, formatNumber } from "@/lib/format";
+import { formatPercent, formatNumber, formatTokenSmart } from "@/lib/format";
 import Image from "next/image";
 
 export function SwapCard() {
@@ -157,7 +157,8 @@ export function SwapCard() {
               <span className="text-[var(--color-muted-foreground)]">Rate</span>
               <span className="font-medium text-[var(--color-foreground)]">
                 1 {tokenIn.symbol} ={" "}
-                {formatNumber(parseFloat(amountOut) / parseFloat(amountIn), { decimals: 4 })}{" "}
+                {/* Smart decimals: a 4-decimal rate rounded TITAN->WETH (about 0.00005) down to 0. */}
+                {formatTokenSmart(parseFloat(amountOut) / parseFloat(amountIn), 8)}{" "}
                 {tokenOut.symbol}
               </span>
             </div>

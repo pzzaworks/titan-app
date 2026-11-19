@@ -14,6 +14,16 @@ import { useVault } from "@/hooks/useVault";
 import { useAccount } from "wagmi";
 import { cn } from "@/lib/utils";
 
+/** The typed amount in wei, or null while it is not a valid amount yet ("1e5", "1.", "-"). */
+function parseAmount(value: string): bigint | null {
+  if (!value) return null;
+  try {
+    return parseEther(value);
+  } catch {
+    return null;
+  }
+}
+
 export default function BorrowPage() {
   const { isConnected } = useAccount();
   const {
@@ -60,7 +70,9 @@ export default function BorrowPage() {
     if (!position || position.debt === BigInt(0)) return position?.collateral || BigInt(0);
     // Can withdraw while maintaining MCR
     const minCollateralValue = (position.debt * (mcr || BigInt(15000))) / BigInt(10000);
-    const minCollateral = (minCollateralValue * BigInt(100000000)) / (titanPrice || BigInt(10000000));
+    // Rounded up: rounding down left the MAX withdrawal a wei past the MCR, and it reverted.
+    const price = titanPrice || BigInt(10000000);
+    const minCollateral = (minCollateralValue * BigInt(100000000) + price - BigInt(1)) / price;
     if (position.collateral > minCollateral) {
       return position.collateral - minCollateral;
     }
@@ -69,7 +81,7 @@ export default function BorrowPage() {
 
   const newCollateralRatio = useMemo(() => {
     if (!position || !borrowAmount) return collateralRatioPercent;
-    const newDebt = position.debt + parseEther(borrowAmount || "0");
+    const newDebt = position.debt + (parseAmount(borrowAmount) ?? BigInt(0));
     if (newDebt === BigInt(0)) return Infinity;
     const ratio = (position.collateralValue * BigInt(10000)) / newDebt;
     return Number(ratio) / 100;
@@ -79,13 +91,13 @@ export default function BorrowPage() {
   const isRatioWarning = collateralRatioPercent >= 110 && collateralRatioPercent < 150;
   const isRatioDanger = collateralRatioPercent > 0 && collateralRatioPercent < 110;
 
-  const needsTitanApproval = depositAmount && titanAllowance !== undefined
-    ? parseEther(depositAmount) > titanAllowance
-    : false;
+  const depositWei = parseAmount(depositAmount);
+  const needsTitanApproval =
+    depositWei !== null && titanAllowance !== undefined ? depositWei > titanAllowance : false;
 
-  const needsTusdApproval = repayAmount && tusdAllowance !== undefined
-    ? parseEther(repayAmount) > tusdAllowance
-    : false;
+  const repayWei = parseAmount(repayAmount);
+  const needsTusdApproval =
+    repayWei !== null && tusdAllowance !== undefined ? repayWei > tusdAllowance : false;
 
   // Validation checks
   const depositExceedsBalance = depositAmount && titanBalance
@@ -147,10 +159,10 @@ export default function BorrowPage() {
         await withdrawCollateral(formatEther(position.collateral));
       }
     } else {
-      // Has debt, need tUSD approval
-      const debtAmount = formatEther(position.debt);
-      if (tusdAllowance && parseEther(debtAmount) > tusdAllowance) {
-        await approveTusd(debtAmount);
+      // Has debt, need tUSD approval. A zero allowance is falsy, which used to skip straight
+      // to closePosition and revert in burnFrom.
+      if (tusdAllowance === undefined || position.debt > tusdAllowance) {
+        await approveTusd(formatEther(position.debt));
       } else {
         await closePosition();
       }

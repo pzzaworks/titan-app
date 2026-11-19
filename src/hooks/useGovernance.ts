@@ -87,6 +87,7 @@ export function useGovernance() {
   const [isProposing, setIsProposing] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [isQueueing, setIsQueueing] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [isLoadingProposals, setIsLoadingProposals] = useState(true);
@@ -302,17 +303,29 @@ export function useGovernance() {
 
   // Get vote receipt details (hasVoted, support, votes)
   const getVoteReceipt = useCallback(
-    async (proposalId: number): Promise<{ hasVoted: boolean; support: number; votes: bigint } | null> => {
+    async (
+      proposalId: number
+    ): Promise<{ hasVoted: boolean; support: number; votes: bigint; snapshotVotes: bigint } | null> => {
       if (!address || !publicClient) return null;
       try {
-        const receipt = await publicClient.readContract({
-          address: config.contracts.governance,
-          abi: GOVERNANCE_ABI,
-          functionName: "getReceipt",
-          args: [BigInt(proposalId), address],
-        });
+        // castVote counts power at the proposal's snapshot block, not today's, so that is
+        // what decides whether this account can vote on it.
+        const [receipt, snapshotVotes] = await Promise.all([
+          publicClient.readContract({
+            address: config.contracts.governance,
+            abi: GOVERNANCE_ABI,
+            functionName: "getReceipt",
+            args: [BigInt(proposalId), address],
+          }),
+          publicClient.readContract({
+            address: config.contracts.governance,
+            abi: GOVERNANCE_ABI,
+            functionName: "getVotingPower",
+            args: [BigInt(proposalId), address],
+          }),
+        ]);
         const [hasVoted, support, votes] = receipt as [boolean, number, bigint];
-        return { hasVoted, support, votes };
+        return { hasVoted, support, votes, snapshotVotes: snapshotVotes as bigint };
       } catch {
         return null;
       }
@@ -489,6 +502,47 @@ export function useGovernance() {
     [isConnected, address, writeContractAsync, publicClient, fetchProposals]
   );
 
+  // Queue a passed proposal: execute only accepts queued ones, after the timelock.
+  const queue = useCallback(
+    async (proposalId: number) => {
+      if (!isConnected || !address) {
+        toast({
+          title: "Wallet not connected",
+          description: "Please connect your wallet to queue.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setIsQueueing(true);
+      try {
+        toast({ title: "Queueing proposal...", description: "Please confirm in your wallet" });
+
+        const hash = await writeContractAsync({
+          address: config.contracts.governance,
+          abi: GOVERNANCE_ABI,
+          functionName: "queue",
+          args: [BigInt(proposalId)],
+          chainId: sepolia.id,
+        });
+
+        await waitForTx(publicClient, hash);
+        await fetchProposals();
+
+        toast({
+          title: "Proposal queued",
+          description: `Proposal #${proposalId} can be executed once the timelock passes.`,
+          variant: "success",
+        });
+      } catch (error: unknown) {
+        toast({ title: "Queueing failed", description: parseError(error), variant: "destructive" });
+      } finally {
+        setIsQueueing(false);
+      }
+    },
+    [isConnected, address, writeContractAsync, publicClient, fetchProposals]
+  );
+
   // Execute proposal
   const execute = useCallback(
     async (proposalId: number) => {
@@ -605,6 +659,8 @@ export function useGovernance() {
     isProposing,
     isVoting,
     isExecuting,
+    isQueueing,
+    queue,
     isCanceling,
     isDelegating,
     isLoadingProposals,

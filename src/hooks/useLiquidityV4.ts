@@ -8,7 +8,7 @@ import {
   useBalance,
   usePublicClient,
 } from "wagmi";
-import { parseUnits, formatUnits, keccak256, encodeAbiParameters } from "viem";
+import { parseUnits, formatUnits, keccak256, encodeAbiParameters, pad } from "viem";
 import { sepolia } from "viem/chains";
 import { config } from "@/config";
 import { ERC20_ABI, LIQUIDITY_ROUTER_ABI, STATE_VIEW_ABI, WETH_ABI } from "@/lib/contracts";
@@ -28,8 +28,10 @@ const MAX_TICK = 887220;
 
 // Convert tick to sqrtPriceX96 with proper bounds handling
 function tickToSqrtPriceX96(tick: number): bigint {
-  if (tick <= MIN_TICK) return MIN_SQRT_PRICE;
-  if (tick >= MAX_TICK) return MAX_SQRT_PRICE;
+  // TickMath's own limits. MIN_TICK/MAX_TICK above are the usable, spacing-aligned ends
+  // (±887220); clamping at those returned the ±887272 price for them.
+  if (tick <= -887272) return MIN_SQRT_PRICE;
+  if (tick >= 887272) return MAX_SQRT_PRICE;
 
   // For ticks in reasonable range, calculate precisely
   // sqrtPrice = 1.0001^(tick/2)
@@ -112,6 +114,48 @@ function getAmount1ForLiquidity(sqrtRatioA: bigint, sqrtRatioB: bigint, liquidit
   }
   // amount1 = liquidity * (sqrtRatioB - sqrtRatioA) / Q96
   return (liquidity * (sqrtRatioB - sqrtRatioA)) / Q96;
+}
+
+/**
+ * What the router will actually take for these desired amounts, mirroring
+ * LiquidityAmounts.getLiquidityForAmounts on-chain: the liquidity comes from the limiting
+ * side, and only the amounts that liquidity needs are used. Slippage minimums have to be
+ * taken from these, not from the desired amounts, or the other side always falls short.
+ */
+export function expectedAmountsUsed(
+  sqrtPriceX96: bigint,
+  sqrtRatioA: bigint,
+  sqrtRatioB: bigint,
+  amount0Desired: bigint,
+  amount1Desired: bigint
+): { amount0: bigint; amount1: bigint } {
+  if (sqrtRatioA > sqrtRatioB) [sqrtRatioA, sqrtRatioB] = [sqrtRatioB, sqrtRatioA];
+  const liquidityFor0 = (lower: bigint, upper: bigint) =>
+    upper === lower ? BigInt(0) : (amount0Desired * ((lower * upper) / Q96)) / (upper - lower);
+  const liquidityFor1 = (lower: bigint, upper: bigint) =>
+    upper === lower ? BigInt(0) : (amount1Desired * Q96) / (upper - lower);
+
+  if (sqrtPriceX96 <= sqrtRatioA) {
+    const liquidity = liquidityFor0(sqrtRatioA, sqrtRatioB);
+    return { amount0: getAmount0ForLiquidity(sqrtRatioA, sqrtRatioB, liquidity), amount1: BigInt(0) };
+  }
+  if (sqrtPriceX96 >= sqrtRatioB) {
+    const liquidity = liquidityFor1(sqrtRatioA, sqrtRatioB);
+    return { amount0: BigInt(0), amount1: getAmount1ForLiquidity(sqrtRatioA, sqrtRatioB, liquidity) };
+  }
+  const l0 = liquidityFor0(sqrtPriceX96, sqrtRatioB);
+  const l1 = liquidityFor1(sqrtRatioA, sqrtPriceX96);
+  const liquidity = l0 < l1 ? l0 : l1;
+  return {
+    amount0: getAmount0ForLiquidity(sqrtPriceX96, sqrtRatioB, liquidity),
+    amount1: getAmount1ForLiquidity(sqrtRatioA, sqrtPriceX96, liquidity),
+  };
+}
+
+/** Solidity's unchecked uint256 subtraction, for fee growth values that wrap. */
+function wrapUint256(value: bigint): bigint {
+  const modulus = BigInt(2) ** BigInt(256);
+  return ((value % modulus) + modulus) % modulus;
 }
 
 // Tick range presets
@@ -357,7 +401,8 @@ export function useLiquidityV4() {
                   address: config.contracts.stateView,
                   abi: STATE_VIEW_ABI,
                   functionName: "getPositionInfo",
-                  args: [localPoolId, config.contracts.liquidityRouter, tickLower, tickUpper, "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`],
+                  // The router keys each owner's v4 position by salt = owner address (LiquidityRouter._positionSalt).
+                  args: [localPoolId, config.contracts.liquidityRouter, tickLower, tickUpper, pad(address, { size: 32 })],
                 })) as [bigint, bigint, bigint];
 
                 const feeGrowthInside = (await publicClient.readContract({
@@ -374,8 +419,9 @@ export function useLiquidityV4() {
 
                 // Calculate fees: (feeGrowthInside - feeGrowthLast) * liquidity / 2^128
                 const Q128 = BigInt(2) ** BigInt(128);
-                const fees0Wei = ((feeGrowth0Inside - feeGrowth0Last) * liquidity) / Q128;
-                const fees1Wei = ((feeGrowth1Inside - feeGrowth1Last) * liquidity) / Q128;
+                // Fee growth is a wrapping uint256 on-chain, so the difference wraps the same way.
+                const fees0Wei = (wrapUint256(feeGrowth0Inside - feeGrowth0Last) * liquidity) / Q128;
+                const fees1Wei = (wrapUint256(feeGrowth1Inside - feeGrowth1Last) * liquidity) / Q128;
 
                 fee0 = formatUnits(fees0Wei, 18);
                 fee1 = formatUnits(fees1Wei, 18);
@@ -562,6 +608,9 @@ export function useLiquidityV4() {
       return;
     }
 
+    // The price the minimums are computed at: the pool's, or the one we initialize it with.
+    let priceForMins = poolState?.initialized ? poolState.sqrtPriceX96 : null;
+
     // Check if pool is initialized
     if (!poolState || !poolState.initialized) {
       console.log("[addLiquidity] Pool not initialized, attempting to initialize...");
@@ -571,7 +620,6 @@ export function useLiquidityV4() {
         const sqrtPriceX96 = titanIsCurrency0
           ? BigInt("792281625142643375935439503")
           : BigInt("7922816251426433759354395033600");
-
         const initHash = await writeContractAsync({
           address: config.contracts.liquidityRouter,
           abi: LIQUIDITY_ROUTER_ABI,
@@ -581,6 +629,7 @@ export function useLiquidityV4() {
         });
         await waitForTx(publicClient, initHash);
         console.log("[addLiquidity] Pool initialized successfully");
+        priceForMins = sqrtPriceX96;
         toast({ title: "Pool initialized!" });
         await fetchPoolState();
       } catch (err) {
@@ -592,6 +641,8 @@ export function useLiquidityV4() {
         }
         // Pool already initialized, continue
         console.log("[addLiquidity] Pool was already initialized");
+        // Someone else set its price; the minimums need that price, read on the next attempt.
+        await fetchPoolState();
       }
     }
 
@@ -620,10 +671,24 @@ export function useLiquidityV4() {
 
       toast({ title: "Adding liquidity...", description: "Please confirm in your wallet" });
 
-      // Calculate minimum amounts based on slippage
+      // Minimums from what the router will actually use at this price, not from the desired
+      // amounts: only the limiting side is used in full, so the other side's desired amount
+      // is never reached and a minimum taken from it always reverts with SlippageExceeded.
+      if (priceForMins === null) {
+        await fetchPoolState();
+        toast({ title: "Pool price unavailable", description: "Please try again.", variant: "destructive" });
+        return;
+      }
+      const used = expectedAmountsUsed(
+        priceForMins,
+        tickToSqrtPriceX96(tickLower),
+        tickToSqrtPriceX96(tickUpper),
+        amt0,
+        amt1
+      );
       const slippageMultiplier = BigInt(Math.floor((100 - slippage) * 100));
-      const amount0Min = (amt0 * slippageMultiplier) / BigInt(10000);
-      const amount1Min = (amt1 * slippageMultiplier) / BigInt(10000);
+      const amount0Min = (used.amount0 * slippageMultiplier) / BigInt(10000);
+      const amount1Min = (used.amount1 * slippageMultiplier) / BigInt(10000);
 
       const hash = await writeContractAsync({
         address: config.contracts.liquidityRouter,
@@ -707,6 +772,24 @@ export function useLiquidityV4() {
       try {
         const liquidityToRemove = (position.liquidity * BigInt(percentage)) / BigInt(100);
 
+        // Minimums from what this liquidity is worth at the current price (accrued fees only
+        // add to it). Zero minimums let a sandwich skew the withdrawal against the user.
+        if (!poolState?.initialized) {
+          await fetchPoolState();
+          toast({ title: "Pool price unavailable", description: "Please try again.", variant: "destructive" });
+          return;
+        }
+        const expected = getAmountsForLiquidity(
+          poolState.sqrtPriceX96,
+          tickLower,
+          tickUpper,
+          liquidityToRemove,
+          poolState.tick
+        );
+        const slippageMultiplier = BigInt(Math.floor((100 - slippage) * 100));
+        const amount0Min = (expected.amount0 * slippageMultiplier) / BigInt(10000);
+        const amount1Min = (expected.amount1 * slippageMultiplier) / BigInt(10000);
+
         toast({ title: "Removing liquidity...", description: "Please confirm in your wallet" });
 
         const hash = await writeContractAsync({
@@ -722,8 +805,8 @@ export function useLiquidityV4() {
               tickLower,
               tickUpper,
               liquidity: liquidityToRemove,
-              amount0Min: BigInt(0),
-              amount1Min: BigInt(0),
+              amount0Min,
+              amount1Min,
               recipient: address,
             },
           ],
@@ -752,6 +835,8 @@ export function useLiquidityV4() {
       address,
       publicClient,
       positions,
+      poolState,
+      slippage,
       currency0,
       currency1,
       writeContractAsync,
@@ -859,6 +944,22 @@ export function useLiquidityV4() {
   const hasEnoughTitan = titanBalance !== undefined && titanBalance >= titanAmountWei;
   const hasEnoughEth = ethBalance !== undefined && ethBalance.value >= wethAmountWei + parseUnits("0.01", 18);
 
+  // WETH per TITAN at the pool's current price.
+  const wethPerTitan = (() => {
+    if (!poolState?.initialized) return null;
+    const sqrt = Number(poolState.sqrtPriceX96) / 2 ** 96;
+    const currency1Per0 = sqrt * sqrt;
+    return titanIsCurrency0 ? currency1Per0 : 1 / currency1Per0;
+  })();
+  const valueInWeth = (pairs: [string, string][]): number | null => {
+    if (wethPerTitan === null) return null;
+    return pairs.reduce((acc, [a0, a1]) => {
+      const titan = Number(titanIsCurrency0 ? a0 : a1);
+      const weth = Number(titanIsCurrency0 ? a1 : a0);
+      return acc + weth + titan * wethPerTitan;
+    }, 0);
+  };
+
   return {
     // State
     isAddingLiquidity,
@@ -899,8 +1000,10 @@ export function useLiquidityV4() {
     hasLiquidity: poolState !== null && poolState.initialized && poolState.liquidity > BigInt(0),
 
     // Totals
-    totalPositionValue: positions.reduce((acc, p) => acc + Number(p.amount0) + Number(p.amount1), 0),
-    totalUnclaimedFees: positions.reduce((acc, p) => acc + Number(p.fees0) + Number(p.fees1), 0),
+    // In WETH at the pool price: adding TITAN and WETH amounts together gave a number in
+    // no unit at all. null while the price is unknown.
+    totalPositionValue: valueInWeth(positions.map((p) => [p.amount0, p.amount1])),
+    totalUnclaimedFees: valueInWeth(positions.map((p) => [p.fees0, p.fees1])),
 
     // Actions
     wrapETH,

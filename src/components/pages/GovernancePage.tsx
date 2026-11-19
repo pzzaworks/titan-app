@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatCompact, formatPercent } from "@/lib/format";
+import { formatCompact } from "@/lib/format";
 import { useGovernance } from "@/hooks/useGovernance";
 
 export default function GovernancePage() {
@@ -43,6 +43,10 @@ export default function GovernancePage() {
     vote,
     cancel,
     delegate,
+    queue,
+    isQueueing,
+    execute,
+    isExecuting,
     getVoteReceipt,
   } = useGovernance();
 
@@ -68,7 +72,11 @@ export default function GovernancePage() {
 
   const activeProposals = mappedProposals.filter((p) => p.status === "active").length;
   const totalVotingPower = parseFloat(votingPower);
-  const participationRate = proposalCount > 0 ? 68.5 : 0;
+  // Real on-chain totals. The card used to show a hardcoded 68.5% "participation rate".
+  const votesCast = proposals.reduce(
+    (sum, p) => sum + p.forVotes + p.againstVotes + p.abstainVotes,
+    BigInt(0)
+  );
 
   const handleCreateProposal = async (data: {
     title: string;
@@ -85,6 +93,15 @@ export default function GovernancePage() {
   const handleCancel = async (proposalId: number) => {
     await cancel(proposalId);
     setSelectedProposal(null);
+  };
+
+  const handleQueue = async (proposalId: number) => {
+    await queue(proposalId);
+  };
+
+  // execute toasts its own failure, then rethrows for callers that want it; the modal does not.
+  const handleExecute = async (proposalId: number) => {
+    await execute(proposalId).catch(() => undefined);
   };
 
   const selectedProposalData = selectedProposal
@@ -116,12 +133,13 @@ export default function GovernancePage() {
         <StatsCard
           title="Your Voting Power"
           value={totalVotingPower > 0 ? formatCompact(totalVotingPower) : "0"}
-          subtitle="TITAN"
+          subtitle="sTITAN"
           icon={Users}
         />
         <StatsCard
-          title="Participation Rate"
-          value={formatPercent(participationRate)}
+          title="Votes Cast"
+          value={formatCompact(Number(formatEther(votesCast)))}
+          subtitle="sTITAN, all proposals"
           icon={Vote}
         />
       </Reveal>
@@ -239,6 +257,10 @@ export default function GovernancePage() {
         isDelegating={isDelegating}
         onCancel={handleCancel}
         isCanceling={isCanceling}
+        onQueue={handleQueue}
+        isQueueing={isQueueing}
+        onExecute={handleExecute}
+        isExecuting={isExecuting}
         currentBlock={currentBlock}
       />
     </PageContainer>

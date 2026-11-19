@@ -101,12 +101,12 @@ export default function LiquidityPage() {
         />
         <StatsCard
           title="Position Value"
-          value={`${formatNumber(totalPositionValue, { decimals: 2 })} LP`}
+          value={totalPositionValue === null ? "-" : `${formatNumber(totalPositionValue, { decimals: 4 })} WETH`}
           icon={Wallet}
         />
         <StatsCard
           title="Unclaimed Fees"
-          value={totalUnclaimedFees > 0 ? formatNumber(totalUnclaimedFees, { decimals: 4 }) : "-"}
+          value={totalUnclaimedFees ? `${formatNumber(totalUnclaimedFees, { decimals: 6 })} WETH` : "-"}
           icon={DollarSign}
         />
       </Reveal>
